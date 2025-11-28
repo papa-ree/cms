@@ -1,8 +1,7 @@
 <div>
-    <x-bale.back-breadcrumb :href="route('bale.cms.posts.index')" label="post list" />
+    <x-core::back-breadcrumb :href="route('bale.cms.posts.index')" label="post list" />
 
-
-    <x-bale.page-container>
+    <x-core::page-container>
         <div class="w-full px-4 py-6 mx-auto sm:px-6 lg:px-8 lg:py-8">
             <div class="max-w-xl mx-auto space-y-8">
 
@@ -17,19 +16,24 @@
 
                 <div class="mt-12">
                     <form wire:submit="store(Object.fromEntries(new FormData($event.target)))"
-                        x-data="{ postTitle: '' }" x-cloak>
+                        x-data="{ postTitle: '', postSlug: '' }" x-cloak>
                         <div class="mb-4 sm:mb-6">
-                            <x-bale.input label="post title" wire:model='title' x-model="postTitle" autofocus />
+                            <x-core::input label="post title" wire:model='title' x-model="postTitle" autofocus />
+                            <x-core::input-error for="title" />
+                        </div>
 
-                            <x-input-error for="title" />
+                        <div class="mb-4 sm:mb-6">
+                            <x-core::input label="page slug" wire:model='slug' name="slug" x-slug="postTitle"
+                                x-model="postSlug" />
+                            <x-core::input-error for="slug" />
                         </div>
 
                         <div class="flex justify-center">
-                            <x-bale.button label="create post" spinner type="submit" />
+                            <x-core::button label="create post" spinner type="submit" />
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-    </x-bale.page-container>
+    </x-core::page-container>
 </div>

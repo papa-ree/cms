@@ -1,5 +1,5 @@
 <div>
-    <x-bale.table :links="$this->availablePosts" header>
+    <x-core::table :links="$this->availablePosts" header>
 
         <x-slot name="thead">
             <tr>
@@ -38,7 +38,6 @@
         </x-slot>
 
         <x-slot name="tbody">
-            {{-- @dump(session()->all()) --}}
             @foreach ($this->availablePosts as $post)
                 <tr wire:key='post-{{ $post->slug }}'
                     class="transition-colors duration-300 hover:bg-slate-50 dark:hover:bg-slate-800">
@@ -49,7 +48,7 @@
 
                                 @if ($post->thumbnail)
                                     <img class="sm:inline-block hidden size-[38px] rounded-full object-cover" loading="lazy"
-                                        src="{{ route('bale.cms.media', ['path' => session('bale_active_slug') . '//thumbnails/' . $post->thumbnail]) ?? null }}"
+                                        src="{{ route('media.show', ['path' => session('bale_active_slug') . '//thumbnails/' . $post->thumbnail]) ?? null }}"
                                         alt="{{ $post->title }}">
                                 @else
                                     <div
@@ -71,7 +70,7 @@
                                     <div class="block text-sm text-gray-500">
                                         {{-- @foreach ($post->unquotationString($post->tags->pluck('name')) as $tag)
                                         <span
-                                            class="px-2 py-[2px] text-xs bg-slate-100 text-slate-800 rounded-full dark:bg-slate-500/10 dark:text-slate-500">{{
+                                            class="px-2 py-0.5 text-xs bg-slate-100 text-slate-800 rounded-full dark:bg-slate-500/10 dark:text-slate-500">{{
                                             $tag }}</span>
                                         @endforeach --}}
                                     </div>
@@ -164,8 +163,8 @@
                             <div class="hs-dropdown relative inline-block [--placement:bottom|left]">
                                 <button id="hs-table-dropdown-{{ $post->id }}" type="button"
                                     class="hs-dropdown-toggle py-1.5 px-2 inline-flex justify-center items-center gap-2 rounded-lg text-gray-700 align-middle disabled:opacity-50 disabled:pointer-events-none focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-white focus:ring-blue-300 transition-all text-sm dark:text-neutral-400 dark:hover:text-white dark:focus:ring-offset-gray-800">
-                                    <svg class="flex-shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24"
-                                        height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    <svg class="shrink-0 size-4" xmlns="http://www.w3.org/2000/svg" width="24" height="24"
+                                        viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
                                         stroke-linecap="round" stroke-linejoin="round">
                                         <circle cx="12" cy="12" r="1" />
                                         <circle cx="19" cy="12" r="1" />
@@ -208,5 +207,5 @@
             @endforeach
         </x-slot>
 
-    </x-bale.table>
+    </x-core::table>
 </div>

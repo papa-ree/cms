@@ -5,21 +5,18 @@ namespace Bale\Cms\Livewire\Pages\Post;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 use Livewire\Attributes\{Layout, Validate};
 use Bale\Cms\Models\Post;
 use Bale\Cms\Services\TenantConnectionService;
+use Illuminate\Validation\Rule;
 
 #[Layout('cms::layouts.app')]
 class CreateNewPost extends Component
 {
 
-    #[Validate('required|string|min:5')]
     public $title;
-
-    // #[Validate('required|unique:posts,slug|string|min:5')]
-    // public $slug;
+    public $slug;
 
     public $tag;
 
@@ -28,8 +25,28 @@ class CreateNewPost extends Component
         return view('cms::livewire.pages.post.create-new-post');
     }
 
-    public function store(LivewireAlert $alert)
+    public function rules()
     {
+        // pastikan koneksi tenant aktif
+        TenantConnectionService::ensureActive();
+
+        // ambil nama koneksi tenant
+        $connection = TenantConnectionService::connection();
+
+        return [
+            'title' => ['required', 'string', 'min:3', 'max:50'],
+            'slug' => [
+                'required',
+                'string',
+                Rule::unique($connection . '.posts', 'slug'),
+            ],
+        ];
+    }
+
+    public function store($slug)
+    {
+        $this->slug = $slug['slug'];
+
         $this->validate();
 
         DB::beginTransaction();
@@ -37,16 +54,19 @@ class CreateNewPost extends Component
         try {
             // Pastikan koneksi tenant aktif
             TenantConnectionService::ensureActive();
+            $connection = TenantConnectionService::connection();
 
             $this->dispatch('disabling-button', params: true);
 
-            $post = Post::create([
-                'author' => Auth::user()->uuid,
-                'title' => $this->title,
-                'slug' => Str::slug($this->title),
-                'published' => false,
-                'publish_at' => now(),
-            ]);
+            $post = (new Post)
+                ->setConnection($connection)
+                ->create([
+                    'author' => Auth::user()->uuid,
+                    'title' => $this->title,
+                    'slug' => $this->slug,
+                    'published' => false,
+                    'publish_at' => now(),
+                ]);
 
             DB::commit();
 
@@ -60,7 +80,7 @@ class CreateNewPost extends Component
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
             info('Post creation failed: ' . $th->getMessage());
-            $alert->title('Something wrong!')->position('top-end')->error()->toast()->show();
+            // $alert->title('Something wrong!')->position('top-end')->error()->toast()->show();
         }
     }
 

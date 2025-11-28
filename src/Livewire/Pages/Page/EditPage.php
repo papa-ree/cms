@@ -71,7 +71,7 @@ class EditPage extends Component
         ];
     }
 
-    public function update(LivewireAlert $alert, $slug)
+    public function update($slug)
     {
         $this->slug = $slug['slug'];
 
@@ -95,7 +95,7 @@ class EditPage extends Component
 
             DB::commit();
 
-            $alert->title('Page Updated!')->position('top-end')->success()->toast()->show();
+            // $alert->title('Page Updated!')->position('top-end')->success()->toast()->show();
 
             // $this->redirectRoute('bale.cms.pages.index', navigate: true);
 
@@ -104,7 +104,7 @@ class EditPage extends Component
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
             info('Page update failed: ' . $th->getMessage());
-            $alert->title('Something wrong!')->position('top-end')->error()->toast()->show();
+            // $alert->title('Something wrong!')->position('top-end')->error()->toast()->show();
 
         }
     }

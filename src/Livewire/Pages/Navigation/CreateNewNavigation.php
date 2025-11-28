@@ -4,18 +4,40 @@ namespace Bale\Cms\Livewire\Pages\Navigation;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
-use Livewire\Attributes\{Layout};
+use Livewire\Attributes\{Layout, Locked, Title};
 use Bale\Cms\Models\Navigation;
 use Bale\Cms\Services\TenantConnectionService;
 
 #[Layout('cms::layouts.app')]
+#[Title('Bale | Create Navigation')]
 class CreateNewNavigation extends Component
 {
     public $name;
 
     public $slug;
+
+    #[Locked]
+    public $parent_slug;
+
+    #[Locked]
+    public $parent_id;
+
+    public function mount($parent = null)
+    {
+        if ($parent) {
+            TenantConnectionService::ensureActive();
+            $connection = TenantConnectionService::connection();
+            $parent = (new Navigation)
+                ->setConnection($connection)
+                ->whereSlug($parent)
+                ->firstOrFail();
+
+            $this->parent_id = $parent->id;
+            $this->parent_slug = $parent->slug;
+
+        }
+    }
 
     public function render()
     {
@@ -31,7 +53,7 @@ class CreateNewNavigation extends Component
         $connection = TenantConnectionService::connection();
 
         return [
-            'title' => ['required', 'string', 'min:3', 'max:20'],
+            'name' => ['required', 'string', 'min:4', 'max:30'],
             'slug' => [
                 'required',
                 'string',
@@ -40,7 +62,7 @@ class CreateNewNavigation extends Component
         ];
     }
 
-    public function store(LivewireAlert $alert, $slug)
+    public function store($slug)
     {
         $this->slug = $slug['slug'];
         $this->validate();
@@ -57,22 +79,29 @@ class CreateNewNavigation extends Component
             $nav = (new Navigation)
                 ->setConnection($connection)
                 ->create([
-                    'name' => $this->title,
+                    'name' => $this->name,
                     'slug' => $this->slug,
+                    'parent_id' => $this->parent_id,
+                    'order' => 99,
+                    'actived' => true,
                 ]);
             DB::commit();
 
-            session()->flash('saved', [
-                'title' => 'New Navigation Created!',
-            ]);
+            session()->flash('success', 'New Navigation Created!');
 
-            $this->redirectRoute('bale.cms.navigations.index', $nav->id, navigate: true);
+            if ($this->parent_slug == 'new') {
+                $this->redirectRoute('bale.cms.navigations.edit', $nav->slug, navigate: true);
+            } else {
+                $this->redirectRoute('bale.cms.navigations.edit', $this->parent_slug, navigate: true);
+            }
+
+
 
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
             info('Page creation failed: ' . $th->getMessage());
-            $alert->title('Something wrong!')->position('top-end')->error()->toast()->show();
+            $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }
 }

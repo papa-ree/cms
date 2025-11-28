@@ -1,6 +1,6 @@
 <div>
     <form wire:submit="update(Object.fromEntries(new FormData($event.target)))" class="" id="formPost"
-        x-data="{ postTitle: $wire.entangle('title'), postSlug: $wire.entangle('slug'), showSetting: false }">
+        x-data="{ postTitle: $wire.entangle('title'), postSlug: $wire.entangle('slug').live, showSetting: false }">
 
         <div class="grid grid-cols-7 space-y-0 lg:gap-x-8 gap-x-0 lg:space-y-0">
 
@@ -9,10 +9,10 @@
 
                 {{-- post title --}}
                 <div class="mb-4 sm:mb-6">
-                    <x-bale.input wire:model='title' placeholder="post title" label="Post title" x-model="postTitle" />
+                    <x-core::input wire:model='title' placeholder="post title" label="Post title" x-model="postTitle" />
                     <div class="flex items-center justify-end">
-                        <button class="flex items-center mt-2 text-sm gap-x-2 dark:text-neutral-500" type="button"
-                            @click="showSetting=!showSetting"
+                        <button class="flex items-center mt-2 cursor-pointer text-sm gap-x-2 dark:text-neutral-500"
+                            type="button" @click="showSetting=!showSetting"
                             :class="showSetting ? 'text-emerald-500 font-semibold' : 'text-gray-500 font-medium'">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
@@ -25,13 +25,15 @@
                             Advance Settings
                         </button>
                     </div>
-                    <x-input-error for="title" />
+                    <x-core::input-error for="title" />
                 </div>
 
                 {{-- post slug --}}
                 <div x-show="showSetting" x-collapse>
-                    <x-bale.input label="permalink" wire:model='slug' name="slug" x-slug="postTitle"
+                    <x-core::input label="permalink" wire:model='slug' name="slug" x-slug="postTitle"
                         x-model="postSlug" />
+                    <x-core::input-error for="slug" />
+
                     <div class="flex items-center mt-2 mb-4 text-sm sm:mb-6 gap-x-2">
                         <span class="text-gray-700 dark:text-neutral-500">
                             sesuaikan permalink untuk mengarahkan
@@ -47,7 +49,7 @@
                                 <path d="M12 17h.01" />
                             </svg>
                             <span
-                                class="absolute z-10 invisible inline-block max-w-[11rem] px-2 py-1 text-xs font-medium text-white transition-opacity bg-gray-900 rounded shadow-sm opacity-0 hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible dark:bg-neutral-700"
+                                class="absolute z-10 invisible inline-block max-w-44 px-2 py-1 text-xs font-medium text-white transition-opacity bg-gray-900 rounded shadow-sm opacity-0 hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible dark:bg-neutral-700"
                                 role="tooltip">
                                 Permalink adalah URL tetap yang mengarahkan ke suatu artikel atau sumber daring.
                             </span>
@@ -57,13 +59,13 @@
 
                 {{-- post thumbnail --}}
                 <div class="space-y-3 sm:mb-10" x-data="{ showUploadZone: $wire.entangle('show_upload_zone').live }">
-                    <x-label value="post thumbnail preview" />
+                    <x-core::label value="post thumbnail preview" />
                     @if ($thumbnail)
                         <div x-show="!showUploadZone"
                             class="relative flex items-center justify-center overflow-hidden transition-all duration-500 ease-in-out transform rounded-lg shadow-md cursor-pointer group hover:shadow-slate-500">
                             <img loading="lazy"
                                 class="object-cover object-center w-full h-40 max-w-full transition-all duration-500 ease-in-out transform bg-center bg-cover rounded-lg group-hover:scale-125"
-                                src="{{ route('bale.cms.media', ['path' => session('bale_active_slug') . '//thumbnails/' . $thumbnail]) ?? null }}"
+                                src="{{ route('media.show', ['path' => session('bale_active_slug') . '//thumbnails/' . $thumbnail]) ?? null }}"
                                 alt="{{ $title }}" loading="lazy">
                             <div wire:click='deleteThumbnail'
                                 class="absolute z-20 hidden p-1 text-white transition-all duration-500 ease-in-out rounded-full group-hover:block bg-red-400/80 hover:bg-white/80 hover:text-red-400 top-1 right-1">
@@ -77,16 +79,15 @@
                     @endif
 
                     <div x-show="showUploadZone">
-                        <x-cms::filepond wire:model="thumbnail_new" allowImagePreview
-                            imagePreviewMaxHeight="200" allowFileTypeValidation
-                            acceptedFileTypes="['image/png', 'image/jpg', 'image/jpeg']" allowFileSizeValidation
-                            maxFileSize="512kb" />
-                        <x-input-error for="thumbnail_new" />
+                        <x-cms::filepond wire:model="thumbnail_new" allowImagePreview imagePreviewMaxHeight="200"
+                            allowFileTypeValidation acceptedFileTypes="['image/png', 'image/jpg', 'image/jpeg']"
+                            allowFileSizeValidation maxFileSize="512kb" />
+                        <x-core::input-error for="thumbnail_new" />
                     </div>
                 </div>
 
                 <div class="hidden lg:block">
-                    <x-bale.button label="update" type="submit" />
+                    <x-core::button label="update" type="submit" />
                 </div>
 
             </div>
@@ -95,9 +96,10 @@
                 class="col-span-7 py-4 pl-4 antialiased text-gray-800 bg-white border border-gray-200 lg:pl-0 lg:px-4 md:px-0 lg:overflow-y-auto lg:col-span-5 rounded-xl dark:bg-gray-800 dark:text-white dark:border-gray-700">
 
                 <div wire:ignore id="editorjs"
-                    class="bg-white dark:bg-gray-900 lg:max-h-[85vh] max-h-[90vh] overflow-y-auto"></div>
+                    class="bg-white dark:bg-gray-800 lg:max-h-[85vh] max-h-[90vh] md:overflow-y-scroll md:scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-thumb-gray-700 scrollbar-track-gray-300">
+                </div>
 
-                <x-input-error for="content" />
+                <x-core::input-error for="content" />
             </div>
 
 
@@ -108,31 +110,24 @@
 
     @script
     <script>
-
         document.addEventListener( 'livewire:initialized', () =>
         {
             initEditor();
         } );
 
-        document.addEventListener( 'livewire:navigated', () =>
-        {
-            if ( window.__editorInitialized ) return;
-
-            window.__editorInitialized = true;
-            initEditor();
-
-        } );
-
-
         function initEditor ()
         {
-            if ( window.editorInitialized ) return;
-            window.editorInitialized = true;
             var token = "{{ csrf_token()}}"
             const data = @js($content);
             const editor = new EditorJS( {
                 holder: 'editorjs', tools: {
-                    list: List,
+                    List: {
+                        class: List,
+                        inlineToolbar: true,
+                        config: {
+                            defaultStyle: 'unordered'
+                        },
+                    },
                     image:
                     {
                         class: ImageTool,

@@ -1,5 +1,5 @@
 <div>
-    <x-bale.table :links="$this->availablePages" header>
+    <x-core::table :links="$this->availablePages" header>
 
         <x-slot name="thead">
             <tr>
@@ -81,5 +81,5 @@
             @endforeach
         </x-slot>
 
-    </x-bale.table>
+    </x-core::table>
 </div>

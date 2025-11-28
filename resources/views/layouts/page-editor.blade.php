@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
 
-<head>
+<head
+    class="scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-300 scrollbar-thumb-rounded-full scrollbar-track-rounded-full overscroll-none">
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
@@ -15,16 +16,108 @@
         href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;1,500&family=Noto+Color+Emoji&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Open+Sans:ital,wght@0,500;1,500&family=Quicksand&display=swap"
         rel="stylesheet">
 
-    <x-bale-cms::script />
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest"></script>
 
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @vite(['resources/css/app.css', 'resources/js/app.js', 'resources/js/editor.js'])
+    @livewireStyles
+
+    <style>
+        /* Tombol PLUS */
+        .ce-toolbar__plus,
+        .ce-toolbar__plus:hover,
+        .ce-toolbar__plus:focus {
+            background-color: #ffffff !important;
+            border-radius: 6px !important;
+            color: #000 !important;
+        }
+
+        /* Tombol titik 6 (settings / handle) */
+        .ce-toolbar__settings-btn,
+        .ce-toolbar__settings-btn:hover,
+        .ce-toolbar__settings-btn:focus {
+            background-color: #ffffff !important;
+            border-radius: 6px !important;
+            color: #000 !important;
+        }
+
+        /* Agar ikon tetap terlihat */
+        .ce-toolbar__plus svg,
+        .ce-toolbar__settings-btn svg {
+            fill: #000 !important;
+        }
+
+        /* Hilangkan dark mode override dari EditorJS */
+        .dark .ce-toolbar__plus,
+        .dark .ce-toolbar__settings-btn {
+            background-color: #ffffff !important;
+        }
+
+        .ce-block--selected {
+            background: #374151 !important;
+            /* gray-700 */
+            border-radius: 8px;
+        }
+
+        /* Dark mode tetap gray-700 */
+        .dark .ce-block--selected {
+            background: #374151 !important;
+        }
+    </style>
+
+    {{-- <style>
+        /* --- PLUS BUTTON --- */
+        .ce-toolbar__plus:hover {
+            background: white !important;
+            border-radius: 6px !important;
+        }
+
+        /* Dark mode */
+        .dark .ce-toolbar__plus:hover {
+            background: white !important;
+        }
+
+        /* --- DRAG HANDLE (titik 6) --- */
+        .ce-block__drag:hover {
+            background: white !important;
+            border-radius: 6px !important;
+        }
+
+        /* Dark mode */
+        .dark .ce-block__drag:hover {
+            background: white !important;
+        }
+
+        /* --- SETTINGS BUTTON (tombol titik 3) --- */
+        .ce-toolbar__settings-btn:hover {
+            background: white !important;
+            border-radius: 6px !important;
+        }
+
+        /* Dark mode */
+        .dark .ce-toolbar__settings-btn:hover {
+            background: white !important;
+        }
+
+        /* --- BLOCK AKTIF SAAT DI KLIK HANDLE (gray-700) --- */
+        .ce-block--selected {
+            background: #374151 !important;
+            /* gray-700 */
+            border-radius: 8px;
+        }
+
+        /* Dark mode tetap gray-700 */
+        .dark .ce-block--selected {
+            background: #374151 !important;
+        }
+    </style> --}}
 
 </head>
 
 {{-- Layout For Livewire Admin Panel --}}
 
-<body
-    class="min-h-screen bg-gray-100 dark:bg-slate-900 scrollbar-thin scrollbar-thumb-gray-900 scrollbar-track-gray-100/50 overscroll-none">
+<body class="min-h-screen bg-gray-100 dark:bg-slate-900">
 
     <div class="fixed inset-x-0 top-0 z-40 w-full h-full px-4 pb-10 bg-white backdrop-blur-md dark:bg-slate-900 sm:px-6 md:px-8"
         x-data="{ loader: true }" x-show="loader" x-init="setTimeout(() => loader = false, 600)"
@@ -46,6 +139,8 @@
             {{ $slot }}
         </main>
     </div>
+    @livewireScripts
+    <x-core::toast />
 
 </body>
 

@@ -4,8 +4,7 @@
         id="update">
 
         <div class="grid grid-cols-12 px-6 space-y-4 xl:px-0 gap-x-0 xl:space-y-0 ">
-            <div
-                class="col-span-12 px-0 py-4 antialiased text-gray-800 xl:col-span-3 xl:px-8 dark:bg-gray-800 dark:text-white ">
+            <div class="col-span-12 px-0 py-4 antialiased text-gray-800 xl:col-span-3 xl:px-8 dark:text-white ">
 
                 <div class="flex justify-end mb-2">
                     {{-- <button type="button" @click="locked=!locked; $wire.pageLockingToggle()" class="flex
@@ -29,23 +28,26 @@
                 </div>
 
                 <div class="mb-4 sm:mb-6">
-                    <x-bale.input label="page title" x-bind:readonly="locked == true" wire:model="title"
+                    <x-core::input label="page title" x-bind:readonly="locked == true" wire:model="title"
                         x-model="pageTitle" />
-                    <x-input-error for="title" />
+                    <x-core::input-error for="title" />
                 </div>
 
                 <div class="mb-4 sm:mb-6">
-                    <x-bale.input label="page slug" x-bind:readonly="locked == true" wire:model="slug" name="slug"
+                    <x-core::input label="page slug" x-bind:readonly="locked == true" wire:model="slug" name="slug"
                         x-slug="pageTitle" x-model="pageSlug" />
-                    <x-input-error for="slug" />
+                    <x-core::input-error for="slug" />
                 </div>
 
             </div>
 
             <div
                 class="static col-span-12 py-4 pl-4 antialiased text-gray-800 bg-white border border-gray-200 xl:col-span-9 lg:pl-0 lg:px-4 md:px-0 lg:overflow-y-auto lg:col-span-5 rounded-xl dark:bg-gray-800 dark:text-white dark:border-gray-700">
+
                 <div wire:ignore id="editorjs"
-                    class="bg-white dark:bg-gray-900 lg:max-h-[85vh] max-h-[90vh] overflow-y-auto"></div>
+                    class="bg-white dark:bg-gray-800 lg:max-h-[85vh] max-h-[90vh] md:overflow-y-scroll md:scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-thumb-gray-700 scrollbar-track-gray-300">
+                </div>
+                <x-core::input-error for="content" />
             </div>
 
         </div>

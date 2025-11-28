@@ -13,4 +13,5 @@ class Index extends Component
     {
         return view('cms::livewire.pages.navigation.index');
     }
+
 }

@@ -8,7 +8,7 @@
         <div class="capitalize">page list</div>
     </a>
 
-    <x-bale.page-container>
+    <x-core::page-container>
         <div class="w-full px-4 py-6 mx-auto sm:px-6 lg:px-8 lg:py-8">
             <div class="max-w-xl mx-auto">
                 <div class="text-center">
@@ -25,22 +25,22 @@
                     <form wire:submit="store(Object.fromEntries(new FormData($event.target)))"
                         x-data="{ pageTitle: '', pageSlug: '' }">
                         <div class="mb-4 sm:mb-6">
-                            <x-bale.input label="page title" wire:model='title' x-model="pageTitle" autofocus />
-                            <x-input-error for="title" />
+                            <x-core::input label="page title" wire:model='title' x-model="pageTitle" autofocus />
+                            <x-core::input-error for="title" />
                         </div>
 
                         <div class="mb-4 sm:mb-6">
-                            <x-bale.input label="page slug" wire:model='slug' name="slug" x-slug="pageTitle"
+                            <x-core::input label="page slug" wire:model='slug' name="slug" x-slug="pageTitle"
                                 x-model="pageSlug" />
-                            <x-input-error for="slug" />
+                            <x-core::input-error for="slug" />
                         </div>
 
                         <div class="flex justify-center">
-                            <x-bale.button label="create post" spinner type="submit" />
+                            <x-core::button label="create post" spinner type="submit" />
                         </div>
                     </form>
                 </div>
             </div>
         </div>
-    </x-bale.page-container>
+    </x-core::page-container>
 </div>

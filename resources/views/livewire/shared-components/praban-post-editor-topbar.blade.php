@@ -6,7 +6,7 @@
         </a>
 
         <div class="">
-            <x-bale.button label="Update" form="formPost" />
+            <core:button label="Update" form="formPost" />
         </div>
     </nav>
 </header>

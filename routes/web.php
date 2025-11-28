@@ -47,10 +47,10 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             ]);
 
             try {
-                $path = $request->file('image')->store(session('bale_active_slug') . '/images', 'minio');
+                $path = $request->file('image')->store(session('bale_active_slug') . '/images', 's3');
 
                 // URL yang dikembalikan harus dari aplikasi, bukan MinIO
-                $url = url('/cms/media/' . $path);
+                $url = url("/media/" . $path);
 
                 return response()->json([
                     'success' => 1,
@@ -72,7 +72,7 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             try {
                 $contents = file_get_contents($url);
                 $name = session('bale_active_slug') . '/images' . uniqid() . '.jpg';
-                Storage::disk('minio')->put($name, $contents);
+                Storage::disk('s3')->put($name, $contents);
 
                 $fileUrl = url('/cms/media/' . $name);
 
@@ -90,31 +90,6 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             }
         });
 
-        Route::get('/media/{path}', function ($path) {
-            $disk = Storage::disk('minio');
-
-            if (!$disk->exists($path)) {
-                abort(404);
-            }
-
-            $mime = $disk->mimeType($path);
-            $file = $disk->get($path);
-
-            return Response::make($file, 200, [
-                'Content-Type' => $mime,
-            ]);
-        })->where('path', '.*')->name('media');
-
-        Route::get('/upload-test', function () {
-            try {
-                $filePath = 'images/test.txt';
-                Storage::disk('minio')->put($filePath, 'Hello from Bale CMS again!');
-                return '✅ Uploaded: ' . $filePath;
-            } catch (\Throwable $e) {
-                return '❌ Upload failed: ' . $e->getMessage();
-            }
-        });
-
         Route::name('pages.')->group(function () {
             Route::get('pages', PageIndex::class)->name('index');
             Route::get('pages.create', CreateNewPage::class)->name('create');
@@ -123,7 +98,7 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
 
         Route::name('navigations.')->group(function () {
             Route::get('navigations', NavigationIndex::class)->name('index');
-            Route::get('navigations.create', CreateNewNavigation::class)->name('create');
+            Route::get('navigations.create.{parent}', CreateNewNavigation::class)->name('create');
             Route::get('navigations.edit.{slug}', EditNavigation::class)->name('edit');
         });
 
@@ -131,12 +106,3 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
     });
 });
 
-Route::get('cms/assets/{file}', function ($file) {
-    $path = base_path('packages/paparee/cms/resources/assets/filepond/' . $file);
-
-    if (!file_exists($path)) {
-        abort(404);
-    }
-
-    return response()->file($path);
-})->where('file', '.*')->name('cms.assets');

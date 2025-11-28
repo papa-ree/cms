@@ -4,7 +4,6 @@ namespace Bale\Cms\Livewire\Pages\Page;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 use Livewire\Attributes\{Layout};
 use Bale\Cms\Models\Page;
@@ -15,6 +14,11 @@ class CreateNewPage extends Component
 {
     public $title;
     public $slug;
+
+    public function render()
+    {
+        return view('cms::livewire.pages.page.create-new-page');
+    }
 
     public function rules()
     {
@@ -34,12 +38,7 @@ class CreateNewPage extends Component
         ];
     }
 
-    public function render()
-    {
-        return view('cms::livewire.pages.page.create-new-page');
-    }
-
-    public function store(LivewireAlert $alert, $slug)
+    public function store($slug)
     {
         $this->slug = $slug['slug'];
 
@@ -74,7 +73,7 @@ class CreateNewPage extends Component
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
             info('Page creation failed: ' . $th->getMessage());
-            $alert->title('Something wrong!')->position('top-end')->error()->toast()->show();
+            // $alert->title('Something wrong!')->position('top-end')->error()->toast()->show();
         }
     }
 }
