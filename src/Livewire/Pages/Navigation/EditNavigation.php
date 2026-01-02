@@ -178,31 +178,4 @@ class EditNavigation extends Component
             $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }
-
-    // #[On('deleteItem')]
-    // public function deleteItem($itemId)
-    // {
-    //     return Livewire::mount(DeleteModelAction::class, [
-    //         'model' => Navigation::class,
-    //         'id' => $itemId
-    //     ]);
-    // }
-
-    // #[On('deleteItem')]
-    // public function deleteItem($itemId)
-    // {
-    //     $dispatch('deleteItem', itemId)
-    // }
-
-    // public function delete()
-    // {
-    //     TenantConnectionService::ensureActive();
-    //     $connection = TenantConnectionService::connection();
-
-    //     $nav = (new Navigation)
-    //         ->setConnection($connection)
-    //         ->find($this->delete_nav_id)->delete();
-
-    //     $this->dispatch('toast', message: 'Navigation Item Deleted!', type: 'success');
-    // }
 }

@@ -5,12 +5,12 @@ namespace Bale\Cms\Commands;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use Bale\Cms\Models\BaleContentManagementBale;
-use Bale\Cms\Models\BaleContentManagementBaleUser;
+use Bale\Cms\Models\BaleList;
+use Bale\Cms\Models\BaleUser;
 
 class GenerateUserBaleCommand extends Command
 {
-    protected $signature = 'praban:make-user
+    protected $signature = 'cms:make-user
                             {--bale_slug= : Nama Bale yang akan dikaitkan}
                             {--nip= : NIP user di database utama}';
 
@@ -21,7 +21,7 @@ class GenerateUserBaleCommand extends Command
         $baleSlug = $this->option('bale_slug') ?? $this->ask('Masukkan Slug Bale');
         $nip = $this->option('nip') ?? $this->ask('Masukkan NIP user');
 
-        $bale = BaleContentManagementBale::whereSlug($baleSlug)->first();
+        $bale = BaleList::whereSlug($baleSlug)->first();
 
         if (!$bale) {
             $this->error('❌ Bale tidak ditemukan.');
@@ -37,7 +37,7 @@ class GenerateUserBaleCommand extends Command
         }
 
         // Cek apakah sudah ada relasi
-        $exists = BaleContentManagementBaleUser::whereBaleId($bale->id)
+        $exists = BaleUser::whereBaleId($bale->id)
             ->whereUserUuid($user->uuid)
             ->exists();
 
@@ -47,7 +47,7 @@ class GenerateUserBaleCommand extends Command
         }
 
         // Buat relasi baru
-        BaleContentManagementBaleUser::create([
+        BaleUser::create([
             'bale_id' => $bale->id,
             'user_uuid' => $user->uuid,
         ]);

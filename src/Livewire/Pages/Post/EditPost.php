@@ -126,7 +126,7 @@ class EditPost extends Component
         if ($this->thumbnail_new != null or $this->thumbnail_new != "") {
 
             // set name by slug
-            $thumbnail_name = $this->slug . '-' . uniqid() . '.' . $this->thumbnail_new->extension();
+            $thumbnail_name = session('bale_active_slug') . '-' . uniqid() . '.' . $this->thumbnail_new->extension();
 
             // store image
             $this->thumbnail_new->storeAs(path: session('bale_active_slug') . '/thumbnails', name: $thumbnail_name, options: 's3');

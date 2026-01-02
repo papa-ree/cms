@@ -8,7 +8,7 @@ use Bale\Cms\Models\BaleContentManagementOrganization;
 
 class GenerateOrganisasiCommand extends Command
 {
-    protected $signature = 'praban:make-organisasi 
+    protected $signature = 'cms:make-organisasi 
                             {--name= : Nama organisasi}';
 
     protected $description = 'Generate organisasi baru untuk Bale Praban';

@@ -2,6 +2,9 @@
 
 namespace Bale\Cms;
 
+use Bale\Cms\Commands\GenerateBaleCommand;
+use Bale\Cms\Commands\GenerateOrganisasiCommand;
+use Bale\Cms\Commands\GenerateUserBaleCommand;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Component as LivewireComponent;
@@ -24,9 +27,9 @@ class CmsServiceProvider extends ServiceProvider
     protected function registerCommands(): void
     {
         $commands = [
-            // 'command.cms:make-organisasi' => GenerateOrganisasiCommand::class,
-            // 'command.cms:make-bale' => GenerateBaleCommand::class,
-            // 'command.cms:make-user' => GenerateUserBaleCommand::class,
+            'command.cms:make-organisasi' => GenerateOrganisasiCommand::class,
+            'command.cms:make-bale' => GenerateBaleCommand::class,
+            'command.cms:make-user' => GenerateUserBaleCommand::class,
         ];
 
         foreach ($commands as $key => $class) {
@@ -86,14 +89,14 @@ class CmsServiceProvider extends ServiceProvider
 
         // Publish config
         $this->publishes([
-            __DIR__ . '/../config/bale-cms.php' => config_path('bale-cms.php'),
-        ], 'bale-cms:config');
+            __DIR__ . '/../config/cms.php' => config_path('cms.php'),
+        ], 'cms:config');
 
         $this->publishes([
-            __DIR__ . '/../resources/js/bale-cms.js' => resource_path('js/bale-cms.js'),
-        ], 'bale-cms:assets');
+            __DIR__ . '/../resources/js/cms.js' => resource_path('js/cms.js'),
+        ], 'cms:assets');
 
-        $this->publishes($this->getMigrations(), 'bale-cms:migrations');
+        $this->publishes($this->getMigrations(), 'cms:migrations');
 
     }
 
@@ -144,7 +147,7 @@ class CmsServiceProvider extends ServiceProvider
      * 
      * Contoh:
      *   src/Livewire/Dashboard.php
-     *     => <livewire:bale-cms.dashboard />
+     *     => <livewire:cms.dashboard />
      *
      */
     protected function registerLivewireComponents(): void

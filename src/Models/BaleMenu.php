@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
-class BaleContentManagementMenu extends Model
+class BaleMenu extends Model
 {
     use HasFactory, HasUuids;
     protected $fillable = [
@@ -24,6 +24,6 @@ class BaleContentManagementMenu extends Model
      */
     public function bale()
     {
-        return $this->belongsTo(BaleContentManagementBale::class, 'bale_id');
+        return $this->belongsTo(BaleList::class, 'bale_id');
     }
 }

@@ -6,7 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Bale\Cms\Services\TenantManager;
-use Bale\Cms\Models\BaleContentManagementBaleUser;
+use Bale\Cms\Models\BaleUser;
 
 class SwitchBaleConnection
 {
@@ -25,7 +25,7 @@ class SwitchBaleConnection
         }
 
         // Authorize: check pivot table that user_uuid is allowed on this bale
-        $allowed = BaleContentManagementBaleUser::where('bale_id', $baleUuid)
+        $allowed = BaleUser::where('bale_id', $baleUuid)
             ->where('user_uuid', $user->uuid)
             ->exists();
 

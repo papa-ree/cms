@@ -3,7 +3,7 @@
 namespace Bale\Cms\Services;
 
 use Illuminate\Support\Facades\Auth;
-use Bale\Cms\Models\BaleContentManagementBaleUser;
+use Bale\Cms\Models\BaleUser;
 use Bale\Cms\Services\TenantManager;
 
 class TenantConnectionService
@@ -21,7 +21,7 @@ class TenantConnectionService
         }
 
         // Pastikan user punya akses ke bale
-        $allowed = BaleContentManagementBaleUser::where('bale_id', $baleUuid)
+        $allowed = BaleUser::where('bale_id', $baleUuid)
             ->where('user_uuid', $user->uuid)
             ->exists();
 

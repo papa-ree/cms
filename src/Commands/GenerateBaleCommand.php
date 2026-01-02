@@ -4,12 +4,12 @@ namespace Bale\Cms\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use Bale\Cms\Models\BaleContentManagementBale;
+use Bale\Cms\Models\BaleList;
 use Bale\Cms\Models\BaleContentManagementOrganization;
 
 class GenerateBaleCommand extends Command
 {
-    protected $signature = 'praban:make-bale 
+    protected $signature = 'cms:make-bale 
                             {--organization_slug= : Nama organisasi induk} 
                             {--name= : Nama bale} 
                             {--database= : Nama database tenant} 
@@ -37,7 +37,7 @@ class GenerateBaleCommand extends Command
         $password = $this->option('password') ?? $this->secret('Password database');
         $port = $this->option('port') ?? 3306;
 
-        $bale = BaleContentManagementBale::create([
+        $bale = BaleList::create([
             'organization_id' => $organization->id,
             'name' => $name,
             'slug' => Str::of($name)->slug('-'),

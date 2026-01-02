@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
-class BaleContentManagementBale extends Model
+class BaleList extends Model
 {
     use HasFactory, HasUuids;
 
@@ -18,7 +18,7 @@ class BaleContentManagementBale extends Model
      */
     public function organization()
     {
-        return $this->belongsTo(BaleContentManagementOrganization::class, 'organization_id');
+        return $this->belongsTo(BaleOrganization::class, 'organization_id');
     }
 
     /**
@@ -35,6 +35,6 @@ class BaleContentManagementBale extends Model
      */
     public function menus()
     {
-        return $this->hasMany(BaleContentManagementMenu::class, 'bale_id');
+        return $this->hasMany(BaleMenu::class, 'bale_id');
     }
 }

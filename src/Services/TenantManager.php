@@ -3,7 +3,7 @@
 namespace Bale\Cms\Services;
 
 use Illuminate\Support\Facades\DB;
-use Bale\Cms\Models\BaleContentManagementBale;
+use Bale\Cms\Models\BaleList;
 
 class TenantManager
 {
@@ -22,7 +22,7 @@ class TenantManager
     {
         // info("TenantManager.initializeFromBaleUuid called", ['bale_uuid' => $uuid]);
 
-        $bale = BaleContentManagementBale::find($uuid);
+        $bale = BaleList::find($uuid);
 
         if (!$bale) {
             throw new \Exception("Bale with UUID $uuid not found");

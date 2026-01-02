@@ -1,7 +1,6 @@
 <?php
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Bale\Cms\Livewire\Pages\Navigation\CreateNewNavigation;
@@ -15,6 +14,10 @@ use Bale\Cms\Livewire\Pages\Page\CreateNewPage;
 use Bale\Cms\Livewire\Pages\Page\EditPage;
 use Bale\Cms\Livewire\Pages\Page\Index as PageIndex;
 use Bale\Cms\Livewire\Pages\Post\Index as PostIndex;
+use Bale\Cms\Livewire\Pages\Section\EditSection;
+use Bale\Cms\Livewire\Pages\Section\Index as SectionIndex;
+use Bale\Cms\Livewire\Pages\Section\Section\ExtensionSectionForm;
+use Bale\Cms\Livewire\Pages\Section\Section\SearchableSectionForm;
 use Bale\Cms\Livewire\SharedComponents\ExitCms;
 use Bale\Cms\Middleware\EnsureBaleSelected;
 use Bale\Cms\Middleware\SwitchBaleConnection;
@@ -27,7 +30,7 @@ use Bale\Cms\Middleware\SwitchBaleConnection;
 
 Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(function () {
     // selection page (Livewire)
-    Route::get('select-bale', SelectPageIndex::class)->name('select');
+    // Route::get('select-bale', SelectPageIndex::class)->name('select');
 
     // protected CMS pages
     Route::middleware([EnsureBaleSelected::class, SwitchBaleConnection::class])->group(function () {
@@ -39,7 +42,7 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             Route::get('posts.edit.{slug}', EditPost::class)->name('edit');
         });
 
-        Route::get('exit', ExitCms::class)->name('exit');
+        Route::get('exit-cms', ExitCms::class)->name('exit-cms');
 
         Route::post('/editorjs/upload', function (Request $request) {
             $request->validate([
@@ -102,7 +105,15 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             Route::get('navigations.edit.{slug}', EditNavigation::class)->name('edit');
         });
 
+        Route::name('sections.')->group(function () {
+            Route::get('sections', SectionIndex::class)->name('index');
+            // Route::get('sections.select-form', SelectSectionForm::class)->name('select');
+            // Route::get('sections.create.searchable', SearchableSectionForm::class)->name('create-searchable'); // direct ke form extension form
+            Route::get('sections.edit.searchable.{slug}', SearchableSectionForm::class)->name('edit-searchable'); // direct ke form extension form
+            Route::get('sections.create.general', ExtensionSectionForm::class)->name('create'); // direct ke form extension form
+            Route::get('sections.edit.{slug}', EditSection::class)->name('edit'); // diarahkan ke edit section dulu untuk pemilihan form section
+        });
+
         // add other CMS routes here...
     });
 });
-

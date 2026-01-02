@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
-class BaleContentManagementOrganization extends Model
+class BaleOrganization extends Model
 {
     use HasFactory, HasUuids;
 
@@ -23,7 +23,7 @@ class BaleContentManagementOrganization extends Model
      */
     public function bales()
     {
-        return $this->hasMany(BaleContentManagementBale::class, 'organization_id');
+        return $this->hasMany(BaleList::class, 'organization_id');
     }
 
     /**

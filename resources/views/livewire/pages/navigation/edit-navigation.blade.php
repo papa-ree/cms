@@ -47,7 +47,7 @@
                     <x-core::input-error for="url_mode" class="mt-2" />
 
                     <div class="mt-3" x-show="selectUrl==true">
-                        <x-core::input useInlineAddon="true" addon="https://" />
+                        <x-core::input useInlineAddon="true" wire:model="url" addon="https://" />
                         <x-core::input-error for="url" class="mt-2" />
                     </div>
 

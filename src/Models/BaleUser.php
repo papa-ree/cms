@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 
-class BaleContentManagementBaleUser extends Model
+class BaleUser extends Model
 {
     use HasFactory, HasUuids;
 
@@ -17,7 +17,7 @@ class BaleContentManagementBaleUser extends Model
 
     public function bale()
     {
-        return $this->belongsTo(BaleContentManagementBale::class, 'bale_id');
+        return $this->belongsTo(BaleList::class, 'bale_id');
     }
 
     public function user()

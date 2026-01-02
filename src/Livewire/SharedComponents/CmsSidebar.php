@@ -5,12 +5,12 @@ namespace Bale\Cms\Livewire\SharedComponents;
 use Livewire\Component;
 use Livewire\Attributes\{Computed, Layout};
 
-class PrabanSidebar extends Component
+class CmsSidebar extends Component
 {
     #[Layout('cms::layouts.app')]
     public function render()
     {
-        return view('cms::livewire.shared-components.praban-sidebar');
+        return view('cms::livewire.shared-components.cms-sidebar');
     }
 
     #[Computed]
@@ -21,6 +21,7 @@ class PrabanSidebar extends Component
             ['label' => 'posts', 'url' => 'posts'],
             ['label' => 'pages', 'url' => 'pages'],
             ['label' => 'navigations', 'url' => 'navigations'],
+            ['label' => 'sections', 'url' => 'sections'],
         ];
 
         return $menu;
