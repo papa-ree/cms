@@ -25,6 +25,7 @@ class EditPost extends Component
     public $thumbnail;
     public $thumbnail_new;
     public $slug;
+    public $updated_at;
     public $published;
     public $publish_at;
     public $tag;
@@ -46,6 +47,7 @@ class EditPost extends Component
             $this->id = $post->id;
             $this->title = $post->title;
             $this->slug = $post->slug;
+            $this->updated_at = $post->updated_at;
             $this->content = json_decode(json_encode($post->content), true);
             $this->thumbnail = $post->thumbnail;
             $this->published = $post->published;
@@ -150,5 +152,37 @@ class EditPost extends Component
         $post->update(['thumbnail' => null]);
         $this->thumbnail = null;
         $this->show_upload_zone = true;
+    }
+
+    public function updated($propertyName)
+    {
+        // Auto-save when content changes
+        if ($propertyName === 'content') {
+            $this->autoSave();
+        }
+    }
+
+    public function autoSave()
+    {
+        try {
+            TenantConnectionService::ensureActive();
+            $connection = TenantConnectionService::connection();
+
+            $post = (new Post)
+                ->setConnection($connection)
+                ->find($this->id);
+
+            if ($post) {
+                $post->update([
+                    'title' => $this->title,
+                    'slug' => $this->slug,
+                    'content' => $this->content,
+                ]);
+
+                $this->dispatch('toast', message: 'Auto-saved successfully!', type: 'success');
+            }
+        } catch (\Throwable $th) {
+            info('Auto-save failed: ' . $th->getMessage());
+        }
     }
 }

@@ -1,133 +1,267 @@
 <div>
-    <x-core::back-breadcrumb :href="route('bale.cms.sections.index')" label="section list" />
+    {{-- Back Navigation --}}
+    <div class="mb-6">
+        <a href="{{ route('bale.cms.sections.index') }}"
+            class="inline-flex items-center gap-2 text-gray-600 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 transition-colors">
+            <x-lucide-arrow-left class="w-4 h-4" />
+            <span class="text-sm font-medium">Back to Sections</span>
+        </a>
+    </div>
+
+    {{-- Help Guide --}}
+    <div class="mb-8 p-5 bg-linear-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl">
+        <div class="flex items-start gap-4">
+            <div class="p-3 bg-emerald-600 rounded-xl shadow-lg">
+                <x-lucide-search class="w-6 h-6 text-white" />
+            </div>
+            <div class="flex-1">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Searchable Section Guide</h3>
+                <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                    Create searchable data collections with custom fields. Define your keys first, then add items with values for each key.
+                </p>
+                <div class="grid gap-2 md:grid-cols-2">
+                    <div class="flex items-start gap-2">
+                        <x-lucide-check class="w-4 h-4 text-emerald-600 mt-0.5" />
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Perfect for lists, directories, and catalogs</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <x-lucide-check class="w-4 h-4 text-emerald-600 mt-0.5" />
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Auto-generated searchable database</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <form id="searchableForm"
-        wire:submit="@if(!$editMode) save(Object.fromEntries(new FormData($event.target))) @else update(Object.fromEntries(new FormData($event.target))) @endif">
-        <div class="space-y-6" x-data="{ sectionName: $wire.entangle('name'), sectionSlug: $wire.entangle('slug') }">
-            <div class="grid grid-cols-1 md:grid-cols-2 sm:gap-x-6">
-                {{-- LEFT --}}
-                <div class="col-span-2 sm:col-span-1">
-                    <x-core::page-container class="space-y-6">
-                        <h3 class="font-semibold text-lg">New Searchable Section</h3>
+        wire:submit="@if(!$editMode) save(Object.fromEntries(new FormData($event.target))) @else update(Object.fromEntries(new FormData($event.target))) @endif"
+        class="space-y-6">
+        
+        <div x-data="{ sectionName: $wire.entangle('name'), sectionSlug: $wire.entangle('slug') }">
+            {{-- Section Info & Key Management --}}
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {{-- LEFT: Section Basic Info --}}
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                        <div class="p-2.5 bg-linear-to-br from-purple-500 to-purple-600 rounded-lg shadow-md">
+                            <x-lucide-layers class="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-900 dark:text-white">Section Information</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Basic section details</p>
+                        </div>
+                    </div>
+
+                    <div class="space-y-5">
                         {{-- NAME --}}
                         <div>
-                            <x-core::input wire:model="name" x-model="sectionName" label="Name" />
+                            <div class="flex items-center gap-2 mb-2">
+                                <x-lucide-type class="w-4 h-4 text-gray-400" />
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Section Name</label>
+                            </div>
+                            <x-core::input wire:model="name" x-model="sectionName" placeholder="e.g. Product Catalog" />
                             <x-core::input-error for="name" />
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Display name for this collection</p>
                         </div>
+
                         {{-- SLUG --}}
                         <div>
-                            <x-core::input wire:model="slug" name="slug" x-slug="sectionName" x-model="sectionSlug"
-                                label="Slug" />
-                            <x-core::input-error for="slug" />
-                        </div>
-                    </x-core::page-container>
-                </div>
-                {{-- CARD: Manage Keys --}}
-                <div class="col-span-2 sm:col-span-1">
-                    <x-core::page-container class="space-y-6">
-
-                        <h2 class="font-semibold text-lg">Pengaturan Key</h2>
-                        <x-core::label value="Add New Key" />
-
-                        <div class="flex gap-2">
-                            <div class="">
-                                <x-core::input wire:model="newKey" @keydown.enter='$wire.addKey' />
+                            <div class="flex items-center gap-2 mb-2">
+                                <x-lucide-hash class="w-4 h-4 text-gray-400" />
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">URL Slug</label>
                             </div>
-                            <x-core::secondary-button label="Add Key" type="button" wire:click="addKey">
-                                <x-slot name="icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                        fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                        stroke-linejoin="round" class="lucide lucide-plus-icon lucide-plus size-4 mr-2">
-                                        <path d="M5 12h14" />
-                                        <path d="M12 5v14" />
-                                    </svg>
-                                </x-slot>
-                            </x-core::secondary-button>
+                            <x-core::input wire:model="slug" name="slug" x-slug="sectionName" x-model="sectionSlug"
+                                placeholder="product-catalog" />
+                            <x-core::input-error for="slug" />
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Auto-generated from name</p>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- RIGHT: Key Management --}}
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
+                    <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                        <div class="p-2.5 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-lg shadow-md">
+                            <x-lucide-key class="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-900 dark:text-white">Field Keys</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Define data structure</p>
+                        </div>
+                    </div>
+
+                    {{-- Add New Key --}}
+                    <div class="mb-4">
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Add New Field Key</label>
+                        <div class="flex gap-2">
+                            <div class="flex-1">
+                                <x-core::input wire:model="newKey" @keydown.enter='$wire.addKey' 
+                                    placeholder="e.g. product_name, price, category" />
+                            </div>
+                            <button type="button" wire:click="addKey"
+                                class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-md transition-all">
+                                <x-lucide-plus class="w-4 h-4" />
+                                Add
+                            </button>
+                        </div>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Press Enter or click Add to create key</p>
+                    </div>
+
+                    {{-- Keys List --}}
+                    <div>
+                        <div class="flex items-center gap-2 mb-3">
+                            <x-lucide-tags class="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                            <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                                Active Keys ({{ count($availableKeys) }})
+                            </span>
                         </div>
 
-                        <div class="flex flex-wrap gap-2 mt-3">
-                            @foreach ($availableKeys as $i => $key)
-                                <div
-                                    class="inline-flex flex-nowrap items-center bg-white border border-gray-200 rounded-full p-1.5 dark:bg-gray-900 dark:border-gray-700">
-                                    <div class="whitespace-nowrap ms-1.5 text-sm font-medium text-gray-800 dark:text-white">
-                                        {{ $key }}
+                        @if(count($availableKeys) > 0)
+                            <div class="flex flex-wrap gap-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700 max-h-48 overflow-y-auto">
+                                @foreach ($availableKeys as $i => $key)
+                                    <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-emerald-200 dark:border-emerald-800 rounded-lg shadow-sm">
+                                        <x-lucide-tag class="w-3.5 h-3.5 text-emerald-600" />
+                                        <span class="text-sm font-medium text-gray-800 dark:text-white">{{ $key }}</span>
+                                        <button type="button" wire:click="removeKey({{ $i }})"
+                                            class="p-0.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors">
+                                            <x-lucide-x class="w-3.5 h-3.5" />
+                                        </button>
                                     </div>
-                                    <div wire:click="removeKey({{ $i }})"
-                                        class="ms-2.5 inline-flex justify-center items-center size-5 rounded-full text-gray-800 bg-gray-200 hover:bg-gray-300 focus:outline-hidden focus:ring-2 focus:ring-gray-400 dark:bg-gray-700/50 dark:hover:bg-gray-700 dark:text-gray-400 cursor-pointer">
-                                        <svg class="shrink-0 size-3" xmlns="http://www.w3.org/2000/svg" width="24"
-                                            height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                                            <path d="M18 6 6 18"></path>
-                                            <path d="m6 6 12 12"></path>
-                                        </svg>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
-                    </x-core::page-container>
+                                @endforeach
+                            </div>
+                        @else
+                            <div class="p-6 bg-gray-50 dark:bg-gray-900/50 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-center">
+                                <x-lucide-inbox class="w-8 h-8 text-gray-400 mx-auto mb-2" />
+                                <p class="text-sm text-gray-600 dark:text-gray-400">No keys yet. Add your first key above.</p>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
 
-            {{-- CARD: Items --}}
-            <x-core::page-container class="space-y-4">
-                <h2 class="font-semibold text-lg">Items (Content)</h2>
+            {{-- Items Section --}}
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-linear-to-br from-blue-500 to-blue-600 rounded-lg shadow-md">
+                            <x-lucide-database class="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-900 dark:text-white">Data Items</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Add content for each field</p>
+                        </div>
+                    </div>
 
-                <x-core::secondary-button label="Add Item" type="button" wire:click="addItem">
-                    <x-slot name="icon">
-                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
-                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                            class="lucide lucide-plus-icon lucide-plus size-4 mr-2">
-                            <path d="M5 12h14" />
-                            <path d="M12 5v14" />
-                        </svg>
-                    </x-slot>
-                </x-core::secondary-button>
+                    <button type="button" wire:click="addItem"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all">
+                        <x-lucide-plus class="w-4 h-4" />
+                        Add Item
+                    </button>
+                </div>
 
-                <div class="space-y-6 mt-4">
-                    @foreach ($items as $i => $item)
-                        <div class="border rounded-lg p-4 bg-gray-50 dark:bg-gray-800">
-                            <div class="flex justify-between mb-3">
-                                <h3 class="font-medium">Item #{{ $i + 1 }}</h3>
-                                <button wire:click="removeItem({{ $i }})" class="text-red-600 hover:text-red-800">
-                                    Hapus
-                                </button>
-                            </div>
-                            {{-- Dynamic key/value fields --}}
-                            <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
-                                @foreach ($availableKeys as $key)
-                                    @if ($key == 'date')
-                                        <div>
-                                            <x-core::input type="date" wire:model="items.{{ $i }}.{{ $key }}" label="{{ $key }}" />
+                <div class="space-y-4">
+                    @forelse ($items as $i => $item)
+                        <div class="relative border-2 border-blue-200 dark:border-blue-800 rounded-xl overflow-hidden" 
+                            data-aos="fade-up" data-aos-delay="{{ $i * 50 }}">
+                            {{-- Item Indicator --}}
+                            <div class="absolute top-0 left-0 w-2 h-full bg-linear-to-b from-blue-500 to-blue-600"></div>
+                            
+                            <div class="p-5 pl-7 bg-blue-50/30 dark:bg-blue-900/10">
+                                <div class="flex items-center justify-between mb-4">
+                                    <div class="flex items-center gap-3">
+                                        <div class="p-2 bg-blue-600 rounded-lg">
+                                            <x-lucide-file-text class="w-4 h-4 text-white" />
                                         </div>
-                                    @else
-                                        <div>
-                                            <x-core::input wire:model="items.{{ $i }}.{{ $key }}" label="{{ $key }}" />
+                                        <h4 class="font-bold text-gray-900 dark:text-white">Item #{{ $i + 1 }}</h4>
+                                    </div>
+
+                                    <button type="button" wire:click="removeItem({{ $i }})"
+                                        class="inline-flex items-center gap-1.5 px-3 py-1.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                                        <x-lucide-trash-2 class="w-4 h-4" />
+                                        <span class="text-sm font-medium">Remove</span>
+                                    </button>
+                                </div>
+
+                                {{-- Dynamic Fields --}}
+                                @if(count($availableKeys) > 0)
+                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                        @foreach ($availableKeys as $key)
+                                            <div>
+                                                <div class="flex items-center gap-1.5 mb-2">
+                                                    <x-lucide-tag class="w-3.5 h-3.5 text-blue-600" />
+                                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $key }}</label>
+                                                </div>
+                                                @if ($key == 'date')
+                                                    <x-core::input type="date" wire:model="items.{{ $i }}.{{ $key }}" 
+                                                        placeholder="Select date" />
+                                                @else
+                                                    <x-core::input wire:model="items.{{ $i }}.{{ $key }}" 
+                                                        placeholder="Enter {{ $key }}" />
+                                                @endif
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                @else
+                                    <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                                        <div class="flex items-start gap-2">
+                                            <x-lucide-alert-triangle class="w-5 h-5 text-yellow-600 mt-0.5" />
+                                            <div>
+                                                <p class="text-sm font-medium text-yellow-800 dark:text-yellow-200">No Keys Defined</p>
+                                                <p class="text-xs text-yellow-700 dark:text-yellow-300 mt-1">Please add keys in the "Field Keys" section above first.</p>
+                                            </div>
                                         </div>
-                                    @endif
-                                @endforeach
+                                    </div>
+                                @endif
                             </div>
                         </div>
-                    @endforeach
+                    @empty
+                        <div class="text-center py-16 bg-gray-50 dark:bg-gray-900/50 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl">
+                            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                                <x-lucide-inbox class="w-10 h-10 text-blue-600 dark:text-blue-400" />
+                            </div>
+                            <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Items Yet</h4>
+                            <p class="text-sm text-gray-600 dark:text-gray-400 mb-4">
+                                @if(count($availableKeys) > 0)
+                                    Start adding items to your searchable collection
+                                @else
+                                    Define your field keys first, then add items
+                                @endif
+                            </p>
+                            @if(count($availableKeys) > 0)
+                                <button type="button" wire:click="addItem"
+                                    class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-lg transition-all">
+                                    <x-lucide-plus class="w-5 h-5" />
+                                    Add First Item
+                                </button>
+                            @endif
+                        </div>
+                    @endforelse
                 </div>
-            </x-core::page-container>
+            </div>
 
-            {{-- Submit --}}
-            <div class="flex justify-end">
-                <x-core::button label="save" type="submit" />
+            {{-- Submit Section --}}
+            <div class="flex items-center justify-between p-6 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-200 dark:border-gray-700">
+                <div class="flex items-center gap-3">
+                    <x-lucide-info class="w-5 h-5 text-blue-600" />
+                    <div>
+                        <p class="text-sm font-medium text-gray-900 dark:text-white">Ready to save?</p>
+                        <p class="text-xs text-gray-600 dark:text-gray-400">Make sure all required fields are filled</p>
+                    </div>
+                </div>
+                <x-core::button label="Save Section" type="submit" class="gap-x-2">
+                    <x-slot name="icon">
+                        <x-lucide-save class="w-4 h-4" />
+                    </x-slot>
+                </x-core::button>
             </div>
         </div>
     </form>
 
     <script>
-        document.getElementById( 'searchableForm' ).addEventListener( 'keydown', function ( event )
-        {
-            // Check if the pressed key is Enter (keyCode 13 or key 'Enter')
-            if ( event.keyCode === 13 || event.key === 'Enter' ) {
-                // Prevent the default form submission behavior
+        document.getElementById('searchableForm').addEventListener('keydown', function(event) {
+            if (event.keyCode === 13 || event.key === 'Enter') {
                 event.preventDefault();
-                // Optionally, you can add other actions here, like focusing on the next input field
-                // or displaying a message.
             }
-        } );
+        });
     </script>
 </div>

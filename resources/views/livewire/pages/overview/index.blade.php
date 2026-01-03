@@ -1,165 +1,234 @@
-<div class="space-y-6">
-    {{-- Header --}}
-    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-gray-200">
-                Dashboard Overview
-            </h1>
-            <p class="text-gray-500 dark:text-gray-400 text-sm mt-1">
-                Monitor your content performance and website traffic.
-            </p>
-        </div>
+<div>
+    {{-- Hero Section --}}
+    <div class="relative overflow-hidden p-8 mb-8 text-white rounded-2xl shadow-xl"
+        style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);" data-aos="fade-up">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
+        <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
 
-        <x-core::button link href="{{ route('bale.cms.posts.create') }}" label="New Post" class="gap-x-2">
-            <x-slot name="icon">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
-                </svg>
-            </x-slot>
-        </x-core::button>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center md:justify-between">
+            <div class="mb-6 md:mb-0">
+                <div class="flex items-center gap-3 mb-3">
+                    <div class="p-3 bg-white/20 backdrop-blur-md rounded-xl">
+                        <x-lucide-layout-dashboard class="w-8 h-8 text-white" />
+                    </div>
+                    <div>
+                        <h1 class="text-3xl font-bold text-white md:text-4xl">Dashboard Overview</h1>
+                    </div>
+                </div>
+                <p class="max-w-2xl text-white/90 text-lg">
+                    Monitor your content performance and website traffic in real-time.
+                </p>
+            </div>
+            <div class="shrink-0">
+                <x-core::button link href="{{ route('bale.cms.posts.create') }}" label="Create New Post"
+                    class="gap-x-2 bg-white text-purple-600 hover:bg-white/90">
+                    <x-slot name="icon">
+                        <x-lucide-plus class="w-5 h-5" />
+                    </x-slot>
+                </x-core::button>
+            </div>
+        </div>
     </div>
 
     {{-- Stats Cards --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8" data-aos="fade-up" data-aos-delay="100">
         {{-- Total Posts --}}
-        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">Total Posts</h3>
-                    <h4 class="text-2xl font-bold text-gray-800 dark:text-white mt-2">
-                        {{ $internalStats['total_posts'] }}</h4>
+        <div
+            class="group p-6 transition-all duration-300 bg-white border border-gray-100 shadow-md dark:bg-gray-800 rounded-2xl hover:shadow-xl dark:border-gray-700 hover:-translate-y-1">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-linear-to-br from-blue-500 to-blue-600 rounded-xl shadow-lg">
+                    <x-lucide-file-text class="w-6 h-6 text-white" />
                 </div>
-                <div class="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
-                    <svg class="w-6 h-6 text-blue-600 dark:text-blue-400" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z">
-                        </path>
-                    </svg>
-                </div>
+                <span
+                    class="px-3 py-1 text-xs font-semibold text-blue-700 bg-blue-100 rounded-full dark:bg-blue-900/50 dark:text-blue-300">Content</span>
             </div>
-            <div class="mt-4 flex items-center text-sm">
-                <span class="text-green-500 flex items-center gap-1 font-medium">
-                    {{ $internalStats['published_posts'] }} Published
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Posts</p>
+                <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ $internalStats['total_posts'] }}
+                </p>
+            </div>
+            <div class="mt-4 flex items-center text-sm gap-2">
+                <span class="text-green-600 dark:text-green-400 flex items-center gap-1 font-medium">
+                    <x-lucide-check-circle class="w-4 h-4" />
+                    {{ $internalStats['published_posts'] }}
                 </span>
-                <span class="mx-2 text-gray-300">|</span>
-                <span class="text-amber-500 flex items-center gap-1 font-medium">
-                    {{ $internalStats['draft_posts'] }} Drafts
+                <span class="text-gray-300">•</span>
+                <span class="text-amber-600 dark:text-amber-400 flex items-center gap-1 font-medium">
+                    <x-lucide-clock class="w-4 h-4" />
+                    {{ $internalStats['draft_posts'] }}
                 </span>
             </div>
         </div>
 
         {{-- Total Pages --}}
-        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">Total Pages</h3>
-                    <h4 class="text-2xl font-bold text-gray-800 dark:text-white mt-2">
-                        {{ $internalStats['total_pages'] }}</h4>
+        <div
+            class="group p-6 transition-all duration-300 bg-white border border-gray-100 shadow-md dark:bg-gray-800 rounded-2xl hover:shadow-xl dark:border-gray-700 hover:-translate-y-1">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-linear-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg">
+                    <x-lucide-file class="w-6 h-6 text-white" />
                 </div>
-                <div class="p-2 bg-purple-50 dark:bg-purple-900/30 rounded-lg">
-                    <svg class="w-6 h-6 text-purple-600 dark:text-purple-400" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z">
-                        </path>
-                    </svg>
-                </div>
+                <span
+                    class="px-3 py-1 text-xs font-semibold text-purple-700 bg-purple-100 rounded-full dark:bg-purple-900/50 dark:text-purple-300">Pages</span>
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">Static content pages</p>
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Pages</p>
+                <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">{{ $internalStats['total_pages'] }}
+                </p>
+            </div>
+            <div class="mt-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Static content pages</p>
+            </div>
         </div>
 
         {{-- Visitors (GA) --}}
-        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">Total Visitors (7d)</h3>
-                    <h4 class="text-2xl font-bold text-gray-800 dark:text-white mt-2">
-                        {{ $externalStats['overview']['total_visitors'] }}</h4>
+        <div
+            class="group p-6 transition-all duration-300 bg-white border border-gray-100 shadow-md dark:bg-gray-800 rounded-2xl hover:shadow-xl dark:border-gray-700 hover:-translate-y-1">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-linear-to-br from-green-500 to-green-600 rounded-xl shadow-lg">
+                    <x-lucide-users class="w-6 h-6 text-white" />
                 </div>
-                <div class="p-2 bg-green-50 dark:bg-green-900/30 rounded-lg">
-                    <svg class="w-6 h-6 text-green-600 dark:text-green-400" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0z">
-                        </path>
-                    </svg>
-                </div>
+                <span
+                    class="px-3 py-1 text-xs font-semibold text-green-700 bg-green-100 rounded-full dark:bg-green-900/50 dark:text-green-300">7
+                    days</span>
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-4 flex items-center gap-1">
-                Bounce Rate: <span
-                    class="font-semibold text-gray-700 dark:text-gray-300">{{ $externalStats['overview']['bounce_rate'] }}</span>
-            </p>
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Visitors</p>
+                <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">
+                    {{ $externalStats['overview']['total_visitors'] }}</p>
+            </div>
+            <div class="mt-4 flex items-center text-xs text-gray-500 dark:text-gray-400">
+                Bounce: <span
+                    class="ml-1 font-semibold text-gray-700 dark:text-gray-300">{{ $externalStats['overview']['bounce_rate'] }}</span>
+            </div>
         </div>
 
         {{-- Avg Session (GA) --}}
-        <div class="bg-white dark:bg-slate-800 p-5 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700">
-            <div class="flex justify-between items-start">
-                <div>
-                    <h3 class="text-gray-500 dark:text-gray-400 text-sm font-medium">Avg. Session</h3>
-                    <h4 class="text-2xl font-bold text-gray-800 dark:text-white mt-2">
-                        {{ $externalStats['overview']['avg_session_duration'] }}</h4>
+        <div
+            class="group p-6 transition-all duration-300 bg-white border border-gray-100 shadow-md dark:bg-gray-800 rounded-2xl hover:shadow-xl dark:border-gray-700 hover:-translate-y-1">
+            <div class="flex items-center justify-between mb-4">
+                <div class="p-3 bg-linear-to-br from-amber-500 to-amber-600 rounded-xl shadow-lg">
+                    <x-lucide-timer class="w-6 h-6 text-white" />
                 </div>
-                <div class="p-2 bg-orange-50 dark:bg-orange-900/30 rounded-lg">
-                    <svg class="w-6 h-6 text-orange-600 dark:text-orange-400" fill="none" stroke="currentColor"
-                        viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                            d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                    </svg>
-                </div>
+                <span
+                    class="px-3 py-1 text-xs font-semibold text-amber-700 bg-amber-100 rounded-full dark:bg-amber-900/50 dark:text-amber-300">Avg</span>
             </div>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">Average time on site</p>
+            <div>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Session Duration</p>
+                <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">
+                    {{ $externalStats['overview']['avg_session_duration'] }}</p>
+            </div>
+            <div class="mt-4">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Average time on site</p>
+            </div>
         </div>
     </div>
 
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    {{-- Quick Actions --}}
+    <div class="grid grid-cols-1 gap-4 mb-8 md:grid-cols-3" data-aos="fade-up" data-aos-delay="150">
+        <a href="{{ route('bale.cms.posts.create') }}"
+            class="group p-5 bg-linear-to-br from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20 border border-blue-200 dark:border-blue-800 rounded-2xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-blue-600 rounded-xl">
+                    <x-lucide-plus class="w-6 h-6 text-white" />
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">New Post</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Create content</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('bale.cms.pages.index') }}"
+            class="group p-5 bg-linear-to-br from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20 border border-purple-200 dark:border-purple-800 rounded-2xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-purple-600 rounded-xl">
+                    <x-lucide-file class="w-6 h-6 text-white" />
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">Manage Pages</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">View all pages</p>
+                </div>
+            </div>
+        </a>
+
+        <a href="{{ route('bale.cms.navigations.index') }}"
+            class="group p-5 bg-linear-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/20 dark:to-emerald-800/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl hover:shadow-lg transition-all duration-300 hover:-translate-y-1">
+            <div class="flex items-center gap-4">
+                <div class="p-3 bg-emerald-600 rounded-xl">
+                    <x-lucide-menu class="w-6 h-6 text-white" />
+                </div>
+                <div>
+                    <h3 class="font-semibold text-gray-900 dark:text-white">Navigation</h3>
+                    <p class="text-sm text-gray-600 dark:text-gray-400">Edit menus</p>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    {{-- Charts and Recent Posts --}}
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6" data-aos="fade-up" data-aos-delay="200">
         {{-- Chart Section --}}
         <div
-            class="lg:col-span-2 bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Traffic Overview (Coming Soon)</h3>
-            <p class="text-sm text-gray-500 dark:text-gray-400 mt-4">Dummy Data</p>
+            class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-6">
+                <div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Traffic Overview</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Last 7 days analytics</p>
+                </div>
+                <div class="p-3 bg-linear-to-br from-indigo-500 to-indigo-600 rounded-xl shadow-lg">
+                    <x-lucide-trending-up class="w-6 h-6 text-white" />
+                </div>
+            </div>
             <div class="w-full h-[300px]">
                 <canvas id="traffic-chart"></canvas>
             </div>
         </div>
 
-        {{-- Recent Posts list --}}
-        <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700">
-            <h3 class="text-lg font-semibold text-gray-800 dark:text-white mb-4">Recent Updates</h3>
+        {{-- Recent Posts --}}
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-xl font-bold text-gray-900 dark:text-white">Recent Updates</h3>
+                <div class="p-2 bg-linear-to-br from-pink-500 to-pink-600 rounded-lg shadow-lg">
+                    <x-lucide-sparkles class="w-5 h-5 text-white" />
+                </div>
+            </div>
             <div class="space-y-4">
                 @forelse($recentPosts as $post)
-                    <div class="flex items-start gap-3">
+                    <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                         @if($post->thumbnail)
                             <img src="{{ Storage::disk('s3')->url(session('bale_active_slug') . '/thumbnails/' . $post->thumbnail) }}"
-                                alt="" class="w-12 h-12 rounded-lg object-cover flex-shrink-0 bg-gray-100">
+                                alt="" class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
                         @else
                             <div
-                                class="w-12 h-12 rounded-lg bg-gray-100 dark:bg-slate-700 flex items-center justify-center flex-shrink-0 text-gray-400">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
-                                    </path>
-                                </svg>
+                                class="w-12 h-12 rounded-lg bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center flex-shrink-0">
+                                <x-lucide-image class="w-6 h-6 text-gray-400 dark:text-gray-500" />
                             </div>
                         @endif
                         <div class="min-w-0 flex-1">
                             <a href="{{ route('bale.cms.posts.edit', $post->slug) }}"
-                                class="block text-sm font-medium text-gray-800 dark:text-gray-200 truncate hover:text-blue-600 transition-colors">
+                                class="block text-sm font-semibold text-gray-900 dark:text-gray-100 truncate hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
                                 {{ $post->title }}
                             </a>
-                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                            <p class="text-xs text-gray-500 dark:text-gray-400 mt-1 flex items-center gap-1">
+                                <x-lucide-clock class="w-3 h-3" />
                                 {{ $post->updated_at->diffForHumans() }}
                             </p>
                         </div>
                     </div>
                 @empty
-                    <p class="text-sm text-gray-500">No recent posts found.</p>
+                    <div class="text-center py-8">
+                        <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                            <x-lucide-inbox class="w-8 h-8 text-gray-400" />
+                        </div>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">No recent posts</p>
+                    </div>
                 @endforelse
             </div>
 
             <a href="{{ route('bale.cms.posts.index') }}"
-                class="block mt-6 text-center text-sm font-medium text-blue-600 hover:text-blue-700 hover:underline">
-                View All Posts &rarr;
+                class="block mt-6 text-center text-sm font-semibold text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 transition-colors">
+                View All Posts
+                <x-lucide-arrow-right class="w-4 h-4 inline ml-1" />
             </a>
         </div>
     </div>

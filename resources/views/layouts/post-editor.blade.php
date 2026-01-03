@@ -19,43 +19,47 @@
     <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css"
         rel="stylesheet" />
 
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/editorjs@latest"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/list@2"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@editorjs/image@latest"></script>
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 
 </head>
 
-{{-- Layout For Livewire Admin Panel --}}
+{{-- Layout For Post Editor --}}
 
 <body
-    class="min-h-screen bg-gray-100 dark:bg-slate-900 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-300 scrollbar-thumb-rounded-full scrollbar-track-rounded-full overscroll-none">
+    class="min-h-screen bg-gray-50 dark:bg-slate-900 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-300 scrollbar-thumb-rounded-full scrollbar-track-rounded-full overscroll-none">
 
-    <div class="fixed inset-x-0 top-0 z-40 w-full h-full px-4 pb-10 bg-white backdrop-blur-md dark:bg-slate-900 sm:px-6 md:px-8"
+    {{-- Loading Screen --}}
+    <div class="fixed inset-x-0 top-0 z-50 w-full h-full px-4 pb-10 bg-white backdrop-blur-md dark:bg-slate-900 sm:px-6 md:px-8"
         x-data="{ loader: true }" x-show="loader" x-init="setTimeout(() => loader = false, 600)"
         x-transition:leave="transition ease-in duration-300" x-transition:leave-start="opacity-100 scale-100"
         x-transition:leave-end="opacity-0 scale-100">
         <div class="flex items-center justify-center h-screen mx-auto">
-            <div class="animate-spin inline-block size-10 border-[3px] border-current border-t-transparent text-gray-400 rounded-full"
-                role="status" aria-label="loading">
-                <span class="sr-only">Loading...</span>
+            <div class="flex flex-col items-center gap-4">
+                <div class="animate-spin inline-block size-10 border-[3px] border-current border-t-transparent text-purple-600 rounded-full"
+                    role="status" aria-label="loading">
+                    <span class="sr-only">Loading...</span>
+                </div>
+                <p class="text-sm text-gray-600 dark:text-gray-400 font-medium">Loading Editor...</p>
             </div>
         </div>
         <span class="sr-only">preloader</span>
     </div>
 
+    {{-- Topbar --}}
     <livewire:cms.shared-components.praban-post-editor-topbar />
 
-    <div class="w-full p-0 md:p-4">
+    {{-- Main Content Area --}}
+    <div class="w-full px-3 py-4 pb-20 md:pb-4 md:px-4 md:py-6">
         <main>
             {{ $slot }}
         </main>
     </div>
+
     @livewireScripts
     <x-core::toast />
 
+    {{-- FilePond Scripts --}}
     <script
         src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
     <script

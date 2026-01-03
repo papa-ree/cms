@@ -1,126 +1,210 @@
 <div>
-    <form wire:submit="update(Object.fromEntries(new FormData($event.target)))" class="" id="formPost"
+    {{-- Help Guide --}}
+    <div class="mb-6 p-5 bg-linear-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl">
+        <div class="flex items-start gap-4">
+            <div class="p-3 bg-amber-600 rounded-xl shadow-lg">
+                <x-lucide-pen-tool class="w-6 h-6 text-white" />
+            </div>
+            <div class="flex-1">
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Post Editor Guide</h3>
+                <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
+                    Edit your post content using the powerful EditorJS. Fill in the metadata on the left, then create your content on the right.
+                </p>
+                <div class="grid gap-2 md:grid-cols-2">
+                    <div class="flex items-start gap-2">
+                        <x-lucide-check class="w-4 h-4 text-amber-600 mt-0.5" />
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Title & slug are auto-synced</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <x-lucide-check class="w-4 h-4 text-amber-600 mt-0.5" />
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Content auto-saves on change</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form wire:submit="update(Object.fromEntries(new FormData($event.target)))" id="formPost"
         x-data="{ postTitle: $wire.entangle('title'), postSlug: $wire.entangle('slug').live, showSetting: false }">
 
-        <div class="grid grid-cols-7 space-y-0 lg:gap-x-8 gap-x-0 lg:space-y-0">
-
-            <div
-                class="col-span-7 lg:block hidden p-4 antialiased text-gray-800 bg-white border border-gray-200 lg:p-8 md:p-6 rounded-xl lg:col-span-2 sm:p-6 dark:bg-gray-800 dark:text-white dark:border-gray-700 lg:min-h-[85vh]">
-
-                {{-- post title --}}
-                <div class="mb-4 sm:mb-6">
-                    <x-core::input wire:model='title' placeholder="post title" label="Post title" x-model="postTitle" />
-                    <div class="flex items-center justify-end">
-                        <button class="flex items-center mt-2 cursor-pointer text-sm gap-x-2 dark:text-neutral-500"
-                            type="button" @click="showSetting=!showSetting"
-                            :class="showSetting ? 'text-emerald-500 font-semibold' : 'text-gray-500 font-medium'">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="lucide lucide-settings-2">
-                                <path d="M20 7h-9" />
-                                <path d="M14 17H5" />
-                                <circle cx="17" cy="17" r="3" />
-                                <circle cx="7" cy="7" r="3" />
-                            </svg>
-                            Advance Settings
-                        </button>
-                    </div>
-                    <x-core::input-error for="title" />
-                </div>
-
-                {{-- post slug --}}
-                <div x-show="showSetting" x-collapse>
-                    <x-core::input label="permalink" wire:model='slug' name="slug" x-slug="postTitle"
-                        x-model="postSlug" />
-                    <x-core::input-error for="slug" />
-
-                    <div class="flex items-center mt-2 mb-4 text-sm sm:mb-6 gap-x-2">
-                        <span class="text-gray-700 dark:text-neutral-500">
-                            sesuaikan permalink untuk mengarahkan
-                            link
-                            ke artikel anda
-                        </span>
-                        <div class="hs-tooltip [--placement:top] text-pretty">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="lucide lucide-circle-help">
-                                <circle cx="12" cy="12" r="10" />
-                                <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3" />
-                                <path d="M12 17h.01" />
-                            </svg>
-                            <span
-                                class="absolute z-10 invisible inline-block max-w-44 px-2 py-1 text-xs font-medium text-white transition-opacity bg-gray-900 rounded shadow-sm opacity-0 hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible dark:bg-neutral-700"
-                                role="tooltip">
-                                Permalink adalah URL tetap yang mengarahkan ke suatu artikel atau sumber daring.
-                            </span>
+        <div class="grid grid-cols-1 lg:grid-cols-7 gap-6">
+            {{-- LEFT SIDEBAR: Post Metadata (Sticky) --}}
+            <div class="lg:col-span-2">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 lg:sticky lg:top-24 space-y-6 max-h-[calc(100vh-7rem)] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-200 dark:scrollbar-track-gray-800 scrollbar-thumb-rounded-full">
+                    {{-- Header --}}
+                    <div class="flex items-center gap-3 pb-4 border-b border-gray-200 dark:border-gray-700">
+                        <div class="p-2.5 bg-linear-to-br from-blue-500 to-blue-600 rounded-lg shadow-md">
+                            <x-lucide-file-text class="w-5 h-5 text-white" />
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-lg text-gray-900 dark:text-white">Post Details</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">Metadata & settings</p>
                         </div>
                     </div>
-                </div>
 
-                {{-- post thumbnail --}}
-                <div class="space-y-3 sm:mb-10" x-data="{ showUploadZone: $wire.entangle('show_upload_zone').live }">
-                    <x-core::label value="post thumbnail preview" />
-                    @if ($thumbnail)
-                        <div x-show="!showUploadZone"
-                            class="relative flex items-center justify-center overflow-hidden transition-all duration-500 ease-in-out transform rounded-lg shadow-md cursor-pointer group hover:shadow-slate-500">
-                            <img loading="lazy"
-                                class="object-cover object-center w-full h-40 max-w-full transition-all duration-500 ease-in-out transform bg-center bg-cover rounded-lg group-hover:scale-125"
-                                src="{{ route('media.show', ['path' => session('bale_active_slug') . '//thumbnails/' . $thumbnail]) ?? null }}"
-                                alt="{{ $title }}" loading="lazy">
-                            <div wire:click='deleteThumbnail'
-                                class="absolute z-20 hidden p-1 text-white transition-all duration-500 ease-in-out rounded-full group-hover:block bg-red-400/80 hover:bg-white/80 hover:text-red-400 top-1 right-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
-                                    stroke="currentColor" class="w-6 h-6">
-                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                        d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
-                                </svg>
+                    {{-- Post Title --}}
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <x-lucide-type class="w-4 h-4 text-gray-400" />
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Post Title *</label>
+                        </div>
+                        <x-core::input wire:model='title' placeholder="Enter post title..." x-model="postTitle" />
+                        <x-core::input-error for="title" />
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Main title for your post</p>
+                    </div>
+
+                    {{-- Advanced Settings Toggle --}}
+                    <button class="flex items-center gap-2 w-full p-3 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900/50 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                        type="button" @click="showSetting=!showSetting"
+                        :class="showSetting ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''">
+                        <x-lucide-settings class="w-4 h-4"  />
+                        <span class="flex-1 text-left text-sm font-medium" :class="showSetting ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'">
+                            Advanced Settings
+                        </span>
+                        <x-lucide-chevron-down class="w-4 h-4 transition-transform"  />
+                    </button>
+
+                    {{-- Post Slug (Collapsed) --}}
+                    <div x-show="showSetting" x-collapse>
+                        <div class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl space-y-3">
+                            <div class="flex items-center gap-2 mb-2">
+                                <x-lucide-link class="w-4 h-4 text-blue-600" />
+                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Permalink / Slug</label>
+                                <div class="hs-tooltip">
+                                    <button type="button" class="hs-tooltip-toggle">
+                                        <x-lucide-info class="w-3.5 h-3.5 text-blue-600" />
+                                    </button>
+                                    <span class="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 transition-opacity inline-block absolute invisible z-10 py-2 px-3 bg-gray-900 text-xs text-white rounded-lg shadow-lg dark:bg-gray-700"
+                                        role="tooltip">
+                                        Permalink is the permanent URL for this post
+                                    </span>
+                                </div>
+                            </div>
+                            <x-core::input wire:model='slug' name="slug" x-slug="postTitle" x-model="postSlug" 
+                                placeholder="auto-generated-from-title" />
+                            <x-core::input-error for="slug" />
+                            <p class="text-xs text-blue-700 dark:text-blue-400">
+                                Auto-generated from title. Customize if needed.
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Post Thumbnail --}}
+                    <div x-data="{ showUploadZone: $wire.entangle('show_upload_zone').live }">
+                        <div class="flex items-center gap-2 mb-3">
+                            <x-lucide-image class="w-4 h-4 text-gray-400" />
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Featured Image</label>
+                        </div>
+
+                        @if ($thumbnail)
+                            <div x-show="!showUploadZone"
+                                class="relative group overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600 transition-all">
+                                <img loading="lazy"
+                                    class="w-full h-48 object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                                    src="{{ route('media.show', ['path' => session('bale_active_slug') . '//thumbnails/' . $thumbnail]) ?? null }}"
+                                    alt="{{ $title }}">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                    <button wire:click='deleteThumbnail' type="button"
+                                        class="absolute top-3 right-3 p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-lg transition-colors">
+                                        <x-lucide-trash-2 class="w-4 h-4" />
+                                    </button>
+                                </div>
+                            </div>
+                        @endif
+
+                        <div x-show="showUploadZone">
+                            <x-cms::filepond wire:model="thumbnail_new" allowImagePreview imagePreviewMaxHeight="200"
+                                allowFileTypeValidation acceptedFileTypes="['image/png', 'image/jpg', 'image/jpeg']"
+                                allowFileSizeValidation maxFileSize="512kb" />
+                            <x-core::input-error for="thumbnail_new" />
+                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                Max 512KB. Formats: PNG, JPG, JPEG
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Submit Button - Hidden (moved to topbar) --}}
+                    {{-- Desktop/Tablet: In topbar --}}
+                    {{-- Mobile: In bottom bar --}}
+                </div>
+            </div>
+
+            {{-- RIGHT: EditorJS Content Area --}}
+            <div class="lg:col-span-5">
+                <div class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden">
+                    {{-- Editor Header --}}
+                    <div class="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/10 dark:to-orange-900/10 border-b border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center gap-2 md:gap-3">
+                            <div class="p-2 md:p-2.5 bg-linear-to-br from-amber-500 to-amber-600 rounded-lg shadow-md">
+                                <x-lucide-file-edit class="w-4 md:w-5 h-4 md:h-5 text-white" />
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-lg text-gray-900 dark:text-white">Content Editor</h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">Write your post content</p>
                             </div>
                         </div>
-                    @endif
+                        <div class="flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-full">
+                            <div class="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
+                            <span class="text-xs font-medium text-green-700 dark:text-green-400">Auto-save ON</span>
+                        </div>
+                    </div>
 
-                    <div x-show="showUploadZone">
-                        <x-cms::filepond wire:model="thumbnail_new" allowImagePreview imagePreviewMaxHeight="200"
-                            allowFileTypeValidation acceptedFileTypes="['image/png', 'image/jpg', 'image/jpeg']"
-                            allowFileSizeValidation maxFileSize="512kb" />
-                        <x-core::input-error for="thumbnail_new" />
+                    {{-- Editor Toolbar Guide --}}
+                    <div class="px-6 py-3 bg-blue-50 dark:bg-blue-900/10 border-b border-blue-200 dark:border-blue-800/50">
+                        <div class="flex items-start gap-2 text-xs text-blue-700 dark:text-blue-400">
+                            <x-lucide-lightbulb class="w-4 h-4 mt-0.5" />
+                            <div>
+                                <span class="font-semibold">Quick tip:</span>
+                                <span>Press <kbd class="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-blue-300 rounded text-blue-800 dark:text-blue-300 font-mono">Content Editor</kbd> to start typing, and use <kbd class="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-blue-300 rounded text-blue-800 dark:text-blue-300 font-mono">+</kbd> button on the left.</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    {{-- EditorJS Container --}}
+                    <div wire:ignore id="editorjs"
+                        class="px-6 py-8 bg-white dark:bg-gray-800 min-h-[70vh] max-h-[70vh] overflow-y-auto prose prose-slate dark:prose-invert max-w-none
+                        scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-200 dark:scrollbar-track-gray-800 scrollbar-thumb-rounded-full">
+                    </div>
+
+                    <x-core::input-error for="content" />
+
+                    {{-- Editor Footer --}}
+                    <div class="px-6 py-3 bg-gray-50 dark:bg-gray-900/50 border-t border-gray-200 dark:border-gray-700">
+                        <div class="flex items-center justify-between text-xs text-gray-600 dark:text-gray-400">
+                            <div class="flex items-center gap-4">
+                                <div class="flex items-center gap-1.5">
+                                    <x-lucide-text class="w-3.5 h-3.5" />
+                                    <span>Editor</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <x-lucide-image class="w-3.5 h-3.5" />
+                                    <span>Image support</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <x-lucide-list class="w-3.5 h-3.5" />
+                                    <span>Lists</span>
+                                </div>
+                            </div>
+                            <span class="text-gray-500">Last edited: {{ $updated_at->diffForHumans() }}</span>
+                        </div>
                     </div>
                 </div>
-
-                <div class="hidden lg:block">
-                    <x-core::button label="update" type="submit" />
-                </div>
-
             </div>
-
-            <div
-                class="col-span-7 py-4 pl-4 antialiased text-gray-800 bg-white border border-gray-200 lg:pl-0 lg:px-4 md:px-0 lg:overflow-y-auto lg:col-span-5 rounded-xl dark:bg-gray-800 dark:text-white dark:border-gray-700">
-
-                <div wire:ignore id="editorjs"
-                    class="bg-white dark:bg-gray-800 lg:max-h-[85vh] max-h-[90vh] md:overflow-y-scroll md:scrollbar-thin scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar-thumb-gray-700 scrollbar-track-gray-300">
-                </div>
-
-                <x-core::input-error for="content" />
-            </div>
-
-
         </div>
-
-
     </form>
 
     @script
     <script>
-        document.addEventListener( 'livewire:initialized', () =>
-        {
+        document.addEventListener('livewire:initialized', () => {
             initEditor();
-        } );
+        });
 
-        function initEditor ()
-        {
-            var token = "{{ csrf_token()}}"
+        function initEditor() {
+            var token = "{{ csrf_token() }}"
             const data = @js($content);
-            const editor = new EditorJS( {
-                holder: 'editorjs', tools: {
+            const editor = new EditorJS({
+                holder: 'editorjs',
+                tools: {
                     List: {
                         class: List,
                         inlineToolbar: true,
@@ -128,32 +212,29 @@
                             defaultStyle: 'unordered'
                         },
                     },
-                    image:
-                    {
+                    image: {
                         class: ImageTool,
                         config: {
                             additionalRequestHeaders: {
                                 "X-CSRF-TOKEN": token
                             },
-
                             endpoints: {
-                                byFile: '/cms/editorjs/upload', // URL Laravel untuk upload file 
-                                byUrl: '/cms/editorjs/fetchUrl', // opsional kalau mau fetch by URL 
+                                byFile: '/cms/editorjs/upload',
+                                byUrl: '/cms/editorjs/fetchUrl',
                             },
-
                             field: 'image',
                             types: 'image/*',
                             captionPlaceholder: 'Tambahkan keterangan gambar...',
                         },
                     },
                 },
-                data: data, // <- tampilkan konten dari database 
-                onChange: async ( api ) =>
-                {
+                data: data,
+                onChange: async (api) => {
                     const savedData = await api.saver.save();
-                    $wire.set( 'content', savedData );
+                    $wire.set('content', savedData);
                 },
-            } );
+                placeholder: 'Start writing your post content here...'
+            });
         }
     </script>
     @endscript
