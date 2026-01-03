@@ -16,7 +16,7 @@ class EnsureBaleSelected
 
         if (!session()->has('bale_active_uuid')) {
             // route 'bale.cms.select' expected to be registered
-            return redirect()->route('bale.cms.select');
+            return redirect()->route('rakaca.select-bale');
         }
 
         return $next($request);
