@@ -9,7 +9,7 @@
             <div class="flex-1">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Page Editor Guide</h3>
                 <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                    Edit your page content using the powerful EditorJS. Fill in the metadata on the left, then create
+                    Edit your page content using the powerful Bale Editor. Fill in the metadata on the left, then create
                     your content on the right.
                 </p>
                 <div class="grid gap-2 md:grid-cols-2">

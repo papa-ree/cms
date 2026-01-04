@@ -63,25 +63,35 @@ class NavigationSortable extends Component
         }
 
         $this->dispatch('toast', message: 'Parent order updated!', type: 'success');
+        $this->dispatch('navigation-reordered');
     }
 
-    public function reorderChildren($newParentId, $ids)
+    public function reorderChildren($newParentId, $toIds, $oldParentId = null, $fromIds = [])
     {
         TenantConnectionService::ensureActive();
         $connection = TenantConnectionService::connection();
 
+        // Update target container
         $parentId = ($newParentId === 'null' || $newParentId === '') ? null : $newParentId;
+        foreach ($toIds as $index => $id) {
+            (new Navigation)->setConnection($connection)->where('id', $id)->update([
+                'parent_id' => $parentId,
+                'order' => $index
+            ]);
+        }
 
-        foreach ($ids as $index => $id) {
-            (new Navigation)
-                ->setConnection($connection)
-                ->where('id', $id)
-                ->update([
-                    'parent_id' => $parentId,
+        // Update source container if moved between different parents
+        if ($oldParentId && $oldParentId !== $newParentId) {
+            $fromParentId = ($oldParentId === 'null' || $oldParentId === '') ? null : $oldParentId;
+            foreach ($fromIds as $index => $id) {
+                (new Navigation)->setConnection($connection)->where('id', $id)->update([
+                    'parent_id' => $fromParentId,
                     'order' => $index
                 ]);
+            }
         }
 
         $this->dispatch('toast', message: 'Navigation updated!', type: 'success');
+        $this->dispatch('navigation-reordered');
     }
 }

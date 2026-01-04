@@ -1,9 +1,17 @@
 <div x-data="{ 
+    childSortable: null,
+
     initChildSort() {
         this.$nextTick(() => {
+            // Clean up existing instance if any
+            if (this.childSortable) {
+                this.childSortable.destroy();
+                this.childSortable = null;
+            }
+
             const childList = document.getElementById('child-list');
             if (childList && window.Sortable) {
-                new Sortable(childList, {
+                this.childSortable = new Sortable(childList, {
                     animation: 200,
                     handle: '.child-handle',
                     draggable: '.child-item',
@@ -17,7 +25,7 @@
             }
         });
     }
-}" x-init="initChildSort()">
+}" x-init="initChildSort()" @navigation-reordered.window="initChildSort()">
     {{-- Breadcrumb Navigation --}}
     <div class="mb-6">
         <div class="flex items-center gap-2 text-sm">

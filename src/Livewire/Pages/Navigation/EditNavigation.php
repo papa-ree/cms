@@ -139,6 +139,7 @@ class EditNavigation extends Component
         }
 
         $this->dispatch('toast', message: 'Sub-navigation reordered!', type: 'success');
+        $this->dispatch('navigation-reordered');
     }
 
     public function rules()

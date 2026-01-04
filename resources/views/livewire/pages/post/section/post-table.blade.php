@@ -173,9 +173,6 @@
                                 :editUrl="route('bale.cms.posts.edit', $post->slug)"
                                 :deleteId="$post->id"
                                 confirmMessage="Yakin ingin menghapus data ini?">
-                                {{-- <livewire:slot name="actions"> --}}
-                                    <x-lucide-activity />
-                                {{-- </livewire:slot> --}}
                             </livewire:core.shared-components.item-actions>
                         </div>
                     </td>

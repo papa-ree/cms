@@ -57,10 +57,10 @@
                                 <x-lucide-edit class="w-4 h-4" />
                             </a>
                             @if($section->type != 'core')
-                                <button
-                                    class="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 dark:text-gray-400 dark:hover:text-red-400 dark:hover:bg-red-900/20 rounded-lg transition-all">
-                                    <x-lucide-trash-2 class="w-4 h-4" />
-                                </button>
+                                <livewire:core.shared-components.item-actions
+                                    :deleteId="$section->id"
+                                    confirmMessage="Yakin ingin menghapus section ini?">
+                                </livewire:core.shared-components.item-actions>
                             @endif
                         </div>
                     </div>

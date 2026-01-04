@@ -1,4 +1,71 @@
-<div>
+<div x-data="{
+    parentSortable: null,
+    childSortables: [],
+
+    initSortable() {
+        this.$nextTick(() => {
+            try {
+                // Cleanup scoped to this component
+                if (this.parentSortable) {
+                    try { this.parentSortable.destroy(); } catch(e) {}
+                    this.parentSortable = null;
+                }
+                this.childSortables.forEach(s => {
+                    try { s.destroy(); } catch(e) {}
+                });
+                this.childSortables = [];
+
+                // Initialize parent cards sortable
+                const parentGrid = this.$el.querySelector('#parent-grid');
+                if (parentGrid && window.Sortable) {
+                    this.parentSortable = new Sortable(parentGrid, {
+                        animation: 200,
+                        handle: '.parent-handle',
+                        draggable: '.parent-card',
+                        ghostClass: 'opacity-50',
+                        dragClass: 'scale-105',
+                        onEnd: (evt) => {
+                            try {
+                                const ids = Array.from(parentGrid.querySelectorAll('.parent-card')).map(card => card.dataset.id);
+                                this.$wire.reorderParents(ids);
+                            } catch(e) {}
+                        }
+                    });
+                }
+
+                // Initialize children sortable lists
+                const childLists = this.$el.querySelectorAll('.child-list');
+                childLists.forEach(container => {
+                    if (window.Sortable) {
+                        const sortable = new Sortable(container, {
+                            group: 'shared-children',
+                            animation: 200,
+                            handle: '.child-handle',
+                            draggable: '.child-item',
+                            ghostClass: 'bg-indigo-100',
+                            dragClass: 'scale-105',
+                            onEnd: (evt) => {
+                                try {
+                                    const toParentId = evt.to.dataset.parentId;
+                                    const toIds = Array.from(evt.to.querySelectorAll('.child-item')).map(item => item.dataset.id);
+
+                                    if (evt.from !== evt.to) {
+                                        const fromParentId = evt.from.dataset.parentId;
+                                        const fromIds = Array.from(evt.from.querySelectorAll('.child-item')).map(item => item.dataset.id);
+                                        this.$wire.reorderChildren(toParentId, toIds, fromParentId, fromIds);
+                                    } else {
+                                        this.$wire.reorderChildren(toParentId, toIds);
+                                    }
+                                } catch(e) {}
+                            }
+                        });
+                        this.childSortables.push(sortable);
+                    }
+                });
+            } catch(e) {}
+        });
+    }
+}" x-init="initSortable()" @navigation-reordered.window="initSortable()">
     {{-- Help Guide --}}
     <div class="mb-6 p-5 bg-linear-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/20 dark:to-purple-900/20 border border-indigo-200 dark:border-indigo-800 rounded-2xl">
         <div class="flex items-start gap-4">
@@ -6,7 +73,7 @@
                 <x-lucide-move class="w-6 h-6 text-white" />
             </div>
             <div class="flex-1">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Navigation Hierarchy Manager</h3>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Navigation Hierarchy Manager (Beta Feature)</h3>
                 <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
                     Organize your navigation menu with drag-and-drop. Reorder cards or move sub-items between different parents.
                 </p>
@@ -29,7 +96,7 @@
         <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6" id="parent-grid">
             @foreach($this->availableNavigations as $index => $navigation)
                 <div class="parent-card bg-white dark:bg-gray-800 border-2 border-gray-200 dark:border-gray-700 rounded-2xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 flex flex-col"
-                    data-id="{{ $navigation->id }}">
+                    data-id="{{ $navigation->id }}" wire:key="parent-{{ $navigation->id }}">
 
                     <div class="h-1.5 bg-linear-to-r from-purple-500 via-purple-600 to-indigo-600"></div>
 
@@ -67,15 +134,15 @@
                                                 <x-lucide-external-link class="w-3.5 h-3.5" />
                                                 <span class="text-xs">External URL</span>
                                             </div>
-                                        @elseif ($navigation->url_mode == false)
-                                            <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
-                                                <x-lucide-file class="w-3.5 h-3.5" />
-                                                <span class="text-xs">Internal Page</span>
-                                            </div>
-                                        @elseif ($navigation->url_mode === null)
+                                        @elseif ($navigation->url_mode == null)
                                             <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
                                                 <x-lucide-circle-off class="w-3.5 h-3.5" />
                                                 <span class="text-xs">No URL</span>
+                                            </div>
+                                        @else
+                                            <div class="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400">
+                                                <x-lucide-file class="w-3.5 h-3.5" />
+                                                <span class="text-xs">Internal Page</span>
                                             </div>
                                         @endif
                                     </div>
@@ -88,7 +155,7 @@
                                     class="p-2.5 text-gray-600 hover:text-purple-600 hover:bg-purple-50 dark:text-gray-400 dark:hover:text-purple-400 dark:hover:bg-purple-900/20 rounded-lg transition-all">
                                     <x-lucide-edit class="w-5 h-5" />
                                 </a>
-                                <livewire:core.shared-components.item-actions 
+                                <livewire:core.shared-components.item-actions
                                     :deleteId="$navigation->id"
                                     confirmMessage="Hapus '{{ $navigation->name }}' dan semua sub-menu?"
                                 />
@@ -98,16 +165,27 @@
 
                     {{-- Sub-Navigation Items with Sortable --}}
                     <div class="flex-1 p-6 pt-4">
-                        @if($navigation->children && count($navigation->children) > 0)
-                            <div class="flex items-center gap-2 mb-4">
-                                <x-lucide-corner-down-right class="w-4 h-4 text-indigo-600" />
-                                <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Sub-Navigation Items</h4>
-                            </div>
+                        <div class="flex items-center gap-2 mb-4">
+                            <x-lucide-corner-down-right class="w-4 h-4 text-indigo-600" />
+                            <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 uppercase tracking-wide">Sub-Navigation Items</h4>
+                        </div>
 
-                            <div class="child-list space-y-3 min-h-[60px]" data-parent-id="{{ $navigation->id }}">
-                                @foreach($navigation->children as $childIndex => $child)
-                                    <div class="child-item relative group p-4 bg-gray-50 dark:bg-gray-900/50 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all"
-                                        data-id="{{ $child->id }}">
+                        {{-- Stable Container with wire:ignore --}}
+                        <div class="relative min-h-[100px]" wire:key="child-wrapper-{{ $navigation->id }}-{{ count($navigation->children) }}">
+                            {{-- Placeholder OUTSIDE the draggable list --}}
+                            @if(count($navigation->children) == 0)
+                                <div class="absolute inset-0 pointer-events-none border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl flex flex-col items-center justify-center opacity-50 transition-opacity">
+                                    <x-lucide-layers class="w-8 h-8 text-gray-300 mb-2" />
+                                    <span class="text-sm text-gray-400">No sub-items. Drop here!</span>
+                                </div>
+                            @endif
+
+                            <div class="child-list space-y-3 min-h-[100px] p-1"
+                                 data-parent-id="{{ $navigation->id }}"
+                                 wire:ignore>
+                                @foreach($navigation->children as $child)
+                                    <div class="child-item relative group p-4 bg-white dark:bg-gray-900/50 border-2 border-gray-100 dark:border-gray-700 rounded-xl hover:border-indigo-300 dark:hover:border-indigo-700 hover:shadow-md transition-all"
+                                        data-id="{{ $child->id }}" wire:key="child-{{ $child->id }}">
                                         <div class="absolute left-0 top-0 bottom-0 w-1 bg-linear-to-b from-indigo-500 to-indigo-600 rounded-l-xl opacity-0 group-hover:opacity-100 transition-opacity"></div>
 
                                         <div class="flex items-center justify-between">
@@ -155,7 +233,7 @@
                                                     class="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/20 rounded transition-all">
                                                     <x-lucide-edit class="w-4 h-4" />
                                                 </a>
-                                                <livewire:core.shared-components.item-actions 
+                                                <livewire:core.shared-components.item-actions
                                                     :deleteId="$child->id"
                                                     confirmMessage="Hapus '{{ $child->name }}'?"
                                                 />
@@ -164,14 +242,7 @@
                                     </div>
                                 @endforeach
                             </div>
-                        @else
-                            <div class="child-list min-h-[100px] border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl flex items-center justify-center" data-parent-id="{{ $navigation->id }}">
-                                <div class="text-center py-6 opacity-50">
-                                    <x-lucide-layers class="w-6 h-6 text-gray-300 mx-auto mb-2" />
-                                    <span class="text-xs text-gray-400">No sub-items</span>
-                                </div>
-                            </div>
-                        @endif
+                        </div>
                     </div>
 
                     <div class="px-6 pb-6">
@@ -210,53 +281,4 @@
         </div>
     @endif
 
-<div x-data="{ 
-    initSortable() {
-        this.$nextTick(() => {
-            // Initialize parent cards sortable
-            const parentGrid = document.getElementById('parent-grid');
-            if (parentGrid && window.Sortable) {
-                new Sortable(parentGrid, {
-                    animation: 200,
-                    handle: '.parent-handle',
-                    draggable: '.parent-card',
-                    ghostClass: 'opacity-50',
-                    dragClass: 'scale-105',
-                    onEnd: (evt) => {
-                        const ids = Array.from(parentGrid.querySelectorAll('.parent-card')).map(card => card.dataset.id);
-                        this.$wire.reorderParents(ids);
-                    }
-                });
-            }
-
-            // Initialize children sortable lists
-            const childLists = document.querySelectorAll('.child-list');
-            childLists.forEach(container => {
-                if (window.Sortable) {
-                    new Sortable(container, {
-                        group: 'shared-children',
-                        animation: 200,
-                        handle: '.child-handle',
-                        draggable: '.child-item',
-                        ghostClass: 'bg-indigo-100',
-                        dragClass: 'scale-105',
-                        onEnd: (evt) => {
-                            const toParentId = evt.to.dataset.parentId;
-                            const childIds = Array.from(evt.to.querySelectorAll('.child-item')).map(item => item.dataset.id);
-                            
-                            this.$wire.reorderChildren(toParentId, childIds);
-
-                            // Update source container if item moved to different parent
-                            if (evt.from !== evt.to) {
-                                const fromParentId = evt.from.dataset.parentId;
-                                const fromChildIds = Array.from(evt.from.querySelectorAll('.child-item')).map(item => item.dataset.id);
-                                this.$wire.reorderChildren(fromParentId, fromChildIds);
-                            }
-                        }
-                    });
-                }
-            });
-        });
-    }
-}" x-init="initSortable()">
 </div>
