@@ -4,7 +4,6 @@ namespace Bale\Cms\Livewire\Pages\Page;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Jantinnerezo\LivewireAlert\LivewireAlert;
 use Livewire\Component;
 use Livewire\Attributes\{Layout, Locked, Title};
 use Bale\Cms\Models\Page;
@@ -19,7 +18,9 @@ class EditPage extends Component
     public $title;
     public $slug;
     public $content;
+    public $updated_at;
     public $locked;
+    public $show_setting = false;
 
     public function mount($slug)
     {
@@ -32,6 +33,7 @@ class EditPage extends Component
             $this->title = $page->title;
             $this->slug = $page->slug;
             $this->content = $page->content;
+            $this->updated_at = $page->updated_at;
         } else {
             session()->flash('error', [
                 'title' => 'Page Not Found!',
@@ -47,10 +49,7 @@ class EditPage extends Component
 
     public function rules()
     {
-        // pastikan koneksi tenant aktif
         TenantConnectionService::ensureActive();
-
-        // ambil nama koneksi tenant
         $connection = TenantConnectionService::connection();
 
         return [
@@ -60,14 +59,6 @@ class EditPage extends Component
                 'string',
                 Rule::unique($connection . '.pages', 'slug')->ignore($this->id),
             ],
-        ];
-    }
-
-    protected function messages()
-    {
-        return [
-            'content.required' => 'The :attribute are missing.',
-            'content.min' => 'The :attribute is too short.',
         ];
     }
 
@@ -84,7 +75,7 @@ class EditPage extends Component
 
             $this->dispatch('disabling-button', saved: true);
 
-            $page = (new Page)
+            (new Page)
                 ->setConnection($connection)
                 ->find($this->id)
                 ->update([
@@ -94,18 +85,46 @@ class EditPage extends Component
                 ]);
 
             DB::commit();
+            session()->flash('success', 'Page Updated!');
 
-            // $alert->title('Page Updated!')->position('top-end')->success()->toast()->show();
+            $this->redirectRoute('bale.cms.pages.index', navigate: true);
 
-            // $this->redirectRoute('bale.cms.pages.index', navigate: true);
-
-            $this->dispatch('disabling-button', params: false);
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
             info('Page update failed: ' . $th->getMessage());
-            // $alert->title('Something wrong!')->position('top-end')->error()->toast()->show();
+        }
+    }
 
+    public function updated($propertyName)
+    {
+        if ($propertyName === 'content') {
+            $this->autoSave();
+        }
+    }
+
+    public function autoSave()
+    {
+        try {
+            TenantConnectionService::ensureActive();
+            $connection = TenantConnectionService::connection();
+
+            $page = (new Page)
+                ->setConnection($connection)
+                ->find($this->id);
+
+            if ($page) {
+                $page->update([
+                    'title' => $this->title,
+                    'slug' => $this->slug,
+                    'content' => $this->content,
+                ]);
+
+                $this->dispatch('toast', message: 'Auto-saved successfully!', type: 'success');
+                $this->updated_at = now();
+            }
+        } catch (\Throwable $th) {
+            info('Auto-save failed: ' . $th->getMessage());
         }
     }
 }

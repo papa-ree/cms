@@ -2,6 +2,8 @@
 
 namespace Bale\Cms\Livewire\Pages\Post\Section;
 
+use Bale\Cms\Services\TenantConnectionService;
+use Bale\Cms\Traits\HasSafeDelete;
 use Livewire\Component;
 use Livewire\Attributes\{Layout, On, Computed};
 use Livewire\WithoutUrlPagination;
@@ -11,9 +13,36 @@ use Bale\Cms\Models\Post;
 #[Layout('cms::layouts.app')]
 class PostTable extends Component
 {
-    use WithPagination, WithoutUrlPagination;
+    use WithPagination, WithoutUrlPagination, HasSafeDelete;
+    protected string $modelClass = Post::class;
+
 
     public $query = '';
+
+    public $sortField = 'created_at';
+    public $sortDirection = 'desc';
+
+    public $filterPublished = '';
+
+    public function sort($field)
+    {
+        if ($this->sortField === $field) {
+            $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
+        } else {
+            $this->sortField = $field;
+            $this->sortDirection = 'asc';
+        }
+    }
+
+    public function resetFilter($field)
+    {
+        if ($field === 'published')
+            $this->reset('filterPublished');
+    }
+    public function resetAllFilters()
+    {
+        $this->reset(['filterPublished', 'query']);
+    }
 
     #[On('refresh-post')]
     public function render()
@@ -36,12 +65,31 @@ class PostTable extends Component
     #[Computed]
     public function availablePosts()
     {
-        return Post::where('title', 'like', '%' . $this->query . '%')->orderByDesc('created_at')->paginate(10);
+        TenantConnectionService::ensureActive();
+        $connection = TenantConnectionService::connection();
+        return (new Post)
+            ->setConnection($connection)
+            ->where('title', 'like', '%' . $this->query . '%')
+            ->when($this->filterPublished, function ($query) {
+                if ($this->filterPublished === 'published') {
+                    $query->where('published', true);
+                } elseif ($this->filterPublished === 'unpublished') {
+                    $query->where('published', false);
+                }
+            })
+            ->orderBy($this->sortField, $this->sortDirection)
+            ->paginate(10);
     }
 
-    public function publishPost(Post $post)
+    public function publishPost($post)
     {
-        $post->update(['published' => true, 'published_at' => now()]);
+        TenantConnectionService::ensureActive();
+        $connection = TenantConnectionService::connection();
+
+        (new Post)
+            ->setConnection($connection)
+            ->find($post)
+            ->update(['published' => true, 'published_at' => now()]);
 
         // activity()
         // ->causedBy(auth()->user())
@@ -51,9 +99,15 @@ class PostTable extends Component
         // ->log('The user has published the post.');
     }
 
-    public function unpublishPost(Post $post)
+    public function unpublishPost($post)
     {
-        $post->update(['published' => false, 'published_at' => null]);
+        TenantConnectionService::ensureActive();
+        $connection = TenantConnectionService::connection();
+
+        (new Post)
+            ->setConnection($connection)
+            ->find($post)
+            ->update(['published' => false, 'published_at' => null]);
 
         // activity()
         // ->causedBy(auth()->user())

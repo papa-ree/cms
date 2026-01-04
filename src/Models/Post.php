@@ -2,6 +2,8 @@
 
 namespace Bale\Cms\Models;
 
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Bale\Cms\Traits\UsesTenantConnection;
@@ -32,6 +34,20 @@ class Post extends Model
     public function user()
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'user_uuid', 'user_uuid');
+    }
+
+    protected function createdAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn(string $value) => Carbon::parse($value)->diffForHumans(),
+        );
+    }
+
+    protected function publishedAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn(string $value) => Carbon::parse($value)->diffForHumans(),
+        );
     }
 
     // /**
