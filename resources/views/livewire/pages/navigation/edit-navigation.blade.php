@@ -1,4 +1,47 @@
-<div>
+<div x-data="{ 
+    initChildSort() {
+        this.$nextTick(() => {
+            const childList = document.getElementById('child-list');
+            if (childList && window.Sortable) {
+                new Sortable(childList, {
+                    animation: 200,
+                    handle: '.child-handle',
+                    draggable: '.child-item',
+                    ghostClass: 'bg-purple-100',
+                    dragClass: 'scale-105',
+                    onEnd: (evt) => {
+                        const ids = Array.from(childList.querySelectorAll('.child-item')).map(item => item.dataset.id);
+                        this.$wire.reorderChildren(ids);
+                    }
+                });
+            }
+        });
+    }
+}" x-init="initChildSort()">
+    {{-- Breadcrumb Navigation --}}
+    <div class="mb-6">
+        <div class="flex items-center gap-2 text-sm">
+            <a href="{{ route('bale.cms.navigations.index') }}" wire:navigate.hover
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-gray-600 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-300 dark:hover:border-purple-600 transition-all">
+                <span>Navigations</span>
+            </a>
+
+            @if($parent)
+                <x-lucide-chevron-right class="w-4 h-4 text-gray-400" />
+                <a href="{{ route('bale.cms.navigations.edit', $parent->slug) }}" wire:navigate.hover
+                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-gray-600 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-300 dark:hover:border-purple-600 transition-all">
+                    <x-lucide-menu class="w-3.5 h-3.5" />
+                    <span>{{ $parent->name }}</span>
+                </a>
+            @endif
+
+            <x-lucide-chevron-right class="w-4 h-4 text-gray-400" />
+            <span class="px-3 py-1.5 text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg font-medium">
+                Edit: {{ $name }}
+            </span>
+        </div>
+    </div>
+
     {{-- Hero Section --}}
     <div class="relative overflow-hidden p-6 mb-8 text-white rounded-2xl shadow-xl"
         style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);">
@@ -6,11 +49,6 @@
         <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
 
         <div class="relative z-10">
-            {{-- <a :href="$parent ? route('bale.cms.navigations.edit', $parent->slug) : route('bale.cms.navigations.index')"
-                class="inline-flex items-center gap-2 text-white/90 hover:text-white mb-4 transition-colors">
-                <x-lucide-arrow-left class="w-4 h-4" />
-                <span class="text-sm">{{ $parent ? $parent->name : 'Back to Navigations' }}</span>
-            </a> --}}
             <div class="flex items-center gap-3">
                 <div class="p-2.5 bg-white/20 backdrop-blur-md rounded-lg">
                     <x-lucide-menu class="w-6 h-6 text-white" />
@@ -102,30 +140,40 @@
                 <div class="flex items-center justify-between mb-6">
                     <div>
                         <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-1">Sub Navigation</h3>
-                        <p class="text-sm text-gray-500 dark:text-gray-400">Manage child navigation items</p>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Drag to reorder child items</p>
                     </div>
-                    <div class="p-2.5 bg-linear-to-br from-blue-500 to-blue-600 rounded-lg shadow-md">
+                    <div class="p-2.5 bg-linear-to-br from-indigo-500 to-indigo-600 rounded-lg shadow-md">
                         <x-lucide-list class="w-5 h-5 text-white" />
                     </div>
                 </div>
 
                 @if(count($this->availableChilds) > 0)
-                    <div class="space-y-3 mb-6">
+                    <div class="space-y-3 mb-6" id="child-list">
                         @foreach($this->availableChilds as $child)
-                            <div
-                                class="p-4 bg-gray-50 dark:bg-gray-900/50 border border-gray-200 dark:border-gray-700 rounded-xl hover:border-purple-300 dark:hover:border-purple-600 transition-all group">
+                            <div class="child-item group p-4 bg-gray-50 dark:bg-gray-900/50 border-2 border-gray-200 dark:border-gray-700 rounded-xl hover:border-indigo-300 dark:hover:border-indigo-600 transition-all"
+                                data-id="{{ $child->id }}" wire:key="{{ $child->slug }}">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3 flex-1">
-                                        <x-lucide-corner-down-right class="w-4 h-4 text-gray-400" />
+                                        <button class="child-handle p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded cursor-move transition-all"
+                                            title="Drag to reorder">
+                                            <x-lucide-grip-vertical class="w-4 h-4" />
+                                        </button>
+                                        <x-lucide-corner-down-right class="w-4 h-4 text-indigo-600" />
                                         <div>
                                             <h4 class="font-semibold text-gray-900 dark:text-white">{{ $child->name }}</h4>
                                             <p class="text-xs text-gray-500 dark:text-gray-400 font-mono">{{ $child->slug }}</p>
                                         </div>
                                     </div>
-                                    <a href="{{ route('bale.cms.navigations.edit', $child->slug) }}"
-                                        class="p-2 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 opacity-0 group-hover:opacity-100 transition-all">
+                                    <a href="{{ route('bale.cms.navigations.edit', $child->slug) }}" wire:navigate.hover
+                                        class="p-2 text-gray-400 hover:text-indigo-600 dark:hover:text-indigo-400 opacity-0 group-hover:opacity-100 transition-all">
                                         <x-lucide-edit class="w-4 h-4" />
                                     </a>
+
+                                    <livewire:core.shared-components.item-actions 
+                                    class="opacity-0 group-hover:opacity-100 transition-all"
+                                            :deleteId="$child->id"
+                                            confirmMessage="Hapus '{{ $child->name }}'?"
+                                        />
                                 </div>
                             </div>
                         @endforeach

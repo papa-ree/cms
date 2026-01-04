@@ -52,6 +52,13 @@ class EditNavigation extends Component
         $this->url = $nav->url;
         $this->page_slug = $nav->page_slug;
         $this->parent = $nav->parent;
+
+        // Load parent navigation if exists (for breadcrumb)
+        if ($nav->parent_id) {
+            $this->parent = (new Navigation)
+                ->setConnection($connection)
+                ->find($nav->parent_id);
+        }
     }
 
     public function render()
@@ -119,6 +126,20 @@ class EditNavigation extends Component
         }
     }
 
+    public function reorderChildren($ids)
+    {
+        TenantConnectionService::ensureActive();
+        $connection = TenantConnectionService::connection();
+
+        foreach ($ids as $index => $id) {
+            (new Navigation)
+                ->setConnection($connection)
+                ->where('id', $id)
+                ->update(['order' => $index]);
+        }
+
+        $this->dispatch('toast', message: 'Sub-navigation reordered!', type: 'success');
+    }
 
     public function rules()
     {
