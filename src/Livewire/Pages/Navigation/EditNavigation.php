@@ -43,7 +43,7 @@ class EditNavigation extends Component
         $nav = (new Navigation)
             ->setConnection($connection)
             ->whereSlug($slug)
-            ->firstOrFail();
+            ->first();
 
         $this->id = $nav->id;
         $this->name = $nav->name;

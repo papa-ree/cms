@@ -36,80 +36,52 @@ class NavigationSortable extends Component
         TenantConnectionService::ensureActive();
         $connection = TenantConnectionService::connection();
 
-        // return (new Navigation)->setConnection($connection)->orderBy('order')->get();
-        return (new Navigation)->setConnection($connection)->when($this->nav_parent, function ($query) {
-            return $query->whereParentId($this->nav_parent);
-        }, function ($query) {
-            return $query->with('children')->whereNull('parent_id');
-        })
+        return (new Navigation)->setConnection($connection)
+            ->when($this->nav_parent, function ($query) {
+                return $query->whereParentId($this->nav_parent);
+            }, function ($query) {
+                return $query->with([
+                    'children' => function ($q) {
+                        $q->orderBy('order');
+                    }
+                ])->whereNull('parent_id');
+            })
             ->orderBy('order')
             ->get();
     }
 
-    public function sortItem($itemId, $newPosition)
+    public function reorderParents($ids)
     {
-        // dd($itemId, $newPosition);
         TenantConnectionService::ensureActive();
         $connection = TenantConnectionService::connection();
 
-        // Ambil semua nav dalam urutan sekarang
-        $items = (new Navigation)
-            ->setConnection($connection)
-            ->whereParentId(null)
-            ->orderBy('order')
-            ->get();
-
-        // Ubah collection ke array index-based
-        $itemsArray = $items->values();
-
-        // Temukan index item yang dipindah
-        $currentIndex = $itemsArray->search(fn($i) => $i->id == $itemId);
-
-        // Ambil itemnya
-        $movedItem = $itemsArray->pull($currentIndex);
-
-        // Sisipkan di posisi baru
-        $itemsArray->splice($newPosition, 0, [$movedItem]);
-
-        // Reorder semua item
-        foreach ($itemsArray as $index => $item) {
-            $item->setConnection($connection)
+        foreach ($ids as $index => $id) {
+            (new Navigation)
+                ->setConnection($connection)
+                ->where('id', $id)
                 ->update(['order' => $index]);
         }
+
+        $this->dispatch('toast', message: 'Parent order updated!', type: 'success');
     }
 
-    public function sortItemChild($itemId, $newPosition)
+    public function reorderChildren($newParentId, $ids)
     {
         TenantConnectionService::ensureActive();
         $connection = TenantConnectionService::connection();
 
-        $parent = (new Navigation)
-            ->setConnection($connection)
-            ->find($itemId)->parent_id;
+        $parentId = ($newParentId === 'null' || $newParentId === '') ? null : $newParentId;
 
-        // Ambil semua nav yang memiliki parent sama dalam urutan sekarang
-        $items = (new Navigation)
-            ->setConnection($connection)
-            ->whereParentId($parent)
-            ->orderBy('order')
-            ->get();
-
-        // Ubah collection ke array index-based
-        $itemsArray = $items->values();
-
-        // Temukan index item yang dipindah
-        $currentIndex = $itemsArray->search(fn($i) => $i->id == $itemId);
-
-        // Ambil itemnya
-        $movedItem = $itemsArray->pull($currentIndex);
-
-        // Sisipkan di posisi baru
-        $itemsArray->splice($newPosition, 0, [$movedItem]);
-
-        // Reorder semua item
-        foreach ($itemsArray as $index => $item) {
-            $item->setConnection($connection)
-                ->update(['order' => $index]);
+        foreach ($ids as $index => $id) {
+            (new Navigation)
+                ->setConnection($connection)
+                ->where('id', $id)
+                ->update([
+                    'parent_id' => $parentId,
+                    'order' => $index
+                ]);
         }
+
+        $this->dispatch('toast', message: 'Navigation updated!', type: 'success');
     }
 }

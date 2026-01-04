@@ -23,7 +23,7 @@ class CreateNewNavigation extends Component
     #[Locked]
     public $parent_id;
 
-    public function mount($parent = null)
+    public function mount($parent)
     {
         if ($parent) {
             TenantConnectionService::ensureActive();
@@ -31,10 +31,10 @@ class CreateNewNavigation extends Component
             $parent = (new Navigation)
                 ->setConnection($connection)
                 ->whereSlug($parent)
-                ->firstOrFail();
+                ->first();
 
-            $this->parent_id = $parent->id;
-            $this->parent_slug = $parent->slug;
+            $this->parent_id = $parent->id ?? null;
+            $this->parent_slug = $parent->slug ?? null;
 
         }
     }

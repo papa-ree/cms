@@ -6,11 +6,11 @@
         <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
 
         <div class="relative z-10">
-            <a :href="$parent ? route('bale.cms.navigations.edit', $parent->slug) : route('bale.cms.navigations.index')"
+            {{-- <a :href="$parent ? route('bale.cms.navigations.edit', $parent->slug) : route('bale.cms.navigations.index')"
                 class="inline-flex items-center gap-2 text-white/90 hover:text-white mb-4 transition-colors">
                 <x-lucide-arrow-left class="w-4 h-4" />
                 <span class="text-sm">{{ $parent ? $parent->name : 'Back to Navigations' }}</span>
-            </a>
+            </a> --}}
             <div class="flex items-center gap-3">
                 <div class="p-2.5 bg-white/20 backdrop-blur-md rounded-lg">
                     <x-lucide-menu class="w-6 h-6 text-white" />

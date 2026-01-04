@@ -101,8 +101,8 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
 
         Route::name('navigations.')->group(function () {
             Route::get('navigations', NavigationIndex::class)->name('index');
-            Route::get('navigations.create.{parent}', CreateNewNavigation::class)->name('create');
-            Route::get('navigations.edit.{slug}', EditNavigation::class)->name('edit');
+            Route::get('navigations.create.{parent?}', CreateNewNavigation::class)->name('create');
+            Route::get('navigations.edit.{slug?}', EditNavigation::class)->name('edit');
         });
 
         Route::name('sections.')->group(function () {
