@@ -2,9 +2,9 @@
 
 namespace Bale\Cms\Commands;
 
+use Bale\Cms\Models\BaleOrganization;
 use Illuminate\Console\Command;
 use Illuminate\Support\Str;
-use Bale\Cms\Models\BaleContentManagementOrganization;
 
 class GenerateOrganisasiCommand extends Command
 {
@@ -18,7 +18,7 @@ class GenerateOrganisasiCommand extends Command
         $name = $this->option('name') ?? $this->ask('Masukkan nama organisasi');
         $slug = Str::of($name)->slug('-');
 
-        $organization = BaleContentManagementOrganization::create([
+        $organization = BaleOrganization::create([
             'name' => $name,
             'slug' => $slug,
         ]);
