@@ -132,7 +132,7 @@ class CmsServiceProvider extends ServiceProvider
     protected function getMigrationFileName(string $filename): string
     {
         $timestamp = date('Y_m_d_His');
-        $migrationName = str_replace('.stub', '.php', $filename);
+        $migrationName = str_replace('.stub', '', $filename);
 
         return database_path('migrations/' . $timestamp . '_' . $migrationName);
     }
