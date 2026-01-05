@@ -14,6 +14,15 @@ class BaleList extends Model
     protected $guarded = ['id'];
 
     /**
+     * Atribut yang harus di-cast.
+     * 'encrypted' akan otomatis encrypt saat simpan dan decrypt saat baca.
+     */
+    protected $casts = [
+        'database_password' => 'encrypted',
+        'database_username' => 'encrypted',
+    ];
+
+    /**
      * Relasi ke organisasi induk.
      */
     public function organization()

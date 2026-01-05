@@ -29,8 +29,6 @@ use Bale\Cms\Middleware\SwitchBaleConnection;
 */
 
 Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(function () {
-    // selection page (Livewire)
-    // Route::get('select-bale', SelectPageIndex::class)->name('select');
 
     // protected CMS pages
     Route::middleware([EnsureBaleSelected::class, SwitchBaleConnection::class])->group(function () {
