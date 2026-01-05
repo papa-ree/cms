@@ -21,7 +21,7 @@ class GenerateUserBaleCommand extends Command
         $baleSlug = $this->option('bale_slug') ?? $this->ask('Masukkan Slug Bale');
         $nip = $this->option('nip') ?? $this->ask('Masukkan NIP user');
 
-        $bale = BaleList::whereSlug($baleSlug)->first();
+        $bale = BaleList::whereName($baleSlug)->first();
 
         if (!$bale) {
             $this->error('❌ Bale tidak ditemukan.');
