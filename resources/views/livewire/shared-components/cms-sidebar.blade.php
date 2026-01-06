@@ -1,9 +1,9 @@
 <div>
     {{-- <!-- Sidebar --> --}}
-    <div id="praban-sidebar"
+    <div id="cms-sidebar"
         class="hs-overlay hs-overlay-open:translate-x-0 -translate-x-full transition-all duration-300 transform hidden fixed top-0 left-0 bottom-0 z-[60] lg:z-[50] w-64 bg-white border-r border-gray-200 pt-7 pb-10 overflow-y-auto scrollbar-y lg:block lg:translate-x-0 lg:right-auto lg:bottom-0 dark:scrollbar-y dark:bg-gray-800 dark:border-gray-700">
 
-        @persist('sidebar-praban')
+        @persist('sidebar-bale-cms')
         <nav class="flex flex-col flex-wrap w-full p-6 " data-hs-accordion-always-open>
             <ul class="space-y-1.5 hs-accordion-group">
                 @foreach ($this->availableMenus as $menu)

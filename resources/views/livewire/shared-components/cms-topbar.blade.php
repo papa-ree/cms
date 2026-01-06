@@ -2,8 +2,8 @@
     class="sticky top-0 inset-x-0 flex flex-wrap sm:justify-start sm:flex-nowrap z-48 w-full bg-white border-b border-gray-300 text-sm py-2.5 sm:py-4 lg:pl-64 dark:bg-gray-800 dark:border-gray-700">
     <nav class="flex items-center w-full px-4 mx-auto basis-full sm:px-6 md:px-8" aria-label="Global">
         <div class="flex items-center mr-5 space-x-3 lg:mr-0 lg:hidden">
-            <button type="button" class="text-gray-500 hover:text-gray-600" data-hs-overlay="#application-sidebar"
-                aria-controls="application-sidebar" aria-label="Toggle navigation">
+            <button type="button" class="text-gray-500 hover:text-gray-600" data-hs-overlay="#cms-sidebar"
+                aria-controls="cms-sidebar" aria-label="Toggle navigation">
                 <span class="sr-only">Toggle Navigation</span>
                 <svg class="w-5 h-5" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                     <path fill-rule="evenodd"
