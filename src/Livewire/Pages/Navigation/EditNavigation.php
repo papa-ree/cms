@@ -51,13 +51,22 @@ class EditNavigation extends Component
         $this->url_mode = $nav->url_mode;
         $this->url = $nav->url;
         $this->page_slug = $nav->page_slug;
-        $this->parent = $nav->parent;
+        $this->parent = null;
 
         // Load parent navigation if exists (for breadcrumb)
+        // Store as array to avoid Eloquent model serialization issues with tenant connection
         if ($nav->parent_id) {
-            $this->parent = (new Navigation)
+            $parentNav = (new Navigation)
                 ->setConnection($connection)
                 ->find($nav->parent_id);
+
+            if ($parentNav) {
+                $this->parent = [
+                    'id' => $parentNav->id,
+                    'name' => $parentNav->name,
+                    'slug' => $parentNav->slug,
+                ];
+            }
         }
     }
 
@@ -165,8 +174,6 @@ class EditNavigation extends Component
 
     public function update($slug)
     {
-        // dd($this);
-
         $this->slug = $slug['slug'];
         $this->validate();
 
@@ -178,10 +185,9 @@ class EditNavigation extends Component
 
             $this->dispatch('disabling-button', params: true);
 
-            // gunakan koneksi tenant saat create
             $nav = (new Navigation)
                 ->setConnection($connection)
-                ->findOrFail($this->id)
+                ->find($this->id)
                 ->update([
                     'name' => $this->name,
                     'slug' => $this->slug,

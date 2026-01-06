@@ -36,15 +36,16 @@
 
             @if($parent)
                 <x-lucide-chevron-right class="w-4 h-4 text-gray-400" />
-                <a href="{{ route('bale.cms.navigations.edit', $parent->slug) }}" wire:navigate.hover
+                <a href="{{ route('bale.cms.navigations.edit', $parent['slug']) }}" wire:navigate.hover
                     class="inline-flex items-center gap-1.5 px-3 py-1.5 text-gray-600 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-300 dark:hover:border-purple-600 transition-all">
                     <x-lucide-menu class="w-3.5 h-3.5" />
-                    <span>{{ $parent->name }}</span>
+                    <span>{{ $parent['name'] }}</span>
                 </a>
             @endif
 
             <x-lucide-chevron-right class="w-4 h-4 text-gray-400" />
-            <span class="px-3 py-1.5 text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg font-medium">
+            <span
+                class="px-3 py-1.5 text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg font-medium">
                 Edit: {{ $name }}
             </span>
         </div>
@@ -162,7 +163,8 @@
                                 data-id="{{ $child->id }}" wire:key="{{ $child->slug }}">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3 flex-1">
-                                        <button class="child-handle p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded cursor-move transition-all"
+                                        <button
+                                            class="child-handle p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded cursor-move transition-all"
                                             title="Drag to reorder">
                                             <x-lucide-grip-vertical class="w-4 h-4" />
                                         </button>
@@ -177,11 +179,9 @@
                                         <x-lucide-edit class="w-4 h-4" />
                                     </a>
 
-                                    <livewire:core.shared-components.item-actions 
-                                    class="opacity-0 group-hover:opacity-100 transition-all"
-                                            :deleteId="$child->id"
-                                            confirmMessage="Hapus '{{ $child->name }}'?"
-                                        />
+                                    <livewire:core.shared-components.item-actions
+                                        class="opacity-0 group-hover:opacity-100 transition-all" :deleteId="$child->id"
+                                        confirmMessage="Hapus '{{ $child->name }}'?" />
                                 </div>
                             </div>
                         @endforeach

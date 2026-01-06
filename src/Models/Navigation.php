@@ -41,12 +41,29 @@ class Navigation extends Model
     // Recursive relationship for child-parent navigation
     public function children()
     {
-        return $this->hasMany(Navigation::class, 'parent_id')->orderBy('order');
+        $instance = $this->newRelatedInstance(Navigation::class);
+        $instance->setConnection($this->getConnectionName());
+
+        return $this->newHasMany(
+            $instance->newQuery(),
+            $this,
+            $instance->getTable() . '.parent_id',
+            'id'
+        )->orderBy('order');
     }
 
     public function parent()
     {
-        return $this->belongsTo(Navigation::class, 'parent_id');
+        $instance = $this->newRelatedInstance(Navigation::class);
+        $instance->setConnection($this->getConnectionName());
+
+        return $this->newBelongsTo(
+            $instance->newQuery(),
+            $this,
+            'parent_id',
+            'id',
+            'parent'
+        );
     }
 
 }
