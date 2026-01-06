@@ -89,7 +89,7 @@ class CreateNewNavigation extends Component
 
             session()->flash('success', 'New Navigation Created!');
 
-            if ($this->parent_slug == 'new') {
+            if ($this->parent_slug == null) {
                 $this->redirectRoute('bale.cms.navigations.edit', $nav->slug, navigate: true);
             } else {
                 $this->redirectRoute('bale.cms.navigations.edit', $this->parent_slug, navigate: true);

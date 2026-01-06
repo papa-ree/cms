@@ -46,7 +46,6 @@ class CreateNewPost extends Component
     public function store($slug)
     {
         $this->slug = $slug['slug'];
-
         $this->validate();
 
         DB::beginTransaction();
@@ -65,14 +64,11 @@ class CreateNewPost extends Component
                     'title' => $this->title,
                     'slug' => $this->slug,
                     'published' => false,
-                    'publish_at' => now(),
                 ]);
 
             DB::commit();
 
-            session()->flash('saved', [
-                'title' => 'New Post Created!',
-            ]);
+            session()->flash('success', 'New Post Created!');
 
             $this->redirectRoute('bale.cms.posts.index', navigate: true);
 
@@ -80,7 +76,7 @@ class CreateNewPost extends Component
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
             info('Post creation failed: ' . $th->getMessage());
-            // $alert->title('Something wrong!')->position('top-end')->error()->toast()->show();
+            $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }
 
