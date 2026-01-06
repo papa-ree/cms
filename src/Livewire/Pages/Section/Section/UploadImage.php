@@ -88,7 +88,7 @@ class UploadImage extends Component
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
-            info('Post creation failed: ' . $th->getMessage());
+            Log::info('Upload Hero image failed: ' . $th->getMessage());
             $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }
