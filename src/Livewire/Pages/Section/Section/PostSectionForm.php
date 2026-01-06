@@ -68,7 +68,7 @@ class PostSectionForm extends Component
             $section = (new Section)
                 ->setConnection($connection)
                 ->whereSlug($this->slug)
-                ->firstOrFail();
+                ->first();
 
             $section->update([
                 'content' => $this->section
@@ -94,7 +94,7 @@ class PostSectionForm extends Component
         $section = (new Section)
             ->setConnection($connection)
             ->whereSlug($this->slug)
-            ->firstOrFail();
+            ->first();
 
         $content = $section->content;
 

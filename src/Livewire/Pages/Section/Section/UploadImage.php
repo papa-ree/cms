@@ -98,7 +98,6 @@ class UploadImage extends Component
     {
         DB::beginTransaction();
         try {
-            // ds($path);
             $slug = session('bale_active_slug');
 
             TenantConnectionService::ensureActive();
@@ -107,7 +106,7 @@ class UploadImage extends Component
             $section = (new Section)
                 ->setConnection($connection)
                 ->whereSlug($this->slug)
-                ->firstOrFail();
+                ->first();
 
             // Ambil content
             $content = $section->content ?? [];
