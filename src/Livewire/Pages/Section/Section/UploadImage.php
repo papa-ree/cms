@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\Attributes\{Layout, Locked};
 use Livewire\WithFileUploads;
+use Log;
 
 #[Layout('cms::layouts.app')]
 class UploadImage extends Component
@@ -142,7 +143,7 @@ class UploadImage extends Component
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
-            info('Post creation failed: ' . $th->getMessage());
+            Log::info('Delete Hero image failed: ' . $th->getMessage());
             $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }
