@@ -31,13 +31,7 @@
         </div>
     </div>
 
-    {{-- <div class="grid grid-cols-1 gap-6 lg:grid-cols-2"> --}}
-
-        {{-- <x-core::page-container class="col-span-1"> --}}
-            <livewire:cms.pages.navigation.section.navigation-sortable :navItemMode="false" />
-            {{-- </x-core::page-container> --}}
-
-        {{--
-    </div> --}}
+    {{-- navigation item draggable --}}
+    <livewire:cms.pages.navigation.section.navigation-sortable :navItemMode="false" />
 
 </div>

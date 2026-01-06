@@ -272,7 +272,7 @@
                     Create your first navigation item to build your site's menu structure.
                 </p>
 
-                <a href="{{ route('bale.cms.navigations.create') }}"
+                <a href="{{ route('bale.cms.navigations.create', 'new') }}"
                     class="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all">
                     <x-lucide-plus class="w-5 h-5" />
                     Create First Navigation
