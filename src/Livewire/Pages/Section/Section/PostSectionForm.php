@@ -29,10 +29,10 @@ class PostSectionForm extends Component
         $section = (new Section)
             ->setConnection($connection)
             ->whereSlug($slug)
-            ->firstOrFail();
+            ->first();
 
         $this->section = $section->content ?? [];
-        $this->url = Option::whereName('url')->firstOrFail()->value;
+        $this->url = Option::whereName('url')->first()->value ?? [];
     }
 
     public function render()
