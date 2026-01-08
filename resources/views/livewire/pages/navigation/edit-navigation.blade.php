@@ -122,6 +122,10 @@
 
                         <div class="mt-4" x-show="selectUrl==true" x-transition>
                             <x-core::input wire:model="url" />
+                            <p class="text-xs text-gray-600 dark:text-gray-400 mt-1 text-pretty">example:
+                                <code>https://ponorogo.go.id</code>, or
+                                <code>/about</code> for internal page
+                            </p>
                             <x-core::input-error for="url" class="mt-2" />
                         </div>
 

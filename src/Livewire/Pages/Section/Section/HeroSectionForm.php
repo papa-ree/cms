@@ -43,7 +43,7 @@ class HeroSectionForm extends Component
     public function rules()
     {
         return [
-            'section.title' => ['required', 'string', 'min:4', 'max:50'],
+            'section.title' => ['required', 'string', 'min:4', 'max:100'],
             'section.subtitle' => ['required', 'string', 'min:4', 'max:255'],
             'section.organization' => ['required', 'string', 'min:4', 'max:255'],
             'section.buttons.*.label' => ['required', 'string', 'min:4', 'max:30'],
