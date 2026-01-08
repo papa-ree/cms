@@ -65,7 +65,9 @@
                             <div
                                 class="p-3 bg-white dark:bg-slate-800 rounded-lg border border-gray-200 dark:border-slate-600">
                                 <div class="grid gap-3">
-                                    <x-core::input label="{{$button['label']}}"
+                                    <x-core::input label="Label"
+                                        wire:model='section.buttons.{{ $index }}.label' />
+                                    <x-core::input label="URL"
                                         wire:model='section.buttons.{{ $index }}.url' />
                                     <div class="flex items-center">
                                         <input type="checkbox" wire:model='section.buttons.{{ $index }}.show'
