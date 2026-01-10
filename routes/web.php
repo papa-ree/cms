@@ -1,8 +1,10 @@
 <?php
 
+use Bale\Cms\Models\Option;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Validator;
 use Bale\Cms\Livewire\Pages\Navigation\CreateNewNavigation;
 use Bale\Cms\Livewire\Pages\Navigation\EditNavigation;
 use Bale\Cms\Livewire\Pages\Navigation\Index as NavigationIndex;
@@ -43,15 +45,28 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
         Route::get('exit-cms', ExitCms::class)->name('exit-cms');
 
         Route::post('/editorjs/upload', function (Request $request) {
-            $request->validate([
-                'image' => 'required|image|max:512', // 5KB
+            $validator = Validator::make($request->all(), [
+                'image' => 'required|image|max:512', // 512KB
             ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => $validator->errors()->first('image'),
+                ]);
+            }
 
             try {
                 $path = $request->file('image')->store(session('bale_active_slug') . '/images', 's3');
 
-                // URL yang dikembalikan harus dari aplikasi, bukan MinIO
-                $url = url("/media/" . $path);
+                // ambil url dari option
+                $optionUrl = Option::where('name', 'url')->first()->value ?? url('/');
+
+                // bersihkan trailing slash dari optionUrl dan leading slash dari path (jika ada)
+                $baseUrl = rtrim($optionUrl, '/');
+
+                // Gabungkan
+                $url = $baseUrl . "/media/" . $path;
 
                 return response()->json([
                     'success' => 1,
