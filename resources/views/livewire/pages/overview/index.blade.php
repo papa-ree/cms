@@ -92,9 +92,10 @@
                     days</span>
             </div>
             <div>
-                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Visitors</p>
+                <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Total Visitors (Dummy Data)</p>
                 <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">
-                    {{ $externalStats['overview']['total_visitors'] }}</p>
+                    {{ $externalStats['overview']['total_visitors'] }}
+                </p>
             </div>
             <div class="mt-4 flex items-center text-xs text-gray-500 dark:text-gray-400">
                 Bounce: <span
@@ -115,7 +116,8 @@
             <div>
                 <p class="text-sm font-medium text-gray-500 dark:text-gray-400">Session Duration</p>
                 <p class="mt-1 text-3xl font-bold text-gray-900 dark:text-white">
-                    {{ $externalStats['overview']['avg_session_duration'] }}</p>
+                    {{ $externalStats['overview']['avg_session_duration'] }}
+                </p>
             </div>
             <div class="mt-4">
                 <p class="text-xs text-gray-500 dark:text-gray-400">Average time on site</p>
@@ -172,7 +174,7 @@
             class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
             <div class="flex items-center justify-between mb-6">
                 <div>
-                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Traffic Overview</h3>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white">Traffic Overview (Dummy Data)</h3>
                     <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Last 7 days analytics</p>
                 </div>
                 <div class="p-3 bg-linear-to-br from-indigo-500 to-indigo-600 rounded-xl shadow-lg">
@@ -194,9 +196,10 @@
             </div>
             <div class="space-y-4">
                 @forelse($recentPosts as $post)
-                    <div class="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
+                    <div
+                        class="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                         @if($post->thumbnail)
-                            <img src="{{ Storage::disk('s3')->url(session('bale_active_slug') . '/thumbnails/' . $post->thumbnail) }}"
+                            <img src="{{ route('media.show', ['path' => session('bale_active_slug') . '/thumbnails/' . $post->thumbnail]) ?? null }}"
                                 alt="" class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
                         @else
                             <div
@@ -217,7 +220,8 @@
                     </div>
                 @empty
                     <div class="text-center py-8">
-                        <div class="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
+                        <div
+                            class="w-16 h-16 mx-auto mb-3 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center">
                             <x-lucide-inbox class="w-8 h-8 text-gray-400" />
                         </div>
                         <p class="text-sm text-gray-500 dark:text-gray-400">No recent posts</p>
@@ -240,12 +244,14 @@
 
 @script
 <script>
-    document.addEventListener('livewire:initialized', () => {
-        const ctx = document.getElementById('traffic-chart');
-        
+    document.addEventListener( 'livewire:initialized', () =>
+    {
+        const ctx = document.getElementById( 'traffic-chart' );
+
         // Function to get current theme colors
-        const getChartColors = () => {
-            const isDark = document.documentElement.classList.contains('dark');
+        const getChartColors = () =>
+        {
+            const isDark = document.documentElement.classList.contains( 'dark' );
             return {
                 text: isDark ? '#e2e8f0' : '#475569',
                 grid: isDark ? '#334155' : '#f1f5f9',
@@ -258,7 +264,7 @@
 
         let colors = getChartColors();
 
-        const chart = new Chart(ctx, {
+        const chart = new Chart( ctx, {
             type: 'line',
             data: {
                 labels: @json($externalStats['chart']['labels']),
@@ -343,14 +349,16 @@
                     intersect: false
                 }
             }
-        });
+        } );
 
         // Watch for dark mode changes to update chart
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.attributeName === 'class') {
+        const observer = new MutationObserver( ( mutations ) =>
+        {
+            mutations.forEach( ( mutation ) =>
+            {
+                if ( mutation.attributeName === 'class' ) {
                     const newColors = getChartColors();
-                    
+
                     chart.options.plugins.legend.labels.color = newColors.text;
                     chart.options.plugins.tooltip.backgroundColor = newColors.bg;
                     chart.options.plugins.tooltip.titleColor = newColors.tooltipTitle;
@@ -359,15 +367,15 @@
                     chart.options.scales.y.grid.color = newColors.grid;
                     chart.options.scales.y.ticks.color = newColors.text;
                     chart.options.scales.x.ticks.color = newColors.text;
-                    
+
                     chart.update();
                 }
-            });
-        });
+            } );
+        } );
 
-        observer.observe(document.documentElement, {
+        observer.observe( document.documentElement, {
             attributes: true
-        });
-    });
+        } );
+    } );
 </script>
 @endscript
