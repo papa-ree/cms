@@ -49,6 +49,40 @@ Optionally, you can publish the views using
 php artisan vendor:publish --tag="cms-views"
 ```
 
+## Shared Components
+
+### Option Component
+
+The `x-core::option` component provides a standard UI for item options (edit/delete).
+
+```blade
+<x-core::option
+    :item="$item->slug"       {{-- Identifier for route parameters --}}
+    :itemId="$item->id"       {{-- Identifier for delete action --}}
+    route="posts.edit"        {{-- Route name for edit action --}}
+    :deleteButton="true"      {{-- Enable delete button --}}
+/>
+```
+
+When using inside a loop (like a table), ensure the dropdown initializes safely.
+
+### Item Actions (Livewire)
+
+For more complex actions that need to trigger Livewire events directly, use the `ItemActions` component.
+
+```blade
+<livewire:core.shared-components.item-actions
+    :editUrl="route('posts.edit', $post->slug)"
+    :deleteId="$post->id"
+    wire:key="item-actions-{{ $post->id }}"
+    confirmMessage="Are you sure?"
+/>
+```
+
+> [!IMPORTANT] > **Use `wire:key` in Loops**
+> When iterating over a list of items (e.g., in a table) and using `livewire:core.shared-components.item-actions`, you **MUST** provide a unique `wire:key`.
+> Failure to do so will result in Livewire losing track of components after updates (like deleting an item), causing errors like `Method [delete] not found`.
+
 ## Usage
 
 ```php

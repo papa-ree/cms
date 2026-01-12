@@ -1,5 +1,6 @@
 <div>
-    <x-core::back-breadcrumb :href="route('bale.cms.navigations.index')" label="navigation list" />
+    <x-core::breadcrumb :items="[['label' => 'Navigations', 'route' => 'bale.cms.navigations.index']]"
+        active="Create Navigation" />
 
     <x-core::page-container>
         <div class="w-full px-4 py-6 mx-auto sm:px-6 lg:px-8 lg:py-8">

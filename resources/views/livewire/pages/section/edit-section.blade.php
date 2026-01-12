@@ -6,7 +6,7 @@
         <div class="absolute bottom-0 left-0 w-32 h-32 bg-white/10 rounded-full -ml-16 -mb-16"></div>
 
         <div class="relative z-10">
-            <a href="{{ route('bale.cms.sections.index') }}"
+            <a href="{{ route('bale.cms.sections.index') }}" wire:navigate.hover
                 class="inline-flex items-center gap-2 text-white/90 hover:text-white mb-4 transition-colors">
                 <x-lucide-arrow-left class="w-4 h-4" />
                 <span class="text-sm">Back to Sections</span>
@@ -24,12 +24,13 @@
     </div>
 
     {{-- Section Type Indicator --}}
-    <div class="mb-6 p-4 bg-linear-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-800 rounded-xl">
+    <div
+        class="mb-6 p-4 bg-linear-to-r from-purple-50 to-blue-50 dark:from-purple-900/20 dark:to-blue-900/20 border border-purple-200 dark:border-purple-800 rounded-xl">
         <div class="flex items-center gap-4">
             <div class="p-3 rounded-xl shadow-md {{
-                $slug == 'hero-section' ? 'bg-linear-to-br from-indigo-500 to-indigo-600' :
-                ($slug == 'post-section' ? 'bg-linear-to-br from-emerald-500 to-emerald-600' :
-                'bg-linear-to-br from-purple-500 to-purple-600')
+    $slug == 'hero-section' ? 'bg-linear-to-br from-indigo-500 to-indigo-600' :
+    ($slug == 'post-section' ? 'bg-linear-to-br from-emerald-500 to-emerald-600' :
+        'bg-linear-to-br from-purple-500 to-purple-600')
             }}">
                 @if($slug == 'hero-section')
                     <x-lucide-sparkles class="w-6 h-6 text-white" />
@@ -51,9 +52,9 @@
                         @endif
                     </h3>
                     <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full {{
-                        $slug == 'hero-section' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' :
-                        ($slug == 'post-section' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300' :
-                        'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300')
+    $slug == 'hero-section' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' :
+    ($slug == 'post-section' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300' :
+        'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300')
                     }}">
                         @if($slug == 'hero-section')
                             Hero

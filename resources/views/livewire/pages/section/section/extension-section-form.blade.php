@@ -1,13 +1,5 @@
 <div>
-    @if(!$editMode)
-        <div class="mb-6">
-            <a href="{{ route('bale.cms.sections.index') }}"
-                class="inline-flex items-center gap-2 text-gray-600 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 transition-colors">
-                <x-lucide-arrow-left class="w-4 h-4" />
-                <span class="text-sm font-medium">Back to Sections</span>
-            </a>
-        </div>
-    @endif
+    <x-core::breadcrumb :items="[['label' => 'Sections', 'route' => 'bale.cms.sections.index']]" active="Create New Section" />
 
     {{-- Help Guide --}}
     <div class="mb-8 p-5 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl">

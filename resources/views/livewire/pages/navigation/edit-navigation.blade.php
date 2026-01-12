@@ -27,29 +27,20 @@
     }
 }" x-init="initChildSort()" @navigation-reordered.window="initChildSort()">
     {{-- Breadcrumb Navigation --}}
-    <div class="mb-6">
-        <div class="flex items-center gap-2 text-sm">
-            <a href="{{ route('bale.cms.navigations.index') }}" wire:navigate.hover
-                class="inline-flex items-center gap-1.5 px-3 py-1.5 text-gray-600 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-300 dark:hover:border-purple-600 transition-all">
-                <span>Navigations</span>
-            </a>
-
-            @if($parent)
-                <x-lucide-chevron-right class="w-4 h-4 text-gray-400" />
-                <a href="{{ route('bale.cms.navigations.edit', $parent['slug']) }}" wire:navigate.hover
-                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-gray-600 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg hover:border-purple-300 dark:hover:border-purple-600 transition-all">
-                    <x-lucide-menu class="w-3.5 h-3.5" />
-                    <span>{{ $parent['name'] }}</span>
-                </a>
-            @endif
-
-            <x-lucide-chevron-right class="w-4 h-4 text-gray-400" />
-            <span
-                class="px-3 py-1.5 text-purple-700 dark:text-purple-400 bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-800 rounded-lg font-medium">
-                Edit: {{ $name }}
-            </span>
-        </div>
-    </div>
+    @php
+        $breadcrumbs = [
+            ['label' => 'Navigations', 'route' => 'bale.cms.navigations.index']
+        ];
+        if ($parent) {
+            $breadcrumbs[] = [
+                'label' => $parent['name'],
+                'route' => 'bale.cms.navigations.edit',
+                'params' => $parent['slug'],
+                'icon' => 'menu'
+            ];
+        }
+    @endphp
+    <x-core::breadcrumb :items="$breadcrumbs" :active="'Edit: ' . $name" />
 
     {{-- Hero Section --}}
     <div class="relative overflow-hidden p-6 mb-8 text-white rounded-2xl shadow-xl"
@@ -185,7 +176,7 @@
 
                                     <livewire:core.shared-components.item-actions
                                         class="opacity-0 group-hover:opacity-100 transition-all" :deleteId="$child->id"
-                                        confirmMessage="Hapus '{{ $child->name }}'?" />
+                                        confirmMessage="Hapus '{{ $child->name }}'?" wire:key="item-actions-{{ $child->id }}" />
                                 </div>
                             </div>
                         @endforeach

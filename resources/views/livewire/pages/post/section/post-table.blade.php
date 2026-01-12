@@ -172,6 +172,7 @@
                             <livewire:core.shared-components.item-actions
                                 :editUrl="route('bale.cms.posts.edit', $post->slug)"
                                 :deleteId="$post->id"
+                                wire:key="item-actions-{{ $post->id }}"
                                 confirmMessage="Yakin ingin menghapus data ini?">
                             </livewire:core.shared-components.item-actions>
                         </div>

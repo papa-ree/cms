@@ -59,6 +59,7 @@
                             @if($section->type != 'core')
                                 <livewire:core.shared-components.item-actions
                                     :deleteId="$section->id"
+                                    wire:key="item-actions-{{ $section->id }}"
                                     confirmMessage="Yakin ingin menghapus section ini?">
                                 </livewire:core.shared-components.item-actions>
                             @endif

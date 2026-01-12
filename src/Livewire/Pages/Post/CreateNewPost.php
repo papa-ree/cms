@@ -5,6 +5,7 @@ namespace Bale\Cms\Livewire\Pages\Post;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 use Livewire\Attributes\{Layout, Validate};
 use Bale\Cms\Models\Post;
@@ -12,6 +13,7 @@ use Bale\Cms\Services\TenantConnectionService;
 use Illuminate\Validation\Rule;
 
 #[Layout('cms::layouts.app')]
+#[Title('Bale | Create Post')]
 class CreateNewPost extends Component
 {
 
@@ -70,7 +72,7 @@ class CreateNewPost extends Component
 
             session()->flash('success', 'New Post Created!');
 
-            $this->redirectRoute('bale.cms.posts.index', navigate: true);
+            $this->redirectRoute('bale.cms.posts.edit', $this->slug, navigate: false);
 
         } catch (\Throwable $th) {
             DB::rollBack();

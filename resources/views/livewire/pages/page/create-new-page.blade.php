@@ -1,12 +1,5 @@
 <div>
-    <a href="{{ route('bale.cms.pages.index') }}" wire:navigate.hover
-        class="flex items-center justify-start mb-5 text-sm gap-x-1">
-        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor"
-            class="size-4">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5 8.25 12l7.5-7.5" />
-        </svg>
-        <div class="capitalize">page list</div>
-    </a>
+    <x-core::breadcrumb :items="[['label' => 'Pages', 'route' => 'bale.cms.pages.index']]" active="Create New Page" />
 
     <x-core::page-container>
         <div class="w-full px-4 py-6 mx-auto sm:px-6 lg:px-8 lg:py-8">

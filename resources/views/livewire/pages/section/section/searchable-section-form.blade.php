@@ -8,6 +8,21 @@
         </a>
     </div>
 
+    @php
+        $breadcrumbs = [
+            ['label' => 'Sections', 'route' => 'bale.cms.sections.index']
+        ];
+        if ($editMode) {
+            $breadcrumbs[] = [
+                'label' => $name,
+                'route' => 'bale.cms.sections.edit',
+                'params' => $slug,
+                'icon' => 'menu'
+            ];
+        }
+    @endphp
+    <x-core::breadcrumb :items="$breadcrumbs" :active="'Edit: ' . $name" />
+
     {{-- Help Guide --}}
     <div class="mb-8 p-5 bg-linear-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl">
         <div class="flex items-start gap-4">

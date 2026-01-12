@@ -84,6 +84,7 @@
                             <livewire:core.shared-components.item-actions
                                 :editUrl="route('bale.cms.pages.edit', $page->slug)"
                                 :deleteId="$page->id"
+                                wire:key="item-actions-{{ $page->id }}"
                                 confirmMessage="Yakin ingin menghapus halaman ini?"
                             />
                         </div>

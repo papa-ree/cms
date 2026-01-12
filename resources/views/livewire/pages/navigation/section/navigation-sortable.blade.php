@@ -157,6 +157,7 @@
                                 </a>
                                 <livewire:core.shared-components.item-actions
                                     :deleteId="$navigation->id"
+                                    wire:key="item-actions-{{ $navigation->id }}"
                                     confirmMessage="Hapus '{{ $navigation->name }}' dan semua sub-menu?"
                                 />
                             </div>
@@ -235,6 +236,7 @@
                                                 </a>
                                                 <livewire:core.shared-components.item-actions
                                                     :deleteId="$child->id"
+                                                    wire:key="item-actions-{{ $child->id }}"
                                                     confirmMessage="Hapus '{{ $child->name }}'?"
                                                 />
                                             </div>

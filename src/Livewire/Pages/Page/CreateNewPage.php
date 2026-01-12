@@ -5,11 +5,12 @@ namespace Bale\Cms\Livewire\Pages\Page;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
-use Livewire\Attributes\{Layout};
+use Livewire\Attributes\{Layout, Title};
 use Bale\Cms\Models\Page;
 use Bale\Cms\Services\TenantConnectionService;
 
 #[Layout('cms::layouts.app')]
+#[Title('Bale | Create Page')]
 class CreateNewPage extends Component
 {
     public $title;
@@ -67,13 +68,13 @@ class CreateNewPage extends Component
                 'title' => 'New Page Created!',
             ]);
 
-            $this->redirectRoute('bale.cms.pages.index', navigate: true);
+            $this->redirectRoute('bale.cms.pages.edit', $this->slug, navigate: false);
 
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
             info('Page creation failed: ' . $th->getMessage());
-            // $alert->title('Something wrong!')->position('top-end')->error()->toast()->show();
+            $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }
 }
