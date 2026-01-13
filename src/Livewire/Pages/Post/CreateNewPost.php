@@ -70,8 +70,6 @@ class CreateNewPost extends Component
 
             DB::commit();
 
-            session()->flash('success', 'New Post Created!');
-
             $this->redirectRoute('bale.cms.posts.edit', $this->slug, navigate: false);
 
         } catch (\Throwable $th) {

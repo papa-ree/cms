@@ -1,12 +1,4 @@
 <div>
-    {{-- Back Navigation --}}
-    <div class="mb-6">
-        <a href="{{ route('bale.cms.sections.index') }}"
-            class="inline-flex items-center gap-2 text-gray-600 hover:text-purple-600 dark:text-gray-400 dark:hover:text-purple-400 transition-colors">
-            <x-lucide-arrow-left class="w-4 h-4" />
-            <span class="text-sm font-medium">Back to Sections</span>
-        </a>
-    </div>
 
     @php
         $breadcrumbs = [
@@ -21,6 +13,7 @@
             ];
         }
     @endphp
+
     <x-core::breadcrumb :items="$breadcrumbs" :active="'Edit: ' . $name" />
 
     {{-- Help Guide --}}

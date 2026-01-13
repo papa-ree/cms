@@ -64,10 +64,6 @@ class CreateNewPage extends Component
 
             DB::commit();
 
-            session()->flash('saved', [
-                'title' => 'New Page Created!',
-            ]);
-
             $this->redirectRoute('bale.cms.pages.edit', $this->slug, navigate: false);
 
         } catch (\Throwable $th) {
