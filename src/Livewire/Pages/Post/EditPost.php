@@ -134,7 +134,7 @@ class EditPost extends Component
             $thumbnail_name = session('bale_active_slug') . '-' . uniqid() . '.' . $this->thumbnail_new->extension();
 
             // store image
-            $this->thumbnail_new->storeAs(session('bale_active_slug') . '/thumbnails', $thumbnail_name, 's3');
+            $this->thumbnail_new->storeAs(path: session('bale_active_slug') . '/thumbnails', name: $thumbnail_name, options: 's3');
 
             TenantConnectionService::ensureActive();
 

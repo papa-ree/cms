@@ -62,9 +62,9 @@ class UploadImage extends Component
                 $file_name = session('bale_active_slug') . '-' . uniqid() . '.' . $upload->extension();
 
                 $upload->storeAs(
-                    session('bale_active_slug') . '/landing-page',
-                    $file_name,
-                    's3'
+                    path: session('bale_active_slug') . '/landing-page',
+                    name: $file_name,
+                    options: 's3'
                 );
 
                 $content['backgrounds'][] = [
