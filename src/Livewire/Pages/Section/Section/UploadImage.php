@@ -64,8 +64,8 @@ class UploadImage extends Component
                 // Define final path in S3
                 $finalPath = session('bale_active_slug') . '/landing-page/' . $file_name;
 
-                // Upload to S3 using Storage facade
-                Storage::disk('s3')->put($finalPath, file_get_contents($upload->getRealPath()));
+                // Upload to S3 using Storage facade with Livewire's get() method
+                Storage::disk('s3')->put($finalPath, $upload->get());
 
                 $content['backgrounds'][] = [
                     "alt" => pathinfo($file_name, PATHINFO_FILENAME),

@@ -136,8 +136,9 @@ class EditPost extends Component
             // Define final path in S3
             $finalPath = session('bale_active_slug') . '/thumbnails/' . $thumbnail_name;
 
-            // Upload to S3 using Storage facade (not storeAs which uses 'options' incorrectly)
-            Storage::disk('s3')->put($finalPath, file_get_contents($this->thumbnail_new->getRealPath()));
+            // Upload to S3 using Storage facade with Livewire's get() method
+            // get() works for temp files in S3, getRealPath() doesn't
+            Storage::disk('s3')->put($finalPath, $this->thumbnail_new->get());
 
             TenantConnectionService::ensureActive();
 
