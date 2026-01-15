@@ -62,10 +62,8 @@ class EditPage extends Component
         ];
     }
 
-    public function update($slug)
+    public function update()
     {
-        $this->slug = $slug['slug'];
-
         $this->validate();
         DB::beginTransaction();
 
@@ -73,25 +71,32 @@ class EditPage extends Component
             TenantConnectionService::ensureActive();
             $connection = TenantConnectionService::connection();
 
-            $this->dispatch('disabling-button', saved: true);
-
             (new Page)
                 ->setConnection($connection)
                 ->find($this->id)
                 ->update([
-                    'title' => $this->title,
-                    'slug' => $this->slug,
-                    'content' => $this->content,
-                ]);
+                        'title' => $this->title,
+                        'slug' => $this->slug,
+                        'content' => $this->content,
+                    ]);
 
             DB::commit();
+
+            // Dispatch events for UI feedback
+            $this->dispatch('toast', message: 'Page berhasil disimpan!', type: 'success');
+            $this->dispatch('save-complete');
+
             session()->flash('success', 'Page Updated!');
 
             $this->redirectRoute('bale.cms.pages.index', navigate: true);
 
         } catch (\Throwable $th) {
             DB::rollBack();
-            $this->dispatch('disabling-button', params: false);
+
+            // Dispatch failure events
+            $this->dispatch('save-complete');
+            $this->dispatch('toast', message: 'Gagal menyimpan page: ' . $th->getMessage(), type: 'error');
+
             info('Page update failed: ' . $th->getMessage());
         }
     }

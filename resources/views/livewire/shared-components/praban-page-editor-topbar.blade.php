@@ -19,8 +19,10 @@
         </div>
 
         {{-- Right: Save Button (Hidden on mobile) --}}
-        <div class="hidden md:block">
-            <x-core::button type="submit" form="formPage" label="Save Page" class="font-semibold">
+        <div class="hidden md:block" x-data="{ isSaving: false }" x-on:submit.window="isSaving = true"
+            x-on:save-complete.window="isSaving = false">
+            <x-core::button type="submit" form="formPage" label="Save Page" class="font-semibold"
+                x-bind:disabled="isSaving">
                 <x-slot name="icon">
                     <x-lucide-save class="w-4 h-4" />
                 </x-slot>
@@ -38,10 +40,11 @@
     </nav>
 
     {{-- Mobile Bottom Bar with Save Button --}}
-    <div
-        class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg">
+    <div class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white dark:bg-gray-800 border-t border-gray-200 dark:border-gray-700 shadow-lg"
+        x-data="{ isSaving: false }" x-on:submit.window="isSaving = true" x-on:save-complete.window="isSaving = false">
         <div class="px-4 py-3">
-            <x-core::button type="submit" form="formPage" label="Save Page" class="w-full font-semibold">
+            <x-core::button type="submit" form="formPage" label="Save Page" class="w-full font-semibold"
+                x-bind:disabled="isSaving">
                 <x-slot name="icon">
                     <x-lucide-save class="w-4 h-4" />
                 </x-slot>

@@ -80,10 +80,8 @@ class EditPost extends Component
         ];
     }
 
-    public function update($slug)
+    public function update()
     {
-        $this->slug = $slug['slug'];
-
         $this->validate();
 
         DB::beginTransaction();
@@ -91,8 +89,6 @@ class EditPost extends Component
         try {
             TenantConnectionService::ensureActive();
             $connection = TenantConnectionService::connection();
-
-            $this->dispatch('disabling-button', saved: true);
 
             $post = Post::where('slug', $this->slug)->firstOrFail();
 
@@ -104,22 +100,29 @@ class EditPost extends Component
                 ->setConnection($connection)
                 ->find($this->id)
                 ->update([
-                    'title' => $this->title,
-                    'slug' => $this->slug,
-                    'content' => $this->content,
-                ]);
+                        'title' => $this->title,
+                        'slug' => $this->slug,
+                        'content' => $this->content,
+                    ]);
 
             DB::commit();
+
+            // Dispatch events for UI feedback
+            $this->dispatch('toast', message: 'Post berhasil disimpan!', type: 'success');
+            $this->dispatch('save-complete');
+
             session()->flash('success', 'Post Updated!');
-            // $this->dispatch('toast', message: 'Data berhasil disimpan!', type: 'success');
 
             $this->redirectRoute('bale.cms.posts.index', navigate: true);
 
         } catch (\Throwable $th) {
             DB::rollBack();
-            $this->dispatch('disabling-button', params: false);
-            info('Post creation failed: ' . $th->getMessage());
-            // $alert->title('Something wrong!')->position('top-end')->error()->toast()->show();
+
+            // Dispatch failure events
+            $this->dispatch('save-complete');
+            $this->dispatch('toast', message: 'Gagal menyimpan post: ' . $th->getMessage(), type: 'error');
+
+            info('Post update failed: ' . $th->getMessage());
         }
     }
 

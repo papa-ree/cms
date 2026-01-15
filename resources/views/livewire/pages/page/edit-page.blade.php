@@ -26,8 +26,12 @@
         </div>
     </div>
 
-    <form wire:submit="update(Object.fromEntries(new FormData($event.target)))" id="formPage"
-        x-data="{ pageTitle: $wire.entangle('title'), pageSlug: $wire.entangle('slug').live, showSetting: $wire.entangle('show_setting') }">
+    <form wire:submit="update" id="formPage" x-data="{ 
+            pageTitle: $wire.entangle('title'), 
+            pageSlug: $wire.entangle('slug').live, 
+            showSetting: $wire.entangle('show_setting'),
+            isSaving: false 
+        }" @submit="isSaving = true" x-on:save-complete.window="isSaving = false">
 
         <div class="grid grid-cols-1 lg:grid-cols-7 gap-6">
             {{-- LEFT SIDEBAR: Page Metadata (Sticky) --}}
