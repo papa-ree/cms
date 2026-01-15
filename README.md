@@ -49,6 +49,44 @@ Optionally, you can publish the views using
 php artisan vendor:publish --tag="cms-views"
 ```
 
+## Artisan Commands
+
+Bale CMS provides several artisan commands to manage organizations, bales (tenants), and user assignments.
+
+### Create Organization
+
+Generate a new parent organization.
+
+```bash
+php artisan cms:make-organisasi --name="Nama Organisasi"
+```
+
+### Create Bale (Tenant)
+
+Generate a new bale instance for a specific organization. This will store the tenant database credentials.
+
+```bash
+php artisan cms:make-bale \
+    --organization_slug="nama-organisasi" \
+    --name="Nama Bale" \
+    --database="tenant_db_name" \
+    --host="127.0.0.1" \
+    --username="root" \
+    --password="password" \
+    --port=3306
+```
+
+> [!NOTE]
+> Database credentials (username and password) are automatically encrypted before being stored in the database.
+
+### Assign User to Bale
+
+Link an existing user from the main database to a specific Bale instance using their NIP (username).
+
+```bash
+php artisan cms:make-user --bale_slug="nama-bale" --nip="12345678"
+```
+
 ## Shared Components
 
 ### Option Component
@@ -85,10 +123,7 @@ For more complex actions that need to trigger Livewire events directly, use the 
 
 ## Usage
 
-```php
-$cms = new Bale\Cms();
-echo $cms->echoPhrase('Hello, Bale!');
-```
+The package is primarily used via its Livewire components for content management. Ensure you have properly configured your tenant database connections in the `bale_lists` table (or via the commands above).
 
 ## Testing
 
