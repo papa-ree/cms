@@ -111,9 +111,9 @@ class EditPost extends Component
             $this->dispatch('toast', message: 'Post berhasil disimpan!', type: 'success');
             $this->dispatch('save-complete');
 
-            session()->flash('success', 'Post Updated!');
+            // session()->flash('success', 'Post Updated!');
 
-            $this->redirectRoute('bale.cms.posts.index', navigate: true);
+            // $this->redirectRoute('bale.cms.posts.index', navigate: true);
 
         } catch (\Throwable $th) {
             DB::rollBack();
