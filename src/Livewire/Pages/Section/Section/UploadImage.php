@@ -61,11 +61,11 @@ class UploadImage extends Component
             foreach ($this->backgrounds as $upload) {
                 $file_name = session('bale_active_slug') . '-' . uniqid() . '.' . $upload->extension();
 
-                $upload->storeAs(
-                    path: session('bale_active_slug') . '/landing-page',
-                    name: $file_name,
-                    options: 's3'
-                );
+                // Define final path in S3
+                $finalPath = session('bale_active_slug') . '/landing-page/' . $file_name;
+
+                // Upload to S3 using Storage facade
+                Storage::disk('s3')->put($finalPath, file_get_contents($upload->getRealPath()));
 
                 $content['backgrounds'][] = [
                     "alt" => pathinfo($file_name, PATHINFO_FILENAME),

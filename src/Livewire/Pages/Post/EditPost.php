@@ -133,8 +133,11 @@ class EditPost extends Component
             // set name by slug
             $thumbnail_name = session('bale_active_slug') . '-' . uniqid() . '.' . $this->thumbnail_new->extension();
 
-            // store image
-            $this->thumbnail_new->storeAs(path: session('bale_active_slug') . '/thumbnails', name: $thumbnail_name, options: 's3');
+            // Define final path in S3
+            $finalPath = session('bale_active_slug') . '/thumbnails/' . $thumbnail_name;
+
+            // Upload to S3 using Storage facade (not storeAs which uses 'options' incorrectly)
+            Storage::disk('s3')->put($finalPath, file_get_contents($this->thumbnail_new->getRealPath()));
 
             TenantConnectionService::ensureActive();
 
