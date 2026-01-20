@@ -90,20 +90,26 @@ class EditPost extends Component
             TenantConnectionService::ensureActive();
             $connection = TenantConnectionService::connection();
 
-            $post = Post::where('slug', $this->slug)->firstOrFail();
+            $dataToUpdate = [
+                'title' => $this->title,
+                'slug' => $this->slug,
+                'content' => $this->content,
+            ];
 
+            // Handle thumbnail upload if exists
             if ($this->thumbnail_new) {
-                $this->uploadThumbnail();
+                // Returns filename if successful, null otherwise
+                $thumbnail_name = $this->uploadThumbnail();
+                if ($thumbnail_name) {
+                    $dataToUpdate['thumbnail'] = $thumbnail_name;
+                }
             }
 
-            $post = (new Post)
+            // Single atomic update using ID
+            (new Post)
                 ->setConnection($connection)
                 ->find($this->id)
-                ->update([
-                        'title' => $this->title,
-                        'slug' => $this->slug,
-                        'content' => $this->content,
-                    ]);
+                ->update($dataToUpdate);
 
             DB::commit();
 
@@ -113,7 +119,7 @@ class EditPost extends Component
 
             // session()->flash('success', 'Post Updated!');
 
-            // $this->redirectRoute('bale.cms.posts.index', navigate: true);
+            $this->redirectRoute('bale.cms.posts.index', navigate: true);
 
         } catch (\Throwable $th) {
             DB::rollBack();
@@ -140,13 +146,10 @@ class EditPost extends Component
             // get() works for temp files in S3, getRealPath() doesn't
             Storage::disk('s3')->put($finalPath, $this->thumbnail_new->get());
 
-            TenantConnectionService::ensureActive();
-
-            // update image name in post table
-            $post = Post::where('slug', $this->slug)->firstOrFail();
-
-            $post->update(['thumbnail' => $thumbnail_name]);
+            return $thumbnail_name;
         }
+
+        return null;
     }
 
     public function deleteThumbnail()
