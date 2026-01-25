@@ -57,7 +57,7 @@
 
                                 @if ($post->thumbnail)
                                     <img class="sm:inline-block hidden size-[38px] rounded-full object-cover" loading="lazy"
-                                        src="{{ CDN::asset('thumbnails/' . $post->thumbnail) }}"
+                                        src="{{ Bale\Core\Facade\CDN::asset('thumbnails/' . $post->thumbnail) }}"
                                         alt="{{ $post->title }}">
                                 @else
                                     <div

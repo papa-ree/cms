@@ -57,7 +57,7 @@ class Post extends Model
     {
         return Attribute::make(
             get: fn() => $this->thumbnail
-            ? \Bale\Core\Support\Cdn::asset('thumbnails/' . $this->thumbnail)
+            ? app('cdn')->asset('thumbnails/' . $this->thumbnail)
             : null,
         );
     }
