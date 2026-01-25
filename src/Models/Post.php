@@ -2,6 +2,7 @@
 
 namespace Bale\Cms\Models;
 
+use Bale\Core\Support\Cdn;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -51,14 +52,19 @@ class Post extends Model
     }
 
     /**
-     * Get the thumbnail URL with CDN support.
+     * Get CDN URL for thumbnail image
+     * Format: https://cdn_url/cdn_prefix/organization_slug/thumbnails/filename
      */
     protected function thumbnailUrl(): Attribute
     {
         return Attribute::make(
-            get: fn() => $this->thumbnail
-            ? app('cdn')->asset('thumbnails/' . $this->thumbnail)
-            : null,
+            get: function () {
+                if (!$this->thumbnail) {
+                    return null;
+                }
+
+                return Cdn::url('thumbnails/' . $this->thumbnail);
+            }
         );
     }
 

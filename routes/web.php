@@ -1,6 +1,7 @@
 <?php
 
 use Bale\Cms\Models\Option;
+use Bale\Core\Support\Cdn;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
@@ -57,16 +58,16 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             }
 
             try {
-                $path = $request->file('image')->store(session('bale_active_slug') . '/images', 's3');
+                // Upload file to S3 in images folder
+                $file = $request->file('image');
+                $filename = uniqid() . '.' . $file->extension();
+                $path = session('bale_active_slug') . '/images/' . $filename;
 
-                // ambil url dari option
-                $optionUrl = Option::where('name', 'url')->first()->value ?? url('/');
+                Storage::disk('s3')->put($path, $file->get());
 
-                // bersihkan trailing slash dari optionUrl dan leading slash dari path (jika ada)
-                $baseUrl = rtrim($optionUrl, '/');
-
-                // Gabungkan
-                $url = $baseUrl . "/media/" . $path;
+                // Generate CDN URL
+                // Format: https://cdn_url/cdn_prefix/organization_slug/images/filename
+                $url = Cdn::url('images/' . $filename);
 
                 return response()->json([
                     'success' => 1,
@@ -87,15 +88,18 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
 
             try {
                 $contents = file_get_contents($url);
-                $name = session('bale_active_slug') . '/images' . uniqid() . '.jpg';
-                Storage::disk('s3')->put($name, $contents);
+                $filename = uniqid() . '.jpg';
+                $path = session('bale_active_slug') . '/images/' . $filename;
 
-                $fileUrl = url('/cms/media/' . $name);
+                Storage::disk('s3')->put($path, $contents);
+
+                // Generate CDN URL
+                $cdnUrl = Cdn::url('images/' . $filename);
 
                 return response()->json([
                     'success' => 1,
                     'file' => [
-                        'url' => $fileUrl,
+                        'url' => $cdnUrl,
                     ],
                 ]);
             } catch (\Throwable $e) {

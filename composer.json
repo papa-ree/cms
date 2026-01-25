@@ -31,10 +31,7 @@
         "psr-4": {
             "Bale\\Cms\\": "src/",
             "Bale\\Cms\\Database\\Factories\\": "database/factories/"
-        },
-        "files": [
-            "src/helpers.php"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {

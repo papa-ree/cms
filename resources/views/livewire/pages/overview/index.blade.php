@@ -199,11 +199,11 @@
                     <div
                         class="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                         @if($post->thumbnail)
-                            <img src="{{ $cdn->asset('thumbnails/' . $post->thumbnail) }}" alt=""
-                                class="w-12 h-12 rounded-lg object-cover shrink-0">
+                            <img src="{{ route('media.show', ['path' => session('bale_active_slug') . '/thumbnails/' . $post->thumbnail]) ?? null }}"
+                                alt="" class="w-12 h-12 rounded-lg object-cover flex-shrink-0">
                         @else
                             <div
-                                class="w-12 h-12 rounded-lg bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center shrink-0">
+                                class="w-12 h-12 rounded-lg bg-linear-to-br from-gray-100 to-gray-200 dark:from-gray-700 dark:to-gray-600 flex items-center justify-center flex-shrink-0">
                                 <x-lucide-image class="w-6 h-6 text-gray-400 dark:text-gray-500" />
                             </div>
                         @endif

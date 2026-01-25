@@ -57,7 +57,7 @@
 
                                 @if ($post->thumbnail)
                                     <img class="sm:inline-block hidden size-[38px] rounded-full object-cover" loading="lazy"
-                                        src="{{ $cdn->asset('thumbnails/' . $post->thumbnail) }}"
+                                        src="{{ route('media.show', ['path' => session('bale_active_slug') . '/thumbnails/' . $post->thumbnail]) ?? null }}"
                                         alt="{{ $post->title }}">
                                 @else
                                     <div
