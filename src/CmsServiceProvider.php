@@ -51,6 +51,11 @@ class CmsServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Register CDN organization slug resolver
+        \Bale\Core\Support\Cdn::resolveOrganizationSlugUsing(function () {
+            return session('bale_active_slug');
+        });
+
         $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
         $this->registerViews();
         $this->loadMigrations();

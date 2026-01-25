@@ -8,7 +8,7 @@
                         class="relative flex items-center justify-center w-40 h-40 overflow-hidden transition-all duration-500 ease-in-out transform rounded-lg shadow-md cursor-pointer group hover:shadow-slate-500">
                         <img loading="lazy"
                             class="object-cover object-center w-40 h-40 max-w-full transition-all duration-500 ease-in-out transform bg-center bg-cover rounded-lg group-hover:scale-125"
-                            src="{{ route('media.show', ['path' => session('bale_active_slug') . '/landing-page/' . $background['path']]) ?? null }}"
+                            src="{{ \Bale\Core\Support\Cdn::url('landing-page/' . $background['path']) }}"
                             alt="{{ $background['alt'] }}" loading="lazy">
 
                         @if (count($section['backgrounds']) > 1)
