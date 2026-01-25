@@ -113,7 +113,7 @@
                                 class="relative group overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600 transition-all">
                                 <img loading="lazy"
                                     class="w-full h-48 object-cover object-center group-hover:scale-105 transition-transform duration-300"
-                                    src="{{ cdn_asset('thumbnails/' . $thumbnail) }}" alt="{{ $title }}">
+                                    src="{{ CDN::asset('thumbnails/' . $thumbnail) }}" alt="{{ $title }}">
                                 <div
                                     class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button wire:click='deleteThumbnail' type="button"

@@ -50,6 +50,18 @@ class Post extends Model
         );
     }
 
+    /**
+     * Get the thumbnail URL with CDN support.
+     */
+    protected function thumbnailUrl(): Attribute
+    {
+        return Attribute::make(
+            get: fn() => $this->thumbnail
+            ? \Bale\Core\Support\Cdn::asset('thumbnails/' . $this->thumbnail)
+            : null,
+        );
+    }
+
     // /**
     //  * Scope untuk post yang sudah terbit
     //  */

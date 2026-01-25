@@ -199,7 +199,7 @@
                     <div
                         class="flex items-start gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors">
                         @if($post->thumbnail)
-                            <img src="{{ cdn_asset('thumbnails/' . $post->thumbnail) }}" alt=""
+                            <img src="{{ CDN::asset('thumbnails/' . $post->thumbnail) }}" alt=""
                                 class="w-12 h-12 rounded-lg object-cover shrink-0">
                         @else
                             <div
