@@ -163,14 +163,9 @@ class EditPost extends Component
         if ($propertyName === 'content') {
             $this->autoSave();
         }
-
-        // Immediate upload for thumbnail
-        if ($propertyName === 'thumbnail_new' && $this->thumbnail_new) {
-            $this->updatedThumbnailNew();
-        }
     }
 
-    protected function updatedThumbnailNew()
+    public function updatedThumbnailNew()
     {
         $this->validate([
             'thumbnail_new' => 'image|max:512' // Validate immediately
