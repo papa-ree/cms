@@ -168,7 +168,7 @@ class EditPost extends Component
     public function updatedThumbnailNew()
     {
         $this->validate([
-            'thumbnail_new' => 'image|max:512' // Validate immediately
+            'thumbnail_new' => 'file|max:512' // Validate immediately
         ]);
 
         try {
