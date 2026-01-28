@@ -128,22 +128,17 @@ class EditPost extends Component
     private function uploadThumbnail()
     {
         if ($this->thumbnail_new) {
-            // set name by slug
-            $thumbnail_name = session('bale_active_slug') . '-' . uniqid() . '.' . $this->thumbnail_new->extension();
+            // set name by slug, use getClientOriginalExtension for reliability
+            $extension = $this->thumbnail_new->getClientOriginalExtension();
+            $thumbnail_name = session('bale_active_slug') . '-' . uniqid() . '.' . $extension;
 
             // Define final path in S3
-            $path = session('bale_active_slug') . '/thumbnails';
+            $finalPath = session('bale_active_slug') . '/thumbnails/' . $thumbnail_name;
 
-            // Use storeAs which is more reliable for Livewire files
-            $storedPath = $this->thumbnail_new->storeAs(
-                path: $path,
-                name: $thumbnail_name,
-                options: 's3'
-            );
+            // Upload to S3 using Storage facade with get() to read contents from temp
+            Storage::disk('s3')->put($finalPath, $this->thumbnail_new->get());
 
-            if ($storedPath) {
-                return $thumbnail_name;
-            }
+            return $thumbnail_name;
         }
 
         return null;
