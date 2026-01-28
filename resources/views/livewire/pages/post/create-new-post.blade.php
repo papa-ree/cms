@@ -15,10 +15,11 @@
                 </div>
 
                 <div class="mt-12">
-                    <form wire:submit="store(Object.fromEntries(new FormData($event.target)))"
+                    <form @submit.prevent="$wire.call('store', Object.fromEntries(new FormData($event.target)))"
                         x-data="{ postTitle: '', postSlug: '' }" x-cloak>
                         <div class="mb-4 sm:mb-6">
-                            <x-core::input label="post title" wire:model='title' x-model="postTitle" autofocus />
+                            <x-core::input label="post title" wire:model='title' x-model="postTitle" name="title"
+                                autofocus />
                             <x-core::input-error for="title" />
                         </div>
 

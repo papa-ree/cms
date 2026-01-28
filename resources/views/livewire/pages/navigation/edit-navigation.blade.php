@@ -66,12 +66,12 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400">Configure your navigation item settings</p>
             </div>
 
-            <form wire:submit="update(Object.fromEntries(new FormData($event.target)))"
+            <form @submit.prevent="$wire.call('update', Object.fromEntries(new FormData($event.target)))"
                 x-data="{ selectUrl: $wire.entangle('url_mode'), navigationTitle: $wire.entangle('name'), navigationSlug: $wire.entangle('slug') }"
                 x-cloak class="space-y-5">
 
                 <div>
-                    <x-core::input label="Navigation Name" x-model="navigationTitle" wire:model='name' />
+                    <x-core::input label="Navigation Name" x-model="navigationTitle" wire:model='name' name="name" />
                     <x-core::input-error for="name" class="mt-2" />
                 </div>
 

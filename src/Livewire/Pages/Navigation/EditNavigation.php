@@ -172,9 +172,10 @@ class EditNavigation extends Component
         ];
     }
 
-    public function update($slug)
+    public function update($data)
     {
-        $this->slug = $slug['slug'];
+        $this->name = $data['name'] ?? $this->name;
+        $this->slug = $data['slug'] ?? $this->slug;
         $this->validate();
 
         DB::beginTransaction();

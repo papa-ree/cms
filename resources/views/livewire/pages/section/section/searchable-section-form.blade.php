@@ -17,7 +17,8 @@
     <x-core::breadcrumb :items="$breadcrumbs" :active="'Edit: ' . $name" />
 
     {{-- Help Guide --}}
-    <div class="mb-8 p-5 bg-linear-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl">
+    <div
+        class="mb-8 p-5 bg-linear-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl">
         <div class="flex items-start gap-4">
             <div class="p-3 bg-emerald-600 rounded-xl shadow-lg">
                 <x-lucide-search class="w-6 h-6 text-white" />
@@ -25,12 +26,14 @@
             <div class="flex-1">
                 <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Searchable Section Guide</h3>
                 <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                    Create searchable data collections with custom fields. Define your keys first, then add items with values for each key.
+                    Create searchable data collections with custom fields. Define your keys first, then add items with
+                    values for each key.
                 </p>
                 <div class="grid gap-2 md:grid-cols-2">
                     <div class="flex items-start gap-2">
                         <x-lucide-check class="w-4 h-4 text-emerald-600 mt-0.5" />
-                        <span class="text-sm text-gray-600 dark:text-gray-400">Perfect for lists, directories, and catalogs</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400">Perfect for lists, directories, and
+                            catalogs</span>
                     </div>
                     <div class="flex items-start gap-2">
                         <x-lucide-check class="w-4 h-4 text-emerald-600 mt-0.5" />
@@ -42,14 +45,15 @@
     </div>
 
     <form id="searchableForm"
-        wire:submit="@if(!$editMode) save(Object.fromEntries(new FormData($event.target))) @else update(Object.fromEntries(new FormData($event.target))) @endif"
+        @submit.prevent="$wire.call(@if(!$editMode) 'save' @else 'update' @endif, Object.fromEntries(new FormData($event.target)))"
         class="space-y-6">
-        
+
         <div x-data="{ sectionName: $wire.entangle('name'), sectionSlug: $wire.entangle('slug') }">
             {{-- Section Info & Key Management --}}
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 {{-- LEFT: Section Basic Info --}}
-                <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
+                <div
+                    class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
                     <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
                         <div class="p-2.5 bg-linear-to-br from-purple-500 to-purple-600 rounded-lg shadow-md">
                             <x-lucide-layers class="w-5 h-5 text-white" />
@@ -69,7 +73,8 @@
                             </div>
                             <x-core::input wire:model="name" x-model="sectionName" placeholder="e.g. Product Catalog" />
                             <x-core::input-error for="name" />
-                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Display name for this collection</p>
+                            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Display name for this collection
+                            </p>
                         </div>
 
                         {{-- SLUG --}}
@@ -87,7 +92,8 @@
                 </div>
 
                 {{-- RIGHT: Key Management --}}
-                <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
+                <div
+                    class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
                     <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
                         <div class="p-2.5 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-lg shadow-md">
                             <x-lucide-key class="w-5 h-5 text-white" />
@@ -100,10 +106,11 @@
 
                     {{-- Add New Key --}}
                     <div class="mb-4">
-                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Add New Field Key</label>
+                        <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Add New Field
+                            Key</label>
                         <div class="flex gap-2">
                             <div class="flex-1">
-                                <x-core::input wire:model="newKey" @keydown.enter='$wire.addKey' 
+                                <x-core::input wire:model="newKey" @keydown.enter='$wire.addKey'
                                     placeholder="e.g. product_name, price, category" />
                             </div>
                             <button type="button" wire:click="addKey"
@@ -112,7 +119,8 @@
                                 Add
                             </button>
                         </div>
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Press Enter or click Add to create key</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Press Enter or click Add to create key
+                        </p>
                     </div>
 
                     {{-- Keys List --}}
@@ -125,9 +133,11 @@
                         </div>
 
                         @if(count($availableKeys) > 0)
-                            <div class="flex flex-wrap gap-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700 max-h-48 overflow-y-auto">
+                            <div
+                                class="flex flex-wrap gap-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700 max-h-48 overflow-y-auto">
                                 @foreach ($availableKeys as $i => $key)
-                                    <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-emerald-200 dark:border-emerald-800 rounded-lg shadow-sm">
+                                    <div
+                                        class="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-emerald-200 dark:border-emerald-800 rounded-lg shadow-sm">
                                         <x-lucide-tag class="w-3.5 h-3.5 text-emerald-600" />
                                         <span class="text-sm font-medium text-gray-800 dark:text-white">{{ $key }}</span>
                                         <button type="button" wire:click="removeKey({{ $i }})"
@@ -138,9 +148,11 @@
                                 @endforeach
                             </div>
                         @else
-                            <div class="p-6 bg-gray-50 dark:bg-gray-900/50 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-center">
+                            <div
+                                class="p-6 bg-gray-50 dark:bg-gray-900/50 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-center">
                                 <x-lucide-inbox class="w-8 h-8 text-gray-400 mx-auto mb-2" />
-                                <p class="text-sm text-gray-600 dark:text-gray-400">No keys yet. Add your first key above.</p>
+                                <p class="text-sm text-gray-600 dark:text-gray-400">No keys yet. Add your first key above.
+                                </p>
                             </div>
                         @endif
                     </div>
@@ -148,7 +160,8 @@
             </div>
 
             {{-- Items Section --}}
-            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
+            <div
+                class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
                 <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
                     <div class="flex items-center gap-3">
                         <div class="p-2.5 bg-linear-to-br from-blue-500 to-blue-600 rounded-lg shadow-md">
@@ -169,11 +182,11 @@
 
                 <div class="space-y-4">
                     @forelse ($items as $i => $item)
-                        <div class="relative border-2 border-blue-200 dark:border-blue-800 rounded-xl overflow-hidden" 
+                        <div class="relative border-2 border-blue-200 dark:border-blue-800 rounded-xl overflow-hidden"
                             data-aos="fade-up" data-aos-delay="{{ $i * 50 }}">
                             {{-- Item Indicator --}}
                             <div class="absolute top-0 left-0 w-2 h-full bg-linear-to-b from-blue-500 to-blue-600"></div>
-                            
+
                             <div class="p-5 pl-7 bg-blue-50/30 dark:bg-blue-900/10">
                                 <div class="flex items-center justify-between mb-4">
                                     <div class="flex items-center gap-3">
@@ -197,25 +210,29 @@
                                             <div>
                                                 <div class="flex items-center gap-1.5 mb-2">
                                                     <x-lucide-tag class="w-3.5 h-3.5 text-blue-600" />
-                                                    <label class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $key }}</label>
+                                                    <label
+                                                        class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $key }}</label>
                                                 </div>
                                                 @if ($key == 'date')
-                                                    <x-core::input type="date" wire:model="items.{{ $i }}.{{ $key }}" 
+                                                    <x-core::input type="date" wire:model="items.{{ $i }}.{{ $key }}"
                                                         placeholder="Select date" />
                                                 @else
-                                                    <x-core::input wire:model="items.{{ $i }}.{{ $key }}" 
+                                                    <x-core::input wire:model="items.{{ $i }}.{{ $key }}"
                                                         placeholder="Enter {{ $key }}" />
                                                 @endif
                                             </div>
                                         @endforeach
                                     </div>
                                 @else
-                                    <div class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
+                                    <div
+                                        class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
                                         <div class="flex items-start gap-2">
                                             <x-lucide-alert-triangle class="w-5 h-5 text-yellow-600 mt-0.5" />
                                             <div>
-                                                <p class="text-sm font-medium text-yellow-800 dark:text-yellow-200">No Keys Defined</p>
-                                                <p class="text-xs text-yellow-700 dark:text-yellow-300 mt-1">Please add keys in the "Field Keys" section above first.</p>
+                                                <p class="text-sm font-medium text-yellow-800 dark:text-yellow-200">No Keys
+                                                    Defined</p>
+                                                <p class="text-xs text-yellow-700 dark:text-yellow-300 mt-1">Please add keys in
+                                                    the "Field Keys" section above first.</p>
                                             </div>
                                         </div>
                                     </div>
@@ -223,8 +240,10 @@
                             </div>
                         </div>
                     @empty
-                        <div class="text-center py-16 bg-gray-50 dark:bg-gray-900/50 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl">
-                            <div class="w-20 h-20 mx-auto mb-4 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
+                        <div
+                            class="text-center py-16 bg-gray-50 dark:bg-gray-900/50 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl">
+                            <div
+                                class="w-20 h-20 mx-auto mb-4 rounded-full bg-blue-100 dark:bg-blue-900/20 flex items-center justify-center">
                                 <x-lucide-inbox class="w-10 h-10 text-blue-600 dark:text-blue-400" />
                             </div>
                             <h4 class="text-lg font-semibold text-gray-900 dark:text-white mb-2">No Items Yet</h4>
@@ -248,7 +267,8 @@
             </div>
 
             {{-- Submit Section --}}
-            <div class="flex items-center justify-between p-6 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-200 dark:border-gray-700">
+            <div
+                class="flex items-center justify-between p-6 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-200 dark:border-gray-700">
                 <div class="flex items-center gap-3">
                     <x-lucide-info class="w-5 h-5 text-blue-600" />
                     <div>
@@ -266,10 +286,11 @@
     </form>
 
     <script>
-        document.getElementById('searchableForm').addEventListener('keydown', function(event) {
-            if (event.keyCode === 13 || event.key === 'Enter') {
+        document.getElementById( 'searchableForm' ).addEventListener( 'keydown', function ( event )
+        {
+            if ( event.keyCode === 13 || event.key === 'Enter' ) {
                 event.preventDefault();
             }
-        });
+        } );
     </script>
 </div>

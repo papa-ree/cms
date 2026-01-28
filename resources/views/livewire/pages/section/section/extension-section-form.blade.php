@@ -31,7 +31,7 @@
         sectionSlug: $wire.entangle('slug'),
         actived: $wire.entangle('actived'),
         }"
-        wire:submit="@if(!$editMode) save(Object.fromEntries(new FormData($event.target))) @else update(Object.fromEntries(new FormData($event.target))) @endif"
+        @submit.prevent="$wire.call(@if(!$editMode) 'save' @else 'update' @endif, Object.fromEntries(new FormData($event.target)))"
         class="space-y-6">
 
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">

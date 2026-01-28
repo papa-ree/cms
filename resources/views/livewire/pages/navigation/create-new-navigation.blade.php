@@ -16,10 +16,11 @@
                 </div>
 
                 <div class="mt-12">
-                    <form wire:submit="store(Object.fromEntries(new FormData($event.target)))"
+                    <form @submit.prevent="$wire.call('store', Object.fromEntries(new FormData($event.target)))"
                         x-data="{ navigationName: '', navigationSlug: '' }">
                         <div class="mb-4 sm:mb-8">
-                            <x-core::input label="navigation name" x-model="navigationName" wire:model='name' />
+                            <x-core::input label="navigation name" x-model="navigationName" wire:model='name'
+                                name="name" />
                             <x-core::input-error for="name" />
                         </div>
 

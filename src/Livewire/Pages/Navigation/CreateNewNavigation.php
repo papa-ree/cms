@@ -62,9 +62,10 @@ class CreateNewNavigation extends Component
         ];
     }
 
-    public function store($slug)
+    public function store($data)
     {
-        $this->slug = $slug['slug'];
+        $this->name = $data['name'] ?? $this->name;
+        $this->slug = $data['slug'] ?? $this->slug;
         $this->validate();
 
         DB::beginTransaction();

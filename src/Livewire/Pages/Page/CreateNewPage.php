@@ -39,9 +39,10 @@ class CreateNewPage extends Component
         ];
     }
 
-    public function store($slug)
+    public function store($data)
     {
-        $this->slug = $slug['slug'];
+        $this->title = $data['title'] ?? $this->title;
+        $this->slug = $data['slug'] ?? $this->slug;
 
         // jalankan validasi tenant-aware
         $this->validate();

@@ -15,10 +15,11 @@
                 </div>
 
                 <div class="mt-12">
-                    <form wire:submit="store(Object.fromEntries(new FormData($event.target)))"
+                    <form @submit.prevent="$wire.call('store', Object.fromEntries(new FormData($event.target)))"
                         x-data="{ pageTitle: '', pageSlug: '' }">
                         <div class="mb-4 sm:mb-6">
-                            <x-core::input label="page title" wire:model='title' x-model="pageTitle" autofocus />
+                            <x-core::input label="page title" wire:model='title' x-model="pageTitle" name="title"
+                                autofocus />
                             <x-core::input-error for="title" />
                         </div>
 
