@@ -125,9 +125,10 @@
                         @endif
 
                         <div x-show="showUploadZone">
-                            <x-cms::filepond wire:model="thumbnail_new" allowImagePreview imagePreviewMaxHeight="200"
-                                allowFileTypeValidation acceptedFileTypes="['image/png', 'image/jpg', 'image/jpeg']"
-                                allowFileSizeValidation maxFileSize="512kb" />
+                            <x-cms::filepond wire:model.live="thumbnail_new" allowImagePreview
+                                imagePreviewMaxHeight="200" allowFileTypeValidation
+                                acceptedFileTypes="['image/png', 'image/jpg', 'image/jpeg']" allowFileSizeValidation
+                                maxFileSize="512kb" />
                             <x-core::input-error for="thumbnail_new" />
                             <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
                                 Max 512KB. Formats: PNG, JPG, JPEG

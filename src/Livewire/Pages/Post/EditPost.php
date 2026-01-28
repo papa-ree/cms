@@ -96,14 +96,7 @@ class EditPost extends Component
                 'content' => $this->content,
             ];
 
-            // Handle thumbnail upload if exists
-            if ($this->thumbnail_new) {
-                // Returns filename if successful, null otherwise
-                $thumbnail_name = $this->uploadThumbnail();
-                if ($thumbnail_name) {
-                    $dataToUpdate['thumbnail'] = $thumbnail_name;
-                }
-            }
+            // Thumbnail is now handled immediately via updatedThumbnailNew()
 
             // Single atomic update using ID
             (new Post)
@@ -169,6 +162,43 @@ class EditPost extends Component
         // Auto-save when content changes
         if ($propertyName === 'content') {
             $this->autoSave();
+        }
+
+        // Immediate upload for thumbnail
+        if ($propertyName === 'thumbnail_new' && $this->thumbnail_new) {
+            $this->updatedThumbnailNew();
+        }
+    }
+
+    protected function updatedThumbnailNew()
+    {
+        $this->validate([
+            'thumbnail_new' => 'image|max:512' // Validate immediately
+        ]);
+
+        try {
+            $thumbnail_name = $this->uploadThumbnail();
+
+            if ($thumbnail_name) {
+                TenantConnectionService::ensureActive();
+                $connection = TenantConnectionService::connection();
+
+                // Update database immediately
+                (new Post)
+                    ->setConnection($connection)
+                    ->find($this->id)
+                    ->update(['thumbnail' => $thumbnail_name]);
+
+                // Update local state
+                $this->thumbnail = $thumbnail_name;
+                $this->show_upload_zone = false;
+                $this->thumbnail_new = null;
+
+                $this->dispatch('toast', message: 'Thumbnail updated immediately!', type: 'success');
+            }
+        } catch (\Throwable $th) {
+            $this->dispatch('toast', message: 'Failed to upload thumbnail: ' . $th->getMessage(), type: 'error');
+            info('Immediate thumbnail upload failed: ' . $th->getMessage());
         }
     }
 
