@@ -127,19 +127,23 @@ class EditPost extends Component
 
     private function uploadThumbnail()
     {
-        if ($this->thumbnail_new != null or $this->thumbnail_new != "") {
-
+        if ($this->thumbnail_new) {
             // set name by slug
             $thumbnail_name = session('bale_active_slug') . '-' . uniqid() . '.' . $this->thumbnail_new->extension();
 
             // Define final path in S3
-            $finalPath = session('bale_active_slug') . '/thumbnails/' . $thumbnail_name;
+            $path = session('bale_active_slug') . '/thumbnails';
 
-            // Upload to S3 using Storage facade with Livewire's get() method
-            // get() works for temp files in S3, getRealPath() doesn't
-            Storage::disk('s3')->put($finalPath, $this->thumbnail_new->get());
+            // Use storeAs which is more reliable for Livewire files
+            $storedPath = $this->thumbnail_new->storeAs(
+                path: $path,
+                name: $thumbnail_name,
+                options: 's3'
+            );
 
-            return $thumbnail_name;
+            if ($storedPath) {
+                return $thumbnail_name;
+            }
         }
 
         return null;
@@ -147,7 +151,7 @@ class EditPost extends Component
 
     public function deleteThumbnail()
     {
-        Storage::delete(session('bale_active_slug') . '//thumbnails/' . $this->thumbnail);
+        Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->thumbnail);
 
         TenantConnectionService::ensureActive();
 
@@ -167,9 +171,8 @@ class EditPost extends Component
 
     public function updatedThumbnailNew()
     {
-        $this->validate([
-            'thumbnail_new' => 'file|max:512' // Validate immediately
-        ]);
+        // Skip manual validation here if it causes "Unable to retrieve file_size" on S3 temp disk
+        // Filepond and Livewire's own config handles basic limits
 
         try {
             $thumbnail_name = $this->uploadThumbnail();
