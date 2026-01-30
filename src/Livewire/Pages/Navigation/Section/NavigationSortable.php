@@ -6,7 +6,7 @@ use Bale\Cms\Models\Navigation;
 use Bale\Cms\Services\TenantConnectionService;
 use Bale\Cms\Traits\HasSafeDelete;
 use Livewire\Component;
-use Livewire\Attributes\{Computed, Layout, Locked, On};
+use Livewire\Attributes\{Computed, Layout, Locked, On, Async};
 
 #[Layout('cms::layouts.app')]
 class NavigationSortable extends Component
@@ -19,6 +19,9 @@ class NavigationSortable extends Component
 
     #[Locked]
     public $delete_nav_id;
+
+    // State management (Alpine.js handles pending changes)
+    public bool $isSaving = false;
 
     public function mount($navItemMode)
     {
@@ -50,48 +53,59 @@ class NavigationSortable extends Component
             ->get();
     }
 
-    public function reorderParents($ids)
+    #[Async]
+    public function saveAllChanges($parentOrder = [], $childrenData = [])
     {
-        TenantConnectionService::ensureActive();
-        $connection = TenantConnectionService::connection();
+        $this->isSaving = true;
 
-        foreach ($ids as $index => $id) {
-            (new Navigation)
-                ->setConnection($connection)
-                ->where('id', $id)
-                ->update(['order' => $index]);
+        try {
+            TenantConnectionService::ensureActive();
+            $connection = TenantConnectionService::connection();
+
+            // Save parent order
+            if (!empty($parentOrder)) {
+                foreach ($parentOrder as $index => $id) {
+                    $nav = (new Navigation)->setConnection($connection)->find($id);
+                    if ($nav) {
+                        $nav->order = $index;
+                        $nav->save();
+                    }
+                }
+            }
+
+            // Save children data
+            // Structure: [{ parentId: '1', childIds: ['2', '3'] }, ...]
+            if (!empty($childrenData)) {
+                foreach ($childrenData as $group) {
+                    $parentId = $group['parentId'] ?? null;
+                    $childIds = $group['childIds'] ?? [];
+
+                    // Handle null/empty parent ID
+                    $normalizedParentId = ($parentId === 'null' || $parentId === '') ? null : $parentId;
+
+                    foreach ($childIds as $index => $childId) {
+                        $nav = (new Navigation)->setConnection($connection)->find($childId);
+                        if ($nav) {
+                            $nav->parent_id = $normalizedParentId;
+                            $nav->order = $index;
+                            $nav->save();
+                        }
+                    }
+                }
+            }
+
+            $this->dispatch('toast', message: 'Changes saved successfully!', type: 'success');
+            // $this->redirectRoute('bale.cms.navigations.index', navigate: true);
+
+        } catch (\Exception $e) {
+            $this->dispatch('toast', message: 'Failed to save changes: ' . $e->getMessage(), type: 'error');
+        } finally {
+            $this->isSaving = false;
         }
-
-        $this->dispatch('toast', message: 'Parent order updated!', type: 'success');
-        $this->dispatch('navigation-reordered');
     }
 
-    public function reorderChildren($newParentId, $toIds, $oldParentId = null, $fromIds = [])
+    public function resetChanges()
     {
-        TenantConnectionService::ensureActive();
-        $connection = TenantConnectionService::connection();
-
-        // Update target container
-        $parentId = ($newParentId === 'null' || $newParentId === '') ? null : $newParentId;
-        foreach ($toIds as $index => $id) {
-            (new Navigation)->setConnection($connection)->where('id', $id)->update([
-                'parent_id' => $parentId,
-                'order' => $index
-            ]);
-        }
-
-        // Update source container if moved between different parents
-        if ($oldParentId && $oldParentId !== $newParentId) {
-            $fromParentId = ($oldParentId === 'null' || $oldParentId === '') ? null : $oldParentId;
-            foreach ($fromIds as $index => $id) {
-                (new Navigation)->setConnection($connection)->where('id', $id)->update([
-                    'parent_id' => $fromParentId,
-                    'order' => $index
-                ]);
-            }
-        }
-
-        $this->dispatch('toast', message: 'Navigation updated!', type: 'success');
-        $this->dispatch('navigation-reordered');
+        $this->dispatch('toast', message: 'Changes discarded', type: 'info');
     }
 }
