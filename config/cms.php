@@ -63,18 +63,6 @@ return [
                 ],
             ],
         ],
-
-        'alignment' => [
-            'type' => 'enum',
-            'options' => ['left', 'center', 'right'],
-            'default' => 'center',
-        ],
-
-        'theme' => [
-            'type' => 'enum',
-            'options' => ['light', 'dark'],
-            'default' => 'light',
-        ],
     ],
 
     /*
@@ -92,11 +80,20 @@ return [
         | HERO (FULL MANDATORY)
         |--------------------------------------------------
         */
-        'hero' => [
-            'label' => 'Hero Section',
+        'banner' => [
+            'label' => 'Banner Section',
+            'description' => 'Section dengan background visual utama dan tombol aksi.',
+            'icon' => 'dock',
+            'type' => 'single',
             'meta' => [
                 'mandatory' => true,
-                'custom' => [],
+                'custom' => [
+                    'organization_name' => [
+                        'type' => 'string',
+                        'default' => 'Bale Content Management',
+                        'label' => 'Organization Name',
+                    ],
+                ],
             ],
             'items' => [],
         ],
@@ -106,14 +103,17 @@ return [
         | POST
         |--------------------------------------------------
         */
-        'post' => [
-            'label' => 'Post Section',
+        'collection' => [
+            'label' => 'Collection Section',
+            'description' => 'Menampilkan daftar konten dalam bentuk grid atau list.',
+            'icon' => 'layout-list',
+            'type' => 'listing',
             'meta' => [
                 'mandatory' => true,
                 'custom' => [
                     'post_limit' => [
                         'type' => 'integer',
-                        'default' => 6,
+                        'default' => 3,
                         'label' => 'Post Limit',
                     ],
                     'show_excerpt' => [
@@ -131,8 +131,11 @@ return [
         | FOOTER
         |--------------------------------------------------
         */
-        'footer' => [
-            'label' => 'Footer',
+        'link-group' => [
+            'label' => 'Link Group Section',
+            'description' => 'Menampilkan beberapa kelompok link navigasi.',
+            'icon' => 'link',
+            'type' => 'navigation',
             'meta' => [
                 'mandatory' => true,
                 'custom' => [
@@ -156,8 +159,11 @@ return [
         | FEATURES / SERVICES
         |--------------------------------------------------
         */
-        'features' => [
-            'label' => 'Features / Services',
+        'blocks' => [
+            'label' => 'Blocks Section',
+            'description' => 'Section dengan beberapa blok konten berulang.',
+            'icon' => 'layout-grid',
+            'type' => 'repeatable',
             'meta' => [
                 'mandatory' => true,
                 'custom' => [
@@ -170,6 +176,7 @@ return [
                         'type' => 'enum',
                         'options' => ['outline', 'solid'],
                         'default' => 'outline',
+                        'label' => 'Icon Style',
                     ],
                 ],
             ],
@@ -185,14 +192,18 @@ return [
         | STATISTICS
         |--------------------------------------------------
         */
-        'statistics' => [
-            'label' => 'Statistics',
+        'metrics' => [
+            'label' => 'Metrics Section',
+            'description' => 'Menampilkan angka atau data statistik.',
+            'icon' => 'bar-chart-3',
+            'type' => 'repeatable',
             'meta' => [
                 'mandatory' => true,
                 'custom' => [
                     'number_format' => [
                         'type' => 'string',
                         'default' => 'short',
+                        'label' => 'Number Format',
                     ],
                 ],
             ],
@@ -208,8 +219,11 @@ return [
         | CTA
         |--------------------------------------------------
         */
-        'cta' => [
-            'label' => 'Call To Action',
+        'highlight' => [
+            'label' => 'Highlight Section',
+            'description' => 'Section penekanan dengan tombol aksi.',
+            'icon' => 'megaphone',
+            'type' => 'single',
             'meta' => [
                 'mandatory' => true,
                 'custom' => [
@@ -217,6 +231,7 @@ return [
                         'type' => 'enum',
                         'options' => ['gradient', 'image'],
                         'default' => 'gradient',
+                        'label' => 'Background Style',
                     ],
                 ],
             ],
