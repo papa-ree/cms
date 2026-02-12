@@ -1,6 +1,5 @@
 <?php
 
-use Bale\Cms\Models\Option;
 use Bale\Core\Support\Cdn;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -11,16 +10,20 @@ use Bale\Cms\Livewire\Pages\Navigation\EditNavigation;
 use Bale\Cms\Livewire\Pages\Navigation\Index as NavigationIndex;
 use Bale\Cms\Livewire\Pages\Post\CreateNewPost;
 use Bale\Cms\Livewire\Pages\Post\EditPost;
-use Bale\Cms\Livewire\Pages\SelectPage\Index as SelectPageIndex;
 use Bale\Cms\Livewire\Pages\Overview\Index;
 use Bale\Cms\Livewire\Pages\Page\CreateNewPage;
 use Bale\Cms\Livewire\Pages\Page\EditPage;
 use Bale\Cms\Livewire\Pages\Page\Index as PageIndex;
 use Bale\Cms\Livewire\Pages\Post\Index as PostIndex;
+use Bale\Cms\Livewire\Pages\Section\CreateNewSection;
 use Bale\Cms\Livewire\Pages\Section\EditSection;
 use Bale\Cms\Livewire\Pages\Section\Index as SectionIndex;
 use Bale\Cms\Livewire\Pages\Section\Section\ExtensionSectionForm;
+use Bale\Cms\Livewire\Pages\Section\SectionMetaEditor;
 use Bale\Cms\Livewire\Pages\Section\Section\SearchableSectionForm;
+use Bale\Cms\Livewire\Pages\Section\Section\SearchableSectionTableView;
+use Bale\Cms\Livewire\Pages\Section\Section\SearchableEditKey;
+use Bale\Cms\Livewire\Pages\Section\Section\SearchableCreateItem;
 use Bale\Cms\Livewire\SharedComponents\ExitCms;
 use Bale\Cms\Middleware\EnsureBaleSelected;
 use Bale\Cms\Middleware\SwitchBaleConnection;
@@ -124,11 +127,15 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
 
         Route::name('sections.')->group(function () {
             Route::get('sections', SectionIndex::class)->name('index');
-            // Route::get('sections.select-form', SelectSectionForm::class)->name('select');
-            // Route::get('sections.create.searchable', SearchableSectionForm::class)->name('create-searchable'); // direct ke form extension form
-            Route::get('sections.edit.searchable.{slug}', SearchableSectionForm::class)->name('edit-searchable'); // direct ke form extension form
-            Route::get('sections.create.general', ExtensionSectionForm::class)->name('create'); // direct ke form extension form
-            Route::get('sections.edit.{slug}', EditSection::class)->name('edit'); // diarahkan ke edit section dulu untuk pemilihan form section
+            Route::get('sections.create', CreateNewSection::class)->name('create'); // create new section
+            Route::get('sections.meta-editor.{slug}', SectionMetaEditor::class)->name('meta-editor'); // edit section meta
+            Route::get('sections.edit-keys.{slug}', SearchableEditKey::class)->name('edit-keys'); // edit field keys
+            Route::get('sections.view.items.{slug}', SearchableSectionTableView::class)->name('view-searchable'); // view searchable section data
+            Route::get('sections.create-item.{slug}', SearchableCreateItem::class)->name('create-searchable-item'); // create new item
+            Route::get('sections.edit-item.{slug}.{itemIndex}', SearchableCreateItem::class)->name('edit-searchable-item'); // edit existing item
+            // Route::get('sections.edit.searchable.{slug}', SearchableSectionForm::class)->name('edit-searchable'); // direct ke form extension form
+            // Route::get('sections.create.general', ExtensionSectionForm::class)->name('create'); // direct ke form extension form
+            // Route::get('sections.edit.{slug}', EditSection::class)->name('edit'); // diarahkan ke edit section dulu untuk pemilihan form section
         });
 
         // add other CMS routes here...

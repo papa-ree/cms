@@ -94,7 +94,7 @@
                     {{-- ACTIONS --}}
                     <div class="space-y-2 pt-4">
                         @if ($slug)
-                            <x-core::button label="Add Data Items" link :href="route('bale.cms.sections.edit-searchable', $slug)"
+                            <x-core::button label="Data Items" link :href="route('bale.cms.sections.view-searchable', $slug)"
                                 class="w-full justify-center gap-x-2" type="button">
                                 <x-slot name="icon">
                                     <x-lucide-database class="w-4 h-4" />
@@ -365,6 +365,14 @@
                                 </button>
                             </div>
                         @endforelse
+                    </div>
+
+                    <div class="flex items-center justify-end mt-6 pt-4">
+                        <button type="button" wire:click="addKey"
+                            class="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all">
+                            <x-lucide-plus class="w-4 h-4" />
+                            Add Field
+                        </button>
                     </div>
                 </div>
             </div>

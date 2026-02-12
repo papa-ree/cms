@@ -23,7 +23,8 @@ class SearchableSectionForm extends Component
     public $availableKeys = [];          // daftar key yg dapat digunakan
     public $newKey = '';                 // input key baru
     public $meta = [];
-    public $items = [];
+    public $items = [];                  // items[i][key] = ['value1', 'value2', ...]
+    public $tempInputs = [];             // temporary input untuk add value: [itemIndex][key] = 'newValue'
     public $editMode = false;
 
     public function mount($slug = null)
@@ -51,6 +52,16 @@ class SearchableSectionForm extends Component
             // Generate keys berdasarkan item pertama
             if (count($this->items) > 0) {
                 $this->availableKeys = array_keys($this->items[0]);
+
+                // Migrate old data structure (string) to new structure (array) for backward compatibility
+                foreach ($this->items as &$item) {
+                    foreach ($item as $key => &$value) {
+                        // Convert string values to array
+                        if (!is_array($value)) {
+                            $value = $value !== '' ? [$value] : [];
+                        }
+                    }
+                }
             }
 
             $this->editMode = true;
@@ -69,9 +80,9 @@ class SearchableSectionForm extends Component
 
         $this->availableKeys[] = $this->newKey;
 
-        // tambahkan key ke semua item
+        // tambahkan key ke semua item dengan empty array
         foreach ($this->items as &$item) {
-            $item[$this->newKey] = '';
+            $item[$this->newKey] = [];
         }
 
         $this->newKey = '';
@@ -94,8 +105,9 @@ class SearchableSectionForm extends Component
     {
         $item = [];
 
+        // Initialize setiap key dengan empty array
         foreach ($this->availableKeys as $key) {
-            $item[$key] = '';
+            $item[$key] = [];
         }
 
         $this->items[] = $item;
@@ -105,6 +117,46 @@ class SearchableSectionForm extends Component
     {
         unset($this->items[$index]);
         $this->items = array_values($this->items);
+    }
+
+    public function addValue($itemIndex, $key)
+    {
+        // Validasi input tidak kosong
+        if (!isset($this->tempInputs[$itemIndex][$key]) || $this->tempInputs[$itemIndex][$key] === '') {
+            return;
+        }
+
+        // Ensure items array structure exists
+        if (!isset($this->items[$itemIndex][$key])) {
+            $this->items[$itemIndex][$key] = [];
+        }
+
+        // Convert to array if it's still a string (backward compatibility)
+        if (!is_array($this->items[$itemIndex][$key])) {
+            $this->items[$itemIndex][$key] = $this->items[$itemIndex][$key] !== ''
+                ? [$this->items[$itemIndex][$key]]
+                : [];
+        }
+
+        // Add new value
+        $this->items[$itemIndex][$key][] = $this->tempInputs[$itemIndex][$key];
+
+        // Clear temporary input
+        $this->tempInputs[$itemIndex][$key] = '';
+    }
+
+    public function removeValue($itemIndex, $key, $valueIndex)
+    {
+        // Ensure it's an array
+        if (!is_array($this->items[$itemIndex][$key])) {
+            return;
+        }
+
+        // Remove value
+        unset($this->items[$itemIndex][$key][$valueIndex]);
+
+        // Re-index array
+        $this->items[$itemIndex][$key] = array_values($this->items[$itemIndex][$key]);
     }
 
     public function rules()

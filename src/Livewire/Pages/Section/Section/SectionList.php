@@ -10,7 +10,7 @@ use Livewire\Attributes\{Computed, Layout};
 use Livewire\WithPagination;
 
 #[Layout('cms::layouts.app')]
-class SectionTable extends Component
+class SectionList extends Component
 {
     use HasSafeDelete, WithPagination;
     protected string $modelClass = Section::class;
@@ -19,7 +19,7 @@ class SectionTable extends Component
 
     public function render()
     {
-        return view('cms::livewire.pages.section.section.section-table');
+        return view('cms::livewire.pages.section.section.section-list');
     }
 
     public function updating($key): void

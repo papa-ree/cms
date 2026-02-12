@@ -16,6 +16,17 @@
 
     <x-core::breadcrumb :items="$breadcrumbs" :active="'Edit: ' . $name" />
 
+    {{-- View Data Button --}}
+    @if($editMode)
+        <div class="mb-6">
+            <a href="{{ route('bale.cms.sections.view-searchable', $slug) }}" wire:navigate.hover
+                class="inline-flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all">
+                <x-lucide-table class="w-5 h-5" />
+                View Data Table
+            </a>
+        </div>
+    @endif
+
     {{-- Help Guide --}}
     <div
         class="mb-8 p-5 bg-linear-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/20 dark:to-teal-900/20 border border-emerald-200 dark:border-emerald-800 rounded-2xl">
@@ -205,20 +216,74 @@
 
                                 {{-- Dynamic Fields --}}
                                 @if(count($availableKeys) > 0)
-                                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                                    <div class="space-y-5">
                                         @foreach ($availableKeys as $key)
-                                            <div>
-                                                <div class="flex items-center gap-1.5 mb-2">
-                                                    <x-lucide-tag class="w-3.5 h-3.5 text-blue-600" />
-                                                    <label
-                                                        class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ $key }}</label>
+                                            <div class="p-4 bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700">
+                                                {{-- Key Label --}}
+                                                <div class="flex items-center gap-1.5 mb-3">
+                                                    <x-lucide-tag class="w-4 h-4 text-blue-600" />
+                                                    <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
                                                 </div>
-                                                @if ($key == 'date')
-                                                    <x-core::input type="date" wire:model="items.{{ $i }}.{{ $key }}"
-                                                        placeholder="Select date" />
+
+                                                {{-- Input + Add Button --}}
+                                                <div class="mb-3">
+                                                    <div class="flex gap-2">
+                                                        <div class="flex-1">
+                                                            @if ($key == 'date')
+                                                                <x-core::input 
+                                                                    type="date" 
+                                                                    wire:model="tempInputs.{{ $i }}.{{ $key }}"
+                                                                    @keydown.enter="$wire.addValue({{ $i }}, '{{ $key }}')"
+                                                                    placeholder="Select date" />
+                                                            @else
+                                                                <x-core::input 
+                                                                    wire:model="tempInputs.{{ $i }}.{{ $key }}"
+                                                                    @keydown.enter="$wire.addValue({{ $i }}, '{{ $key }}')"
+                                                                    placeholder="Enter {{ $key }}" />
+                                                            @endif
+                                                        </div>
+                                                        <button 
+                                                            type="button" 
+                                                            wire:click="addValue({{ $i }}, '{{ $key }}')"
+                                                            class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all">
+                                                            <x-lucide-plus class="w-4 h-4" />
+                                                            Add
+                                                        </button>
+                                                    </div>
+                                                    <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                                        Press Enter or click Add to add value
+                                                    </p>
+                                                </div>
+
+                                                {{-- Display Values as Tags --}}
+                                                @if(isset($items[$i][$key]) && is_array($items[$i][$key]) && count($items[$i][$key]) > 0)
+                                                    <div>
+                                                        <div class="flex items-center gap-2 mb-2">
+                                                            <x-lucide-list class="w-3.5 h-3.5 text-gray-600 dark:text-gray-400" />
+                                                            <span class="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                                                Values ({{ count($items[$i][$key]) }})
+                                                            </span>
+                                                        </div>
+                                                        <div class="flex flex-wrap gap-2 p-3 bg-gray-50 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700 max-h-32 overflow-y-auto">
+                                                            @foreach ($items[$i][$key] as $vIndex => $value)
+                                                                <div class="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800 rounded-lg shadow-sm">
+                                                                    <span class="text-sm font-medium text-gray-800 dark:text-white">{{ $value }}</span>
+                                                                    <button 
+                                                                        type="button" 
+                                                                        wire:click="removeValue({{ $i }}, '{{ $key }}', {{ $vIndex }})"
+                                                                        class="p-0.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors">
+                                                                        <x-lucide-x class="w-3.5 h-3.5" />
+                                                                    </button>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
                                                 @else
-                                                    <x-core::input wire:model="items.{{ $i }}.{{ $key }}"
-                                                        placeholder="Enter {{ $key }}" />
+                                                    <div class="p-3 bg-gray-50 dark:bg-gray-900/50 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg text-center">
+                                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                                            No values yet. Add your first value above.
+                                                        </p>
+                                                    </div>
                                                 @endif
                                             </div>
                                         @endforeach

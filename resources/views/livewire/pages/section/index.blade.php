@@ -20,8 +20,7 @@
                 </p>
             </div>
             <div class="shrink-0">
-                <x-core::button link href="{{ route('bale.cms.sections.create') }}" label="Create Section"
-                    class="gap-x-2 bg-white text-purple-600 hover:bg-white/90">
+                <x-core::button link href="{{ route('bale.cms.sections.create') }}" label="Create Section" class="">
                     <x-slot name="icon">
                         <x-lucide-plus class="w-5 h-5" />
                     </x-slot>
@@ -31,6 +30,6 @@
     </div>
 
     <div class="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-gray-100 dark:border-slate-700">
-        <livewire:cms.pages.section.section.section-table />
+        <livewire:cms.pages.section.section.section-list />
     </div>
 </div>
