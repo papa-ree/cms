@@ -36,7 +36,7 @@ class SectionMetaEditor extends Component
     public $buttons = [];
     public $backgroundType = 'image'; // image|slider
     public $backgroundImages = [];
-    public $tempImage; // Temporary upload property
+    public $background_new; // Temporary upload property (array or single)
 
     // Custom fields (dynamic based on schema)
     public $customFields = [];
@@ -142,15 +142,20 @@ class SectionMetaEditor extends Component
         $this->save('background');
     }
 
-    public function updatedTempImage()
+    public function updatedBackgroundNew()
     {
-        if ($this->tempImage) {
+        if ($this->background_new) {
             try {
-                $this->processImageUpload($this->tempImage);
-                $this->tempImage = null; // Clear after upload
+                $files = is_array($this->background_new) ? $this->background_new : [$this->background_new];
+
+                foreach ($files as $file) {
+                    $this->processImageUpload($file);
+                }
+
+                $this->background_new = null; // Clear after upload
             } catch (\Exception $e) {
                 // Error already handled in processImageUpload
-                $this->tempImage = null;
+                $this->background_new = null;
             }
         }
     }
@@ -159,29 +164,30 @@ class SectionMetaEditor extends Component
     {
         try {
             // Validate file
-            $this->validate([
-                'tempImage' => 'image|max:2048', // 2MB max
-            ]);
+            $validator = \Illuminate\Support\Facades\Validator::make(
+                ['file' => $file],
+                ['file' => 'image|max:2048']
+            );
+
+            if ($validator->fails()) {
+                throw new \Exception($validator->errors()->first());
+            }
 
             if (!$file) {
                 throw new \Exception('No file provided');
             }
 
-            $fileName = session('bale_active_slug')
-                . '-' . uniqid()
-                . '.' . $file->extension();
+            $extension = $file->getClientOriginalExtension();
+            $fileName = session('bale_active_slug') . '-' . uniqid() . '.' . $extension;
 
-            $path = session('bale_active_slug') . '/landing-page';
+            // Define final path in S3
+            $path = session('bale_active_slug') . '/landing-page/' . $fileName;
 
-            $storedPath = $file->storeAs(
-                path: $path,
-                name: $fileName,
-                options: 's3'
-            );
+            // Upload to S3 using Storage facade
+            Storage::disk('s3')->put($path, $file->get());
 
             $uploadedData = [
-                'path' => $storedPath,
-                'url' => Storage::disk('s3')->url($storedPath),
+                'path' => $path,
                 'cdn_url' => Cdn::url('landing-page/' . $fileName),
                 'disk' => 's3',
                 'mime' => $file->getMimeType(),

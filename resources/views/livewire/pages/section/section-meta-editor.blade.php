@@ -376,40 +376,16 @@
 
                             {{-- Upload Dropzone --}}
                             <div x-show="data.backgroundType === 'slider' || data.backgroundImages.length === 0"
-                                class="relative">
-                                <input type="file" @change="handleFileUpload($event)"
-                                    class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                    accept="image/*" :multiple="data.backgroundType === 'slider'"
-                                    id="background-upload">
+                                class="mt-4">
+                                <x-cms::filepond wire:model.live="background_new" allowImagePreview
+                                    imagePreviewMaxHeight="200" allowFileTypeValidation
+                                    acceptedFileTypes="['image/png', 'image/jpg', 'image/jpeg']" allowFileSizeValidation
+                                    maxFileSize="2048kb" :allowMultiple="$backgroundType === 'slider'" />
 
-                                <div
-                                    class="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-xl bg-gray-50 dark:bg-slate-900/50 hover:bg-gray-100 dark:hover:bg-slate-800 hover:border-purple-400 dark:hover:border-purple-600 transition-all">
-                                    <div class="p-4 bg-purple-100 dark:bg-purple-900/30 rounded-full mb-4">
-                                        <x-lucide-upload-cloud class="w-8 h-8 text-purple-600 dark:text-purple-400" />
-                                    </div>
-                                    <p class="text-sm font-medium text-gray-900 dark:text-white mb-1">
-                                        Click to upload image
-                                    </p>
-                                    <p class="text-xs text-gray-500 dark:text-gray-400">
-                                        JPG, PNG, GIF up to 2MB
-                                    </p>
-                                </div>
-                            </div>
-
-                            {{-- Upload Progress --}}
-                            <div x-show="uploadProgress > 0 && uploadProgress < 100"
-                                class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
-                                <div class="flex items-center gap-3 mb-2">
-                                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                    <span
-                                        class="text-sm font-medium text-blue-700 dark:text-blue-400">Uploading...</span>
-                                    <span class="text-sm text-blue-600 dark:text-blue-500"
-                                        x-text="uploadProgress + '%'"></span>
-                                </div>
-                                <div class="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
-                                    <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                        :style="'width: ' + uploadProgress + '%'"></div>
-                                </div>
+                                <x-core::input-error for="background_new" />
+                                <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
+                                    Max 2MB. Formats: PNG, JPG, JPEG
+                                </p>
                             </div>
                         </div>
                     </template>
@@ -544,7 +520,7 @@
                         background: 'saved',
                         custom: 'saved'
                     },
-                    uploadProgress: 0,
+
 
                     init ()
                     {
@@ -584,52 +560,7 @@
                         this.save( 'buttons' );
                     },
 
-                    async handleFileUpload ( event )
-                    {
-                        const files = event.target.files;
-                        if ( !files || files.length === 0 ) return;
 
-                        this.uploadProgress = 0;
-                        this.states.background = 'saving';
-
-                        try {
-                            for ( let i = 0; i < files.length; i++ ) {
-                                const file = files[ i ];
-
-                                // Update progress based on file count
-                                this.uploadProgress = Math.round( ( i / files.length ) * 100 );
-
-                                await new Promise( ( resolve, reject ) =>
-                                {
-                                    this.$wire.upload( 'tempImage', file,
-                                        () => resolve(),
-                                        () => reject(),
-                                        ( event ) =>
-                                        {
-                                            // Optional: finer granular progress for individual file if needed
-                                        }
-                                    );
-                                } );
-                            }
-
-                            this.uploadProgress = 100;
-
-                            // Reset file input
-                            event.target.value = '';
-
-                            // Hide progress after a short delay
-                            setTimeout( () =>
-                            {
-                                this.uploadProgress = 0;
-                                this.states.background = 'saved';
-                            }, 1000 );
-
-                        } catch ( error ) {
-                            console.error( 'Upload failed:', error );
-                            this.states.background = 'error';
-                            this.uploadProgress = 0;
-                        }
-                    },
 
                     confirmDelete ( index )
                     {
