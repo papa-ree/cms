@@ -166,7 +166,7 @@ class SectionMetaEditor extends Component
             // Validate file
             $validator = \Illuminate\Support\Facades\Validator::make(
                 ['file' => $file],
-                ['file' => 'image|max:2048']
+                ['file' => 'file|mimes:jpg,png,jpeg|max:2048']
             );
 
             if ($validator->fails()) {
