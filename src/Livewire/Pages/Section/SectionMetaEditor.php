@@ -36,6 +36,7 @@ class SectionMetaEditor extends Component
     public $buttons = [];
     public $backgroundType = 'image'; // image|slider
     public $backgroundImages = [];
+    public $tempImage; // Temporary upload property
 
     // Custom fields (dynamic based on schema)
     public $customFields = [];
@@ -134,57 +135,75 @@ class SectionMetaEditor extends Component
         }
     }
 
-    public function updatedBackgroundImages()
-    {
-        $lastIndex = count($this->backgroundImages) - 1;
-        $lastImage = $this->backgroundImages[$lastIndex] ?? null;
-
-        if ($lastImage instanceof TemporaryUploadedFile) {
-            try {
-                $uploaded = $this->uploadBackgroundImage($lastImage);
-                $this->backgroundImages[$lastIndex] = $uploaded;
-                $this->save('background');
-            } catch (\Exception $e) {
-                info('Image upload failed: ' . $e->getMessage());
-                $this->dispatch('field-saved', field: 'background', status: 'error');
-                $this->dispatch('toast', message: 'Image upload failed!', type: 'error');
-            }
-        }
-    }
-
-    private function uploadBackgroundImage($upload)
-    {
-        if (!$upload) {
-            return null;
-        }
-
-        $fileName = session('bale_active_slug')
-            . '-' . uniqid()
-            . '.' . $upload->extension();
-
-        $path = session('bale_active_slug') . '/landing-page';
-
-        $storedPath = $upload->storeAs(
-            path: $path,
-            name: $fileName,
-            options: 's3'
-        );
-
-        return [
-            'path' => $storedPath,
-            'url' => Storage::disk('s3')->url($storedPath),
-            'cdn_url' => Cdn::url('landing-page/' . $fileName),
-            'disk' => 's3',
-            'mime' => $upload->getMimeType(),
-            'size' => $upload->getSize(),
-        ];
-    }
-
     public function removeBackgroundImage($index)
     {
         unset($this->backgroundImages[$index]);
         $this->backgroundImages = array_values($this->backgroundImages);
         $this->save('background');
+    }
+
+    public function updatedTempImage()
+    {
+        if ($this->tempImage) {
+            try {
+                $this->processImageUpload($this->tempImage);
+                $this->tempImage = null; // Clear after upload
+            } catch (\Exception $e) {
+                // Error already handled in processImageUpload
+                $this->tempImage = null;
+            }
+        }
+    }
+
+    private function processImageUpload($file)
+    {
+        try {
+            // Validate file
+            $this->validate([
+                'tempImage' => 'image|max:2048', // 2MB max
+            ]);
+
+            if (!$file) {
+                throw new \Exception('No file provided');
+            }
+
+            $fileName = session('bale_active_slug')
+                . '-' . uniqid()
+                . '.' . $file->extension();
+
+            $path = session('bale_active_slug') . '/landing-page';
+
+            $storedPath = $file->storeAs(
+                path: $path,
+                name: $fileName,
+                options: 's3'
+            );
+
+            $uploadedData = [
+                'path' => $storedPath,
+                'url' => Storage::disk('s3')->url($storedPath),
+                'cdn_url' => Cdn::url('landing-page/' . $fileName),
+                'disk' => 's3',
+                'mime' => $file->getMimeType(),
+                'size' => $file->getSize(),
+            ];
+
+            // Add to backgroundImages array
+            $this->backgroundImages[] = $uploadedData;
+
+            // Save immediately
+            $this->save('background');
+
+            $this->dispatch('toast', message: 'Image uploaded successfully!', type: 'success');
+
+            return $uploadedData;
+
+        } catch (\Exception $e) {
+            info('Image upload failed: ' . $e->getMessage());
+            $this->dispatch('field-saved', field: 'background', status: 'error');
+            $this->dispatch('toast', message: 'Image upload failed: ' . $e->getMessage(), type: 'error');
+            throw $e;
+        }
     }
 
     private function generateMetaJson()

@@ -359,11 +359,12 @@
                                     <div
                                         class="relative group aspect-square bg-gray-100 dark:bg-slate-900 rounded-xl overflow-hidden border-2 border-gray-200 dark:border-slate-700 hover:border-purple-400 dark:hover:border-purple-600 transition-all">
                                         <img :src="img.cdn_url || img.url" alt="Background"
-                                            class="w-full h-full object-cover">
+                                            class="w-full h-full object-cover"
+                                            onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22200%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22%3EImage%3C/text%3E%3C/svg%3E'">
 
                                         <div
                                             class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-3">
-                                            <button type="button" @click="$wire.removeBackgroundImage(index)"
+                                            <button type="button" @click="confirmDelete(index)"
                                                 class="px-3 py-1.5 bg-white text-red-600 rounded-lg shadow-lg hover:bg-red-50 transition-colors text-sm font-medium flex items-center gap-1.5">
                                                 <x-lucide-trash-2 class="w-3.5 h-3.5" />
                                                 Remove
@@ -376,9 +377,10 @@
                             {{-- Upload Dropzone --}}
                             <div x-show="data.backgroundType === 'slider' || data.backgroundImages.length === 0"
                                 class="relative">
-                                <input type="file" wire:model="backgroundImages"
+                                <input type="file" @change="handleFileUpload($event)"
                                     class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-                                    accept="image/*" :multiple="data.backgroundType === 'slider'">
+                                    accept="image/*" :multiple="data.backgroundType === 'slider'"
+                                    id="background-upload">
 
                                 <div
                                     class="flex flex-col items-center justify-center p-8 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-xl bg-gray-50 dark:bg-slate-900/50 hover:bg-gray-100 dark:hover:bg-slate-800 hover:border-purple-400 dark:hover:border-purple-600 transition-all">
@@ -391,6 +393,22 @@
                                     <p class="text-xs text-gray-500 dark:text-gray-400">
                                         JPG, PNG, GIF up to 2MB
                                     </p>
+                                </div>
+                            </div>
+
+                            {{-- Upload Progress --}}
+                            <div x-show="uploadProgress > 0 && uploadProgress < 100"
+                                class="mt-4 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-xl border border-blue-200 dark:border-blue-800">
+                                <div class="flex items-center gap-3 mb-2">
+                                    <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                    <span
+                                        class="text-sm font-medium text-blue-700 dark:text-blue-400">Uploading...</span>
+                                    <span class="text-sm text-blue-600 dark:text-blue-500"
+                                        x-text="uploadProgress + '%'"></span>
+                                </div>
+                                <div class="w-full bg-blue-200 dark:bg-blue-800 rounded-full h-2">
+                                    <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                        :style="'width: ' + uploadProgress + '%'"></div>
                                 </div>
                             </div>
                         </div>
@@ -526,6 +544,7 @@
                         background: 'saved',
                         custom: 'saved'
                     },
+                    uploadProgress: 0,
 
                     init ()
                     {
@@ -563,6 +582,60 @@
                     {
                         this.data.buttons.splice( index, 1 );
                         this.save( 'buttons' );
+                    },
+
+                    async handleFileUpload ( event )
+                    {
+                        const files = event.target.files;
+                        if ( !files || files.length === 0 ) return;
+
+                        this.uploadProgress = 0;
+                        this.states.background = 'saving';
+
+                        try {
+                            for ( let i = 0; i < files.length; i++ ) {
+                                const file = files[ i ];
+
+                                // Update progress based on file count
+                                this.uploadProgress = Math.round( ( i / files.length ) * 100 );
+
+                                await new Promise( ( resolve, reject ) =>
+                                {
+                                    this.$wire.upload( 'tempImage', file,
+                                        () => resolve(),
+                                        () => reject(),
+                                        ( event ) =>
+                                        {
+                                            // Optional: finer granular progress for individual file if needed
+                                        }
+                                    );
+                                } );
+                            }
+
+                            this.uploadProgress = 100;
+
+                            // Reset file input
+                            event.target.value = '';
+
+                            // Hide progress after a short delay
+                            setTimeout( () =>
+                            {
+                                this.uploadProgress = 0;
+                                this.states.background = 'saved';
+                            }, 1000 );
+
+                        } catch ( error ) {
+                            console.error( 'Upload failed:', error );
+                            this.states.background = 'error';
+                            this.uploadProgress = 0;
+                        }
+                    },
+
+                    confirmDelete ( index )
+                    {
+                        if ( confirm( 'Are you sure you want to delete this image?' ) ) {
+                            this.$wire.removeBackgroundImage( index );
+                        }
                     }
                 } ) )
             };
