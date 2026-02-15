@@ -163,16 +163,6 @@ class SectionMetaEditor extends Component
     private function processImageUpload($file)
     {
         try {
-            // Validate file
-            $validator = \Illuminate\Support\Facades\Validator::make(
-                ['file' => $file],
-                ['file' => 'file|max:512']
-            );
-
-            if ($validator->fails()) {
-                throw new \Exception($validator->errors()->first());
-            }
-
             if (!$file) {
                 throw new \Exception('No file provided');
             }

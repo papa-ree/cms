@@ -380,11 +380,11 @@
                                 <x-cms::filepond wire:model.live="background_new" allowImagePreview
                                     imagePreviewMaxHeight="200" allowFileTypeValidation
                                     acceptedFileTypes="['image/png', 'image/jpg', 'image/jpeg']" allowFileSizeValidation
-                                    maxFileSize="2048kb" :allowMultiple="$backgroundType === 'slider'" />
+                                    maxFileSize="512kb" :allowMultiple="$backgroundType === 'slider'" />
 
                                 <x-core::input-error for="background_new" />
                                 <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                    Max 2MB. Formats: PNG, JPG, JPEG
+                                    Max 512KB. Formats: PNG, JPG, JPEG
                                 </p>
                             </div>
                         </div>
