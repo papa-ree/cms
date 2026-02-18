@@ -179,7 +179,10 @@ class SearchableCreateItem extends Component
     public function deleteFile(string $key, string $url, string $s3Path): void
     {
         try {
-            if ($s3Path && Storage::disk('s3')->exists($s3Path)) {
+            // Skip exists() check — it throws "Unable to check existence" on first S3 request
+            // after Livewire navigation (S3 client not yet fully booted).
+            // Storage::delete() on a non-existent key is a no-op on S3, so this is safe.
+            if ($s3Path) {
                 Storage::disk('s3')->delete($s3Path);
             }
 
