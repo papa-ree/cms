@@ -225,27 +225,27 @@
 
                         {{-- FilePond Dropzone --}}
                         <div wire:ignore x-data x-init="() => {
-                                    $wire.set('activeUploadKey', '{{ $key }}');
-                                    const pond = FilePond.create($refs['filepond_{{ $key }}']);
-                                    pond.setOptions({
-                                        allowMultiple: true,
-                                        labelIdle: 'Drag & drop files or <span class=\'filepond--label-action\'>Browse</span>',
-                                        server: {
-                                            process: (fieldName, file, metadata, load, error, progress, abort) => {
-                                                $wire.set('activeUploadKey', '{{ $key }}');
-                                                @this.upload('tempUpload', file, load, error, progress);
-                                            },
-                                            revert: (filename, load) => {
-                                                @this.removeUpload('tempUpload', filename, load);
-                                            },
-                                        },
-                                        allowImagePreview: true,
-                                        imagePreviewMaxHeight: 200,
-                                        allowFileTypeValidation: false,
-                                        allowFileSizeValidation: true,
-                                        maxFileSize: '10MB',
-                                    });
-                                }">
+                                            $wire.set('activeUploadKey', '{{ $key }}');
+                                            const pond = FilePond.create($refs['filepond_{{ $key }}']);
+                                            pond.setOptions({
+                                                allowMultiple: true,
+                                                labelIdle: 'Drag & drop files or <span class=\'filepond--label-action\'>Browse</span>',
+                                                server: {
+                                                    process: (fieldName, file, metadata, load, error, progress, abort) => {
+                                                        $wire.set('activeUploadKey', '{{ $key }}');
+                                                        @this.upload('tempUpload', file, load, error, progress);
+                                                    },
+                                                    revert: (filename, load) => {
+                                                        @this.removeUpload('tempUpload', filename, load);
+                                                    },
+                                                },
+                                                allowImagePreview: true,
+                                                imagePreviewMaxHeight: 200,
+                                                allowFileTypeValidation: false,
+                                                allowFileSizeValidation: true,
+                                                maxFileSize: '10MB',
+                                            });
+                                        }">
                             <input type="file" hidden x-ref="filepond_{{ $key }}" />
                         </div>
 
@@ -271,11 +271,11 @@
                                         {{-- Non-image file icon --}}
                                         <template x-if="!isImage(file)">
                                             <div class="w-full h-24 flex flex-col items-center justify-center gap-1" :class="{
-                                                            'bg-red-50 dark:bg-red-900/20': fileIcon(file) === 'pdf',
-                                                            'bg-green-50 dark:bg-green-900/20': fileIcon(file) === 'xlsx',
-                                                            'bg-blue-50 dark:bg-blue-900/20': fileIcon(file) === 'docx',
-                                                            'bg-gray-50 dark:bg-gray-900/20': fileIcon(file) === 'file'
-                                                        }">
+                                                                    'bg-red-50 dark:bg-red-900/20': fileIcon(file) === 'pdf',
+                                                                    'bg-green-50 dark:bg-green-900/20': fileIcon(file) === 'xlsx',
+                                                                    'bg-blue-50 dark:bg-blue-900/20': fileIcon(file) === 'docx',
+                                                                    'bg-gray-50 dark:bg-gray-900/20': fileIcon(file) === 'file'
+                                                                }">
                                                 <span class="text-3xl"
                                                     x-text="fileIcon(file) === 'pdf' ? '📄' : (fileIcon(file) === 'xlsx' ? '📊' : (fileIcon(file) === 'docx' ? '📝' : '📎'))"></span>
                                                 <span class="text-xs font-bold uppercase text-gray-500"

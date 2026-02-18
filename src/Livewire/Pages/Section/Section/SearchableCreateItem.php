@@ -108,7 +108,7 @@ class SearchableCreateItem extends Component
     {
         return view('cms::livewire.pages.section.section.searchable-create-item', [
             'fileKeys' => $this->getFileKeys(),
-            'orgSlug' => session('bale_active_slug'),
+            'orgSlug' => session('bale_active_slug', ''),
         ]);
     }
 
@@ -147,12 +147,12 @@ class SearchableCreateItem extends Component
 
             $extension = $file->getClientOriginalExtension();
             $fileName = $this->slug . '-' . uniqid() . '.' . $extension;
-            $s3Path = session('bale_active_slug') . '/landing-page/items/' . $this->slug . '/' . $fileName;
+            $s3Path = session('bale_active_slug') . '/landing-page/items/' . $this->slug . "/" . $fileName;
 
             // Use Storage::put() directly — same approach as SectionMetaEditor (avoids S3 temp disk issues)
             Storage::disk('s3')->put($s3Path, $file->get());
 
-            $cdnUrl = Cdn::url('landing-page/items/' . $this->slug . '/' . $fileName);
+            $cdnUrl = Cdn::url('landing-page/items/' . $this->slug . "/" . $fileName);
             $mime = $file->getMimeType();
             $origName = $file->getClientOriginalName();
 
@@ -173,22 +173,17 @@ class SearchableCreateItem extends Component
     }
 
     /**
-     * Delete an uploaded file from S3 and remove its URL from the item key.
-     * Called from Alpine when user clicks the remove button.
-     *
-     * @param string $key     The item key the file belongs to
-     * @param string $url     The CDN URL of the file (used to identify it in currentItem)
-     * @param string $s3Path  The full S3 path to delete
+     * Delete a file from S3 and remove its URL from the item data.
+     * Called from Alpine when user clicks the remove button on an uploaded file card.
      */
     public function deleteFile(string $key, string $url, string $s3Path): void
     {
         try {
-            // Delete from S3
             if ($s3Path && Storage::disk('s3')->exists($s3Path)) {
                 Storage::disk('s3')->delete($s3Path);
             }
 
-            // Remove URL from currentItem key array
+            // Remove the URL from currentItem so it's excluded on next save
             if (isset($this->currentItem[$key]) && is_array($this->currentItem[$key])) {
                 $this->currentItem[$key] = array_values(
                     array_filter($this->currentItem[$key], fn($u) => $u !== $url)
