@@ -164,6 +164,16 @@ class SearchableCreateItem extends Component
                 's3Path' => $s3Path,
             ]);
 
+            // Push URL into currentItem so persistFileChange() saves it
+            if (!isset($this->currentItem[$this->activeUploadKey])) {
+                $this->currentItem[$this->activeUploadKey] = [];
+            }
+            if (!in_array($cdnUrl, $this->currentItem[$this->activeUploadKey])) {
+                $this->currentItem[$this->activeUploadKey][] = $cdnUrl;
+            }
+
+            $this->persistFileChange();
+
         } catch (\Throwable $th) {
             info('SearchableCreateItem file upload failed: ' . $th->getMessage());
             $this->dispatch('toast', message: 'Upload failed: ' . $th->getMessage(), type: 'error');
@@ -194,6 +204,8 @@ class SearchableCreateItem extends Component
             }
 
             $this->dispatch('toast', message: 'File deleted.', type: 'success');
+
+            $this->persistFileChange();
 
         } catch (\Throwable $th) {
             info('SearchableCreateItem deleteFile failed: ' . $th->getMessage());
@@ -250,6 +262,59 @@ class SearchableCreateItem extends Component
 
         if (isset($this->currentItem[$key][$valueIndex])) {
             $this->currentItem[$key][$valueIndex] = $newValue;
+        }
+    }
+
+    /**
+     * Auto-save currentItem to the database after a file upload or delete.
+     * Does NOT redirect. In create mode, inserts the item and switches to edit mode.
+     */
+    private function persistFileChange(): void
+    {
+        try {
+            TenantConnectionService::ensureActive();
+            $connection = TenantConnectionService::connection();
+
+            $section = (new Section)
+                ->setConnection($connection)
+                ->findOrFail($this->id);
+
+            $content = $section->content ?? [];
+            $items = $content['items'] ?? [];
+
+            if ($this->editMode && $this->itemIndex !== null) {
+                // Edit mode: update existing item in-place
+                $this->currentItem['updated_at'] = [now()->toDateTimeString()];
+
+                if (!isset($this->currentItem['created_at'])) {
+                    $this->currentItem['created_at'] = [now()->toDateTimeString()];
+                }
+                if (!isset($this->currentItem['id'])) {
+                    $this->currentItem['id'] = [\Illuminate\Support\Str::uuid()->toString()];
+                }
+
+                $items[$this->itemIndex] = $this->currentItem;
+
+            } else {
+                // Create mode: insert new item and switch to edit mode
+                $now = now()->toDateTimeString();
+                $this->currentItem['created_at'] = [$now];
+                $this->currentItem['updated_at'] = [$now];
+                $this->currentItem['id'] = [\Illuminate\Support\Str::uuid()->toString()];
+
+                $items[] = $this->currentItem;
+
+                // Switch to edit mode so subsequent auto-saves update this same item
+                $this->itemIndex = array_key_last($items);
+                $this->editMode = true;
+            }
+
+            $content['items'] = $items;
+            $section->update(['content' => $content]);
+
+        } catch (\Throwable $th) {
+            info('SearchableCreateItem auto-save failed: ' . $th->getMessage());
+            // Silent — don't show error toast for background auto-save
         }
     }
 
