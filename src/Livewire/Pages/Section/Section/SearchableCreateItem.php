@@ -146,12 +146,12 @@ class SearchableCreateItem extends Component
 
             $extension = $file->getClientOriginalExtension();
             $fileName = $this->slug . '-' . uniqid() . '.' . $extension;
-            $s3Path = $this->slug . '/items/' . $fileName;
+            $s3Path = session('bale_active_slug') . '/items/' . $this->slug . "/" . $fileName;
 
             // Use Storage::put() directly — same approach as SectionMetaEditor (avoids S3 temp disk issues)
             Storage::disk('s3')->put($s3Path, $file->get());
 
-            $cdnUrl = Cdn::url('items/' . $fileName);
+            $cdnUrl = Cdn::url('items/' . $this->slug . "/" . $fileName);
             $mime = $file->getMimeType();
             $origName = $file->getClientOriginalName();
 
