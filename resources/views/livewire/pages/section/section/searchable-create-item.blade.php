@@ -3,19 +3,34 @@
     tempInputs: {},
     fileKeys: @js($fileKeys),
     uploadedFiles: @js(
-        collect($fileKeys)->mapWithKeys(function ($key) use ($currentItem) {
+        collect($fileKeys)->mapWithKeys(function ($key) use ($currentItem, $slug, $orgSlug) {
             $urls = $currentItem[$key] ?? [];
             if (!is_array($urls))
                 $urls = [$urls];
-            return [$key => array_map(fn($u) => ['url' => $u, 'name' => basename($u), 'mime' => ''], $urls)];
+
+            return [
+                $key => array_map(function ($u) use ($slug, $orgSlug) {
+                    $name = basename($u);
+                    // Reconstruct exact S3 path for existing files to allow deletion
+                    $s3Path = $orgSlug . '/landing-page/items/' . $slug . '/' . $name;
+                    return [
+                        'url' => $u,
+                        'name' => $name,
+                        'mime' => '',
+                        's3Path' => $s3Path
+                    ];
+                }, $urls)
+            ];
         })->all()
     ),
 
     init() {
         window.addEventListener('file-uploaded', e => {
-            const { key, url, name, mime } = e.detail[0] ?? e.detail;
+            const { key, url, name, mime, s3Path } = e.detail[0] ?? e.detail;
+            
             if (!this.uploadedFiles[key]) this.uploadedFiles[key] = [];
-            this.uploadedFiles[key].push({ url, name, mime });
+            this.uploadedFiles[key].push({ url, name, mime, s3Path });
+            
             if (!this.item[key]) this.item[key] = [];
             this.item[key].push(url);
         });
@@ -26,19 +41,44 @@
     },
 
     removeUploadedFile(key, index) {
-        if (confirm('Remove this file?')) {
-            this.uploadedFiles[key].splice(index, 1);
-            this.item[key].splice(index, 1);
+        if (!confirm('Remove this file? This cannot be undone.')) return;
+
+        const file = this.uploadedFiles[key][index];
+        
+        // Optimistically remove from UI
+        this.uploadedFiles[key].splice(index, 1);
+        this.item[key].splice(index, 1);
+
+        // Call backend to delete from S3
+        if (file.s3Path) {
+            this.$wire.deleteFile(key, file.url, file.s3Path);
         }
     },
 
-    fileIcon(mime) {
-        if (!mime) return null;
-        if (mime.startsWith('image/')) return null;
+    detectMime(name) {
+        if (!name) return '';
+        const ext = name.split('.').pop().toLowerCase();
+        if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image/' + ext;
+        if (ext === 'pdf') return 'application/pdf';
+        if (['xlsx', 'xls', 'csv'].includes(ext)) return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+        if (['docx', 'doc'].includes(ext)) return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+        return '';
+    },
+
+    fileIcon(file) {
+        let mime = file.mime || this.detectMime(file.name);
+        
+        if (!mime) return 'file';
+        if (mime.startsWith('image/')) return null; // Should show thumbnail
         if (mime === 'application/pdf') return 'pdf';
-        if (mime.includes('spreadsheet') || mime.includes('excel') || mime.includes('xlsx')) return 'xlsx';
-        if (mime.includes('word') || mime.includes('document') || mime.includes('docx')) return 'docx';
+        if (mime.includes('spreadsheet') || mime.includes('excel') || mime.includes('xlsx') || mime.includes('xls')) return 'xlsx';
+        if (mime.includes('word') || mime.includes('document') || mime.includes('docx') || mime.includes('doc')) return 'docx';
         return 'file';
+    },
+
+    isImage(file) {
+        let mime = file.mime || this.detectMime(file.name);
+        return mime && mime.startsWith('image/');
     },
 
     addValue(key) {
@@ -142,13 +182,6 @@
                         <x-lucide-check class="w-4 h-4 text-blue-600 mt-0.5" />
                         <span class="text-sm text-gray-600 dark:text-gray-400">Max 10MB per file</span>
                     </div>
-                    <div class="flex items-start gap-2">
-                        <x-lucide-check class="w-4 h-4 text-blue-600 mt-0.5" />
-                        <span class="text-sm text-gray-600 dark:text-gray-400">
-                            Use key that ends with _file, _image, _foto, _doc, _pdf, or is named images, files,
-                            attachments to upload files.
-                        </span>
-                    </div>
                 </div>
             </div>
         </div>
@@ -192,27 +225,27 @@
 
                         {{-- FilePond Dropzone --}}
                         <div wire:ignore x-data x-init="() => {
-                                            $wire.set('activeUploadKey', '{{ $key }}');
-                                            const pond = FilePond.create($refs['filepond_{{ $key }}']);
-                                            pond.setOptions({
-                                                allowMultiple: true,
-                                                labelIdle: 'Drag & drop files or <span class=\'filepond--label-action\'>Browse</span>',
-                                                server: {
-                                                    process: (fieldName, file, metadata, load, error, progress, abort) => {
-                                                        $wire.set('activeUploadKey', '{{ $key }}');
-                                                        @this.upload('tempUpload', file, load, error, progress);
-                                                    },
-                                                    revert: (filename, load) => {
-                                                        @this.removeUpload('tempUpload', filename, load);
-                                                    },
-                                                },
-                                                allowImagePreview: true,
-                                                imagePreviewMaxHeight: 200,
-                                                allowFileTypeValidation: false,
-                                                allowFileSizeValidation: true,
-                                                maxFileSize: '10MB',
-                                            });
-                                        }">
+                                    $wire.set('activeUploadKey', '{{ $key }}');
+                                    const pond = FilePond.create($refs['filepond_{{ $key }}']);
+                                    pond.setOptions({
+                                        allowMultiple: true,
+                                        labelIdle: 'Drag & drop files or <span class=\'filepond--label-action\'>Browse</span>',
+                                        server: {
+                                            process: (fieldName, file, metadata, load, error, progress, abort) => {
+                                                $wire.set('activeUploadKey', '{{ $key }}');
+                                                @this.upload('tempUpload', file, load, error, progress);
+                                            },
+                                            revert: (filename, load) => {
+                                                @this.removeUpload('tempUpload', filename, load);
+                                            },
+                                        },
+                                        allowImagePreview: true,
+                                        imagePreviewMaxHeight: 200,
+                                        allowFileTypeValidation: false,
+                                        allowFileSizeValidation: true,
+                                        maxFileSize: '10MB',
+                                    });
+                                }">
                             <input type="file" hidden x-ref="filepond_{{ $key }}" />
                         </div>
 
@@ -231,20 +264,20 @@
                                         class="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all">
 
                                         {{-- Image preview --}}
-                                        <template x-if="file.mime && file.mime.startsWith('image/')">
+                                        <template x-if="isImage(file)">
                                             <img :src="file.url" :alt="file.name" class="w-full h-24 object-cover" />
                                         </template>
 
                                         {{-- Non-image file icon --}}
-                                        <template x-if="!file.mime || !file.mime.startsWith('image/')">
+                                        <template x-if="!isImage(file)">
                                             <div class="w-full h-24 flex flex-col items-center justify-center gap-1" :class="{
-                                                                    'bg-red-50 dark:bg-red-900/20': file.mime === 'application/pdf',
-                                                                    'bg-green-50 dark:bg-green-900/20': file.mime && (file.mime.includes('spreadsheet') || file.mime.includes('excel')),
-                                                                    'bg-blue-50 dark:bg-blue-900/20': file.mime && (file.mime.includes('word') || file.mime.includes('document')),
-                                                                    'bg-gray-50 dark:bg-gray-900/20': !file.mime || (!file.mime.includes('pdf') && !file.mime.includes('spreadsheet') && !file.mime.includes('excel') && !file.mime.includes('word') && !file.mime.includes('document'))
-                                                                }">
+                                                            'bg-red-50 dark:bg-red-900/20': fileIcon(file) === 'pdf',
+                                                            'bg-green-50 dark:bg-green-900/20': fileIcon(file) === 'xlsx',
+                                                            'bg-blue-50 dark:bg-blue-900/20': fileIcon(file) === 'docx',
+                                                            'bg-gray-50 dark:bg-gray-900/20': fileIcon(file) === 'file'
+                                                        }">
                                                 <span class="text-3xl"
-                                                    x-text="file.mime === 'application/pdf' ? '📄' : (file.mime && (file.mime.includes('spreadsheet') || file.mime.includes('excel')) ? '📊' : (file.mime && (file.mime.includes('word') || file.mime.includes('document')) ? '📝' : '📎'))"></span>
+                                                    x-text="fileIcon(file) === 'pdf' ? '📄' : (fileIcon(file) === 'xlsx' ? '📊' : (fileIcon(file) === 'docx' ? '📝' : '📎'))"></span>
                                                 <span class="text-xs font-bold uppercase text-gray-500"
                                                     x-text="file.name ? file.name.split('.').pop() : 'file'"></span>
                                             </div>

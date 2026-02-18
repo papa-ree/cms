@@ -108,6 +108,7 @@ class SearchableCreateItem extends Component
     {
         return view('cms::livewire.pages.section.section.searchable-create-item', [
             'fileKeys' => $this->getFileKeys(),
+            'orgSlug' => session('bale_active_slug'),
         ]);
     }
 
@@ -146,12 +147,12 @@ class SearchableCreateItem extends Component
 
             $extension = $file->getClientOriginalExtension();
             $fileName = $this->slug . '-' . uniqid() . '.' . $extension;
-            $s3Path = session('bale_active_slug') . '/items/' . $this->slug . "/" . $fileName;
+            $s3Path = session('bale_active_slug') . '/landing-page/items/' . $this->slug . '/' . $fileName;
 
             // Use Storage::put() directly — same approach as SectionMetaEditor (avoids S3 temp disk issues)
             Storage::disk('s3')->put($s3Path, $file->get());
 
-            $cdnUrl = Cdn::url('items/' . $this->slug . "/" . $fileName);
+            $cdnUrl = Cdn::url('landing-page/items/' . $this->slug . '/' . $fileName);
             $mime = $file->getMimeType();
             $origName = $file->getClientOriginalName();
 
@@ -160,6 +161,7 @@ class SearchableCreateItem extends Component
                 'url' => $cdnUrl,
                 'name' => $origName,
                 'mime' => $mime,
+                's3Path' => $s3Path,
             ]);
 
         } catch (\Throwable $th) {
@@ -167,6 +169,37 @@ class SearchableCreateItem extends Component
             $this->dispatch('toast', message: 'Upload failed: ' . $th->getMessage(), type: 'error');
         } finally {
             $this->tempUpload = null;
+        }
+    }
+
+    /**
+     * Delete an uploaded file from S3 and remove its URL from the item key.
+     * Called from Alpine when user clicks the remove button.
+     *
+     * @param string $key     The item key the file belongs to
+     * @param string $url     The CDN URL of the file (used to identify it in currentItem)
+     * @param string $s3Path  The full S3 path to delete
+     */
+    public function deleteFile(string $key, string $url, string $s3Path): void
+    {
+        try {
+            // Delete from S3
+            if ($s3Path && Storage::disk('s3')->exists($s3Path)) {
+                Storage::disk('s3')->delete($s3Path);
+            }
+
+            // Remove URL from currentItem key array
+            if (isset($this->currentItem[$key]) && is_array($this->currentItem[$key])) {
+                $this->currentItem[$key] = array_values(
+                    array_filter($this->currentItem[$key], fn($u) => $u !== $url)
+                );
+            }
+
+            $this->dispatch('toast', message: 'File deleted.', type: 'success');
+
+        } catch (\Throwable $th) {
+            info('SearchableCreateItem deleteFile failed: ' . $th->getMessage());
+            $this->dispatch('toast', message: 'Failed to delete file: ' . $th->getMessage(), type: 'error');
         }
     }
 
