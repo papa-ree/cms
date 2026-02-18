@@ -4,14 +4,18 @@ namespace Bale\Cms\Livewire\Pages\Section\Section;
 
 use Bale\Cms\Models\Section;
 use Bale\Cms\Services\TenantConnectionService;
+use Bale\Core\Support\Cdn;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Livewire\Component;
 use Livewire\Attributes\{Layout, Locked, Title};
+use Livewire\WithFileUploads;
 
 #[Layout('cms::layouts.app')]
 #[Title('Bale | Manage Item')]
 class SearchableCreateItem extends Component
 {
+    use WithFileUploads;
     #[Locked]
     public $id;
 
@@ -28,6 +32,10 @@ class SearchableCreateItem extends Component
     public $currentItem = [];
     public $tempInputs = [];
     public $editMode = false;
+
+    // File upload
+    public $tempUpload;
+    public $activeUploadKey = '';
 
     public function mount($slug, $itemIndex = null)
     {
@@ -98,7 +106,68 @@ class SearchableCreateItem extends Component
 
     public function render()
     {
-        return view('cms::livewire.pages.section.section.searchable-create-item');
+        return view('cms::livewire.pages.section.section.searchable-create-item', [
+            'fileKeys' => $this->getFileKeys(),
+        ]);
+    }
+
+    /**
+     * Returns keys that should render a FilePond uploader.
+     * Matches common naming patterns for image/file fields.
+     */
+    public function getFileKeys(): array
+    {
+        $patterns = ['images', 'files', 'attachments', 'documents', 'photos', 'gallery'];
+        $suffixes = ['_image', '_images', '_file', '_files', '_foto', '_fotos', '_doc', '_docs', '_pdf', '_photo', '_photos', '_attachment', '_gambar'];
+
+        return array_values(array_filter($this->availableKeys, function ($key) use ($patterns, $suffixes) {
+            if (in_array($key, $patterns))
+                return true;
+            foreach ($suffixes as $suffix) {
+                if (str_ends_with($key, $suffix))
+                    return true;
+            }
+            return false;
+        }));
+    }
+
+    /**
+     * Triggered by FilePond after uploading a file via $wire.upload('tempUpload', ...).
+     * Skips validate() intentionally — causes "Unable to retrieve file_size" on S3 temp disk.
+     * Client-side validation is handled by FilePond plugins.
+     */
+    public function updatedTempUpload()
+    {
+        if (!$this->tempUpload)
+            return;
+
+        try {
+            $file = $this->tempUpload;
+
+            $extension = $file->getClientOriginalExtension();
+            $fileName = $this->slug . '-' . uniqid() . '.' . $extension;
+            $s3Path = $this->slug . '/items/' . $fileName;
+
+            // Use Storage::put() directly — same approach as SectionMetaEditor (avoids S3 temp disk issues)
+            Storage::disk('s3')->put($s3Path, $file->get());
+
+            $cdnUrl = Cdn::url('items/' . $fileName);
+            $mime = $file->getMimeType();
+            $origName = $file->getClientOriginalName();
+
+            $this->dispatch('file-uploaded', [
+                'key' => $this->activeUploadKey,
+                'url' => $cdnUrl,
+                'name' => $origName,
+                'mime' => $mime,
+            ]);
+
+        } catch (\Throwable $th) {
+            info('SearchableCreateItem file upload failed: ' . $th->getMessage());
+            $this->dispatch('toast', message: 'Upload failed: ' . $th->getMessage(), type: 'error');
+        } finally {
+            $this->tempUpload = null;
+        }
     }
 
     public function addValue($key)
