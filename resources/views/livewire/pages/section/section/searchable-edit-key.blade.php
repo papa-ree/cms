@@ -112,8 +112,8 @@
                     <div class="flex items-start gap-2">
                         <x-lucide-check class="w-4 h-4 text-purple-600 mt-0.5" />
                         <span class="text-sm text-gray-600 dark:text-gray-400">
-                            if you want to add images, files, attachments, documents, photos, gallery, etc. use
-                            the file upload field type
+                            Use key named images, files, attachments, documents, photos, gallery
+                            for file upload field type
                         </span>
                     </div>
                     <div class="flex items-start gap-2">

@@ -86,6 +86,10 @@
                             class="block px-3 py-2 text-sm rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
                             Advanced
                         </a>
+                        <a href="#custom-keys"
+                            class="block px-3 py-2 text-sm rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
+                            Custom Keys
+                        </a>
                     </nav>
                 </div>
 
@@ -245,19 +249,29 @@
                                         @input.debounce.1000ms="save('buttons')" placeholder="https:// or /path" />
                                 </div>
 
-                                {{-- Icon --}}
+                                {{-- Icon & Class --}}
                                 <div class="md:col-span-2">
-                                    <div class="flex items-end gap-2">
-                                        <div class="flex-1">
-                                            <x-core::input label="Icon (Optional)" x-model="button.icon"
-                                                @input.debounce.1000ms="save('buttons')"
-                                                placeholder="e.g. arrow-right, check, star" />
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        {{-- Icon --}}
+                                        <div class="flex items-end gap-2">
+                                            <div class="flex-1">
+                                                <x-core::input label="Icon (Optional)" x-model="button.icon"
+                                                    @input.debounce.1000ms="save('buttons')"
+                                                    placeholder="e.g. arrow-right, check, star" />
+                                            </div>
+                                            <a href="https://lucide.dev/icons" target="_blank"
+                                                class="p-3 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-xl transition-colors border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 mb-0.5"
+                                                title="Browse Icons">
+                                                <x-lucide-external-link class="w-5 h-5" />
+                                            </a>
                                         </div>
-                                        <a href="https://lucide.dev/icons" target="_blank"
-                                            class="p-3 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-xl transition-colors border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 mb-0.5"
-                                            title="Browse Icons">
-                                            <x-lucide-external-link class="w-5 h-5" />
-                                        </a>
+
+                                        {{-- Class --}}
+                                        <div>
+                                            <x-core::input label="Attribute Class (Optional)" x-model="button.class"
+                                                @input.debounce.1000ms="save('buttons')"
+                                                placeholder="e.g. bg-blue-500 rounded-lg" />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -495,6 +509,148 @@
                 </div>
             @endif
 
+            {{-- 5. CUSTOM KEYS CARD --}}
+            <div id="custom-keys"
+                class="bg-white dark:bg-slate-800 rounded-2xl p-8 shadow-sm border border-gray-100 dark:border-slate-700">
+                {{-- Header --}}
+                <div class="flex items-center justify-between mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="p-2.5 bg-teal-100 dark:bg-teal-900/30 rounded-xl">
+                            <x-lucide-key class="w-5 h-5 text-teal-600 dark:text-teal-400" />
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
+                                Custom Keys
+                            </h2>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">
+                                <span
+                                    x-text="Object.keys(data.custom || {}).filter(k => !@js(array_keys($this->customFieldsConfig ?? [])).includes(k)).length"></span>
+                                user-defined key<span
+                                    x-show="Object.keys(data.custom || {}).filter(k => !@js(array_keys($this->customFieldsConfig ?? [])).includes(k)).length !== 1">s</span>
+                            </p>
+                        </div>
+                    </div>
+
+                    {{-- Save Status --}}
+                    <div class="save-status">
+                        <template x-if="states.custom === 'saving'">
+                            <div
+                                class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-full">
+                                <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
+                                <span class="text-xs font-medium text-blue-700 dark:text-blue-400">Saving...</span>
+                            </div>
+                        </template>
+                        <template x-if="states.custom === 'saved'">
+                            <div
+                                class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-full">
+                                <x-lucide-check class="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                                <span class="text-xs font-medium text-emerald-700 dark:text-emerald-400">Saved</span>
+                            </div>
+                        </template>
+                        <template x-if="states.custom === 'error'">
+                            <div class="flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-full">
+                                <x-lucide-alert-circle class="w-3 h-3 text-red-600 dark:text-red-400" />
+                                <span class="text-xs font-medium text-red-700 dark:text-red-400">Error</span>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                {{-- Dynamic Key List --}}
+                <div class="space-y-4">
+                    <template
+                        x-for="key in Object.keys(data.custom || {}).filter(k => !@js(array_keys($this->customFieldsConfig ?? [])).includes(k))"
+                        :key="key">
+                        <div
+                            class="group relative bg-linear-to-br from-gray-50 to-gray-100/50 dark:from-slate-900 dark:to-slate-800/50 p-5 rounded-xl border border-gray-200 dark:border-slate-700 hover:border-teal-300 dark:hover:border-teal-700 transition-all">
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                {{-- Key Name (readonly badge) --}}
+                                <div>
+                                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Key
+                                        Name</label>
+                                    <div
+                                        class="flex items-center gap-2 py-2.5 px-4 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl">
+                                        <x-lucide-hash class="w-3.5 h-3.5 text-teal-500 shrink-0" />
+                                        <span class="text-sm font-mono text-gray-800 dark:text-gray-200"
+                                            x-text="key"></span>
+                                    </div>
+                                </div>
+
+                                {{-- Value Input --}}
+                                <div>
+                                    <label
+                                        class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Value</label>
+                                    <input type="text" :value="data.custom[key]"
+                                        @input.debounce.1000ms="data.custom[key] = $event.target.value; save('custom')"
+                                        class="block w-full py-2.5 px-4 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white border border-gray-300 dark:border-gray-600 rounded-xl dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
+                                        placeholder="Enter value..." />
+                                </div>
+                            </div>
+
+                            {{-- Remove Button --}}
+                            <div class="flex justify-end mt-3 pt-3 border-t border-gray-200 dark:border-slate-700">
+                                <button type="button" @click="removeCustomKey(key)"
+                                    class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                                    <x-lucide-trash-2 class="w-4 h-4" />
+                                    Remove
+                                </button>
+                            </div>
+                        </div>
+                    </template>
+
+                    {{-- Add Key Form (inline) --}}
+                    <div x-show="showAddKeyForm" x-collapse
+                        class="bg-linear-to-br from-teal-50 to-cyan-50/50 dark:from-teal-900/20 dark:to-cyan-900/10 p-6 rounded-xl border-2 border-dashed border-teal-300 dark:border-teal-700">
+                        <h3 class="text-sm font-semibold text-teal-800 dark:text-teal-300 mb-4 flex items-center gap-2">
+                            <x-lucide-plus-circle class="w-4 h-4" />
+                            New Custom Key
+                        </h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                            <div>
+                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Key
+                                    Name <span class="text-red-500">*</span></label>
+                                <input type="text" x-model="newKeyName" @keydown.enter.prevent="addCustomKey"
+                                    @keydown.escape="showAddKeyForm = false; newKeyName = ''; newKeyValue = ''"
+                                    class="block w-full py-2.5 px-4 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white border border-gray-300 dark:border-gray-600 rounded-xl dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm font-mono"
+                                    placeholder="e.g. my_key" />
+                                <p class="mt-1 text-xs text-gray-400">Spaces will be replaced with underscores</p>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Value</label>
+                                <input type="text" x-model="newKeyValue" @keydown.enter.prevent="addCustomKey"
+                                    @keydown.escape="showAddKeyForm = false; newKeyName = ''; newKeyValue = ''"
+                                    class="block w-full py-2.5 px-4 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white border border-gray-300 dark:border-gray-600 rounded-xl dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
+                                    placeholder="Enter value..." />
+                            </div>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <button type="button" @click="addCustomKey" :disabled="!newKeyName.trim()"
+                                class="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors">
+                                <x-lucide-save class="w-4 h-4" />
+                                Save Key
+                            </button>
+                            <button type="button" @click="showAddKeyForm = false; newKeyName = ''; newKeyValue = ''"
+                                class="inline-flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-700 text-sm font-medium rounded-lg transition-colors">
+                                <x-lucide-x class="w-4 h-4" />
+                                Cancel
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Add Key Button --}}
+                    <button type="button" @click="showAddKeyForm = true" x-show="!showAddKeyForm"
+                        class="w-full py-4 border-2 border-dashed border-gray-300 dark:border-slate-600 rounded-xl text-sm font-medium text-gray-600 dark:text-gray-400 hover:border-teal-500 hover:text-teal-600 dark:hover:text-teal-400 hover:bg-teal-50 dark:hover:bg-teal-900/10 transition-all flex items-center justify-center gap-2 group">
+                        <div
+                            class="p-1.5 bg-gray-100 dark:bg-slate-700 rounded-lg group-hover:bg-teal-100 dark:group-hover:bg-teal-900/30 transition-colors">
+                            <x-lucide-plus class="w-4 h-4" />
+                        </div>
+                        Add Key
+                    </button>
+                </div>
+            </div>
+
         </div>
     </form>
 
@@ -547,10 +703,39 @@
                         this.$wire.save( field, this.data[ field ] );
                     },
 
+                    // --- Custom Keys ---
+                    newKeyName: '',
+                    newKeyValue: '',
+                    showAddKeyForm: false,
+
+                    addCustomKey ()
+                    {
+                        const key = this.newKeyName.trim().replace( /\s+/g, '_' );
+                        if ( !key ) return;
+                        if ( !this.data.custom ) this.data.custom = {};
+                        // Prevent overwriting schema keys
+                        this.data.custom[ key ] = this.newKeyValue;
+                        this.data.custom = { ...this.data.custom }; // trigger reactivity
+                        this.newKeyName = '';
+                        this.newKeyValue = '';
+                        this.showAddKeyForm = false;
+                        this.save( 'custom' );
+                    },
+
+                    removeCustomKey ( key )
+                    {
+                        if ( this.data.custom ) {
+                            delete this.data.custom[ key ];
+                            this.data.custom = { ...this.data.custom }; // trigger reactivity
+                            this.save( 'custom' );
+                        }
+                    },
+
+                    // --- Buttons ---
                     addButton ()
                     {
                         if ( !this.data.buttons ) this.data.buttons = [];
-                        this.data.buttons.push( { label: '', url: '', icon: '', show: true } );
+                        this.data.buttons.push( { label: '', url: '', icon: '', class: '', show: true } );
                         this.save( 'buttons' );
                     },
 

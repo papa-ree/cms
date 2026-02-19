@@ -108,6 +108,7 @@ class SearchableCreateItem extends Component
     {
         return view('cms::livewire.pages.section.section.searchable-create-item', [
             'fileKeys' => $this->getFileKeys(),
+            'socialKeys' => $this->getSocialKeys(),
             'orgSlug' => session('bale_active_slug', ''),
         ]);
     }
@@ -127,6 +128,64 @@ class SearchableCreateItem extends Component
             foreach ($suffixes as $suffix) {
                 if (str_ends_with($key, $suffix))
                     return true;
+            }
+            return false;
+        }));
+    }
+
+    /**
+     * Returns keys that should render a Social Media URL input.
+     * Matches exact platform names, _suffix patterns, and social_ prefix patterns.
+     */
+    public function getSocialKeys(): array
+    {
+        $platforms = [
+            'facebook',
+            'instagram',
+            'youtube',
+            'whatsapp',
+            'tiktok',
+            'twitter',
+            'x',
+            'linkedin',
+            'telegram',
+            'pinterest',
+            'snapchat',
+            'threads',
+            'line',
+            'wechat',
+        ];
+
+        $suffixes = [];
+        foreach ($platforms as $p) {
+            $suffixes[] = '_' . $p;
+        }
+        // generic social suffixes
+        $suffixes[] = '_sosmed';
+        $suffixes[] = '_social';
+
+        $prefixes = ['social_', 'sosmed_'];
+
+        return array_values(array_filter($this->availableKeys, function ($key) use ($platforms, $suffixes, $prefixes) {
+            // already tagged as file key → skip
+            if (in_array($key, $this->getFileKeys())) {
+                return false;
+            }
+            // exact platform name
+            if (in_array($key, $platforms)) {
+                return true;
+            }
+            // suffix match
+            foreach ($suffixes as $suffix) {
+                if (str_ends_with($key, $suffix)) {
+                    return true;
+                }
+            }
+            // prefix match
+            foreach ($prefixes as $prefix) {
+                if (str_starts_with($key, $prefix)) {
+                    return true;
+                }
             }
             return false;
         }));
