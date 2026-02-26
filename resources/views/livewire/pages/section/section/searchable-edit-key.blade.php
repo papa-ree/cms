@@ -119,7 +119,7 @@
                     <div class="flex items-start gap-2">
                         <x-lucide-check class="w-4 h-4 text-purple-600 mt-0.5" />
                         <span class="text-sm text-gray-600 dark:text-gray-400">
-                            use suffix for file upload field type
+                            Use suffix for file upload field type
                             example: <span class="font-semibold">_image, _file, _foto, _doc, _pdf, _photo,
                                 _attachment, _gambar</span>
                         </span>

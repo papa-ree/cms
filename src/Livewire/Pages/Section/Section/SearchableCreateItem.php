@@ -26,7 +26,7 @@ class SearchableCreateItem extends Component
     public $slug = '';
 
     #[Locked]
-    public $itemIndex = null;
+    public $itemId = null;
 
     public $availableKeys = [];
     public $currentItem = [];
@@ -37,11 +37,11 @@ class SearchableCreateItem extends Component
     public $tempUpload;
     public $activeUploadKey = '';
 
-    public function mount($slug, $itemIndex = null)
+    public function mount($slug, $itemId = null)
     {
         $this->slug = $slug;
-        $this->itemIndex = $itemIndex;
-        $this->editMode = $itemIndex !== null;
+        $this->itemId = $itemId;
+        $this->editMode = $itemId !== null;
 
         TenantConnectionService::ensureActive();
         $connection = TenantConnectionService::connection();
@@ -83,12 +83,22 @@ class SearchableCreateItem extends Component
 
         // If edit mode, load existing item data
         if ($this->editMode) {
-            if (!isset($items[$itemIndex])) {
+            // Find item by id
+            $foundItem = null;
+            foreach ($items as $item) {
+                $id = $item['id'][0] ?? $item['id'] ?? null;
+                if ($id === $this->itemId) {
+                    $foundItem = $item;
+                    break;
+                }
+            }
+
+            if ($foundItem === null) {
                 session()->flash('error', 'Item not found');
                 return $this->redirectRoute('bale.cms.sections.view-searchable', $slug, navigate: true);
             }
 
-            $this->currentItem = $items[$itemIndex];
+            $this->currentItem = $foundItem;
 
             // Ensure all values are arrays
             foreach ($this->currentItem as $key => &$value) {
@@ -341,30 +351,37 @@ class SearchableCreateItem extends Component
             $content = $section->content ?? [];
             $items = $content['items'] ?? [];
 
-            if ($this->editMode && $this->itemIndex !== null) {
-                // Edit mode: update existing item in-place
+            if ($this->editMode && $this->itemId !== null) {
+                // Edit mode: find item by id and update in-place
                 $this->currentItem['updated_at'] = [now()->toDateTimeString()];
 
                 if (!isset($this->currentItem['created_at'])) {
                     $this->currentItem['created_at'] = [now()->toDateTimeString()];
                 }
                 if (!isset($this->currentItem['id'])) {
-                    $this->currentItem['id'] = [\Illuminate\Support\Str::uuid()->toString()];
+                    $this->currentItem['id'] = [$this->itemId];
                 }
 
-                $items[$this->itemIndex] = $this->currentItem;
+                foreach ($items as $i => $item) {
+                    $id = $item['id'][0] ?? $item['id'] ?? null;
+                    if ($id === $this->itemId) {
+                        $items[$i] = $this->currentItem;
+                        break;
+                    }
+                }
 
             } else {
                 // Create mode: insert new item and switch to edit mode
                 $now = now()->toDateTimeString();
                 $this->currentItem['created_at'] = [$now];
                 $this->currentItem['updated_at'] = [$now];
-                $this->currentItem['id'] = [\Illuminate\Support\Str::uuid()->toString()];
+                $newId = \Illuminate\Support\Str::uuid()->toString();
+                $this->currentItem['id'] = [$newId];
 
                 $items[] = $this->currentItem;
 
                 // Switch to edit mode so subsequent auto-saves update this same item
-                $this->itemIndex = array_key_last($items);
+                $this->itemId = $newId;
                 $this->editMode = true;
             }
 
@@ -408,11 +425,17 @@ class SearchableCreateItem extends Component
 
                 // Ensure id exists
                 if (!isset($this->currentItem['id'])) {
-                    $this->currentItem['id'] = [\Illuminate\Support\Str::uuid()->toString()];
+                    $this->currentItem['id'] = [$this->itemId ?? \Illuminate\Support\Str::uuid()->toString()];
                 }
 
-                // Update existing item
-                $items[$this->itemIndex] = $this->currentItem;
+                // Find and update item by id
+                foreach ($items as $i => $item) {
+                    $id = $item['id'][0] ?? $item['id'] ?? null;
+                    if ($id === $this->itemId) {
+                        $items[$i] = $this->currentItem;
+                        break;
+                    }
+                }
                 $message = 'Item updated successfully!';
             } else {
                 // Set generated timestamps

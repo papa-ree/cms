@@ -4,6 +4,7 @@ namespace Bale\Cms\Livewire\SharedComponents;
 
 use Livewire\Component;
 use Livewire\Attributes\{Computed, Layout};
+use Bale\Cms\Models\BaleList;
 
 class CmsSidebar extends Component
 {
@@ -17,13 +18,25 @@ class CmsSidebar extends Component
     public function availableMenus()
     {
         $menu = [
-            ['label' => 'overview', 'url' => 'overview'],
-            ['label' => 'posts', 'url' => 'posts'],
-            ['label' => 'pages', 'url' => 'pages'],
-            ['label' => 'navigations', 'url' => 'navigations'],
-            ['label' => 'sections', 'url' => 'sections'],
+            ['label' => 'overview', 'url' => 'overview', 'icon' => 'layout-dashboard'],
+            ['label' => 'posts', 'url' => 'posts', 'icon' => 'file-text'],
+            ['label' => 'pages', 'url' => 'pages', 'icon' => 'file'],
+            ['label' => 'navigations', 'url' => 'navigations', 'icon' => 'navigation'],
+            ['label' => 'sections', 'url' => 'sections', 'icon' => 'layers'],
         ];
 
         return $menu;
+    }
+
+    #[Computed]
+    public function activeBale()
+    {
+        $uuid = session('bale_active_uuid');
+
+        if (!$uuid) {
+            return null;
+        }
+
+        return BaleList::with('organization')->find($uuid);
     }
 }

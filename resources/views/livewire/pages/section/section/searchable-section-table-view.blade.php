@@ -95,8 +95,9 @@
                     </thead>
                     <tbody class="divide-y divide-gray-200 dark:divide-gray-700">
                         @foreach($this->filteredItems as $index => $item)
+                            @php $itemId = $item['id'][0] ?? $item['id'] ?? $index; @endphp
                             <tr class="hover:bg-gray-50 dark:hover:bg-gray-900/30 transition-colors"
-                                wire:key="item-{{ $index }}" data-aos="fade-up" data-aos-delay="{{ $index * 30 }}">
+                                wire:key="item-{{ $itemId }}" data-aos="fade-up" data-aos-delay="{{ $loop->index * 30 }}">
                                 <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-white">
                                     {{ $index + 1 }}
                                 </td>
@@ -127,13 +128,13 @@
                                 @endforeach
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
                                     <div class="flex items-center justify-end gap-2">
-                                        <a href="{{ route('bale.cms.sections.edit-searchable-item', [$sectionSlug, $index]) }}"
+                                        <a href="{{ route('bale.cms.sections.edit-searchable-item', [$sectionSlug, $itemId]) }}"
                                             wire:navigate.hover
                                             class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                                             title="Edit">
                                             <x-lucide-pencil class="w-4 h-4" />
                                         </a>
-                                        <button type="button" wire:click="deleteItem({{ $index }})"
+                                        <button type="button" wire:click="deleteItem('{{ $itemId }}')"
                                             wire:confirm="Are you sure you want to delete this item?"
                                             class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                                             title="Delete">
@@ -150,16 +151,17 @@
             {{-- Mobile Card View --}}
             <div class="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
                 @foreach($this->filteredItems as $index => $item)
-                    <div class="p-4" wire:key="item-mobile-{{ $index }}" data-aos="fade-up">
+                    @php $itemId = $item['id'][0] ?? $item['id'] ?? $index; @endphp
+                    <div class="p-4" wire:key="item-mobile-{{ $itemId }}" data-aos="fade-up">
                         <div class="flex items-center justify-between mb-3">
                             <span class="text-sm font-semibold text-gray-900 dark:text-white">Item #{{ $index + 1 }}</span>
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('bale.cms.sections.edit-searchable-item', [$sectionSlug, $index]) }}"
+                                <a href="{{ route('bale.cms.sections.edit-searchable-item', [$sectionSlug, $itemId]) }}"
                                     wire:navigate.hover
                                     class="p-2 text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors">
                                     <x-lucide-pencil class="w-4 h-4" />
                                 </a>
-                                <button type="button" wire:click="deleteItem({{ $index }})"
+                                <button type="button" wire:click="deleteItem('{{ $itemId }}')"
                                     wire:confirm="Are you sure you want to delete this item?"
                                     class="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
                                     <x-lucide-trash-2 class="w-4 h-4" />

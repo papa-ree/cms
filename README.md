@@ -125,6 +125,23 @@ For more complex actions that need to trigger Livewire events directly, use the 
 
 The package is primarily used via its Livewire components for content management. Ensure you have properly configured your tenant database connections in the `bale_lists` table (or via the commands above).
 
+## Analytics (Umami Integration)
+
+Bale CMS integrates with Umami Analytics (self-hosted) to display website traffic statistics on the dashboard overview.
+
+### How it works
+
+1. `AnalyticsService` fetches data via `UmamiService` (from `bale-core`).
+2. Configuration is fetched from the `tenant_analytics` table in the main database.
+3. Data is cached in the active tenant's database to prevent excessive API calls.
+
+### Display
+
+- **Stats Cards**: Displays Total Visitors, Bounce Rate, and Avg Session Duration.
+- **Traffic Overview**: A line chart showing Visitors and Page Views over the last 7 days using the `x-core::chart` component.
+
+If the analytics service is unavailable or unconfigured, the dashboard will gracefully display an "Unavailable" state without crashing.
+
 ## Testing
 
 ```bash

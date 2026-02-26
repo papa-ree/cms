@@ -23,14 +23,14 @@
                                 class="inline-flex items-center gap-1.5 mt-1 px-3 py-1 rounded-full text-xs font-medium {{ $actived ? 'bg-emerald-500/20 text-emerald-100' : 'bg-gray-500/20 text-gray-100' }}">
                                 <span
                                     class="w-1.5 h-1.5 rounded-full {{ $actived ? 'bg-emerald-300' : 'bg-gray-300' }}"></span>
-                                {{ $actived ? 'Active' : 'Inactive' }}
+                                {{ $actived ? __('Active') : __('Inactive') }}
                             </span>
                         </div>
                     </div>
 
                     {{-- Description --}}
                     <p class="text-white/90 text-lg max-w-2xl">
-                        Customize the appearance and content of this section. All changes are saved automatically.
+                        {{ __('Customize the appearance and content of this section. All changes are saved automatically.') }}
                     </p>
                 </div>
 
@@ -39,17 +39,17 @@
                     <a href="{{ url('/') }}#{{ $slug }}" target="_blank"
                         class="inline-flex items-center gap-2 px-4 py-2.5 bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30 rounded-lg text-sm font-medium text-white transition-all">
                         <x-lucide-external-link class="w-4 h-4 hidden lg:block" />
-                        Preview
+                        {{ __('Preview') }}
                     </a>
                     <a href="{{ route('bale.cms.sections.view-searchable', $slug) }}" wire:navigate
                         class="inline-flex items-center gap-2 px-4 py-2.5 bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30 rounded-lg text-sm font-medium text-white transition-all">
                         <x-lucide-database class="w-4 h-4 hidden lg:block" />
-                        Data Items
+                        {{ __('Data Items') }}
                     </a>
                     <button wire:click="toggleActive"
                         class="inline-flex items-center gap-2 px-4 py-2.5 {{ $actived ? 'bg-white text-purple-600 hover:bg-white/90' : 'bg-emerald-500 text-white hover:bg-emerald-600' }} rounded-lg text-sm font-medium transition-all shadow-lg">
                         <x-lucide-power class="w-4 h-4 hidden lg:block" />
-                        {{ $actived ? 'Deactivate' : 'Activate' }}
+                        {{ $actived ? __('Deactivate') : __('Activate') }}
                     </button>
                 </div>
             </div>
@@ -67,28 +67,28 @@
                     class="bg-white dark:bg-slate-800 rounded-2xl p-6 shadow-sm border border-gray-100 dark:border-slate-700">
                     <h3 class="font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
                         <x-lucide-navigation class="w-4 h-4 text-purple-600" />
-                        Quick Jump
+                        {{ __('Quick Jump') }}
                     </h3>
                     <nav class="space-y-1">
                         <a href="#basic-info"
                             class="block px-3 py-2 text-sm rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                            Basic Info
+                            {{ __('Basic Info') }}
                         </a>
                         <a href="#buttons"
                             class="block px-3 py-2 text-sm rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                            Action Buttons
+                            {{ __('Action Buttons') }}
                         </a>
                         <a href="#background"
                             class="block px-3 py-2 text-sm rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                            Background
+                            {{ __('Background') }}
                         </a>
                         <a href="#advanced"
                             class="block px-3 py-2 text-sm rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                            Advanced
+                            {{ __('Advanced') }}
                         </a>
                         <a href="#custom-keys"
                             class="block px-3 py-2 text-sm rounded-lg hover:bg-purple-50 dark:hover:bg-purple-900/20 text-gray-700 dark:text-gray-300 hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
-                            Custom Keys
+                            {{ __('Custom Keys') }}
                         </a>
                     </nav>
                 </div>
@@ -98,20 +98,20 @@
                     class="bg-linear-to-br from-purple-50 to-indigo-50 dark:from-purple-900/20 dark:to-indigo-900/20 rounded-2xl p-6 border border-purple-100 dark:border-purple-800">
                     <h3 class="font-semibold text-purple-900 dark:text-purple-300 mb-3 flex items-center gap-2">
                         <x-lucide-lightbulb class="w-4 h-4" />
-                        Editor Tips
+                        {{ __('Editor Tips') }}
                     </h3>
                     <ul class="space-y-3 text-sm text-purple-800 dark:text-purple-400">
                         <li class="flex gap-2">
                             <x-lucide-check-circle class="w-4 h-4 mt-0.5 shrink-0" />
-                            <span>Changes save automatically as you type</span>
+                            <span>{{ __('Changes save automatically as you type') }}</span>
                         </li>
                         <li class="flex gap-2">
                             <x-lucide-image class="w-4 h-4 mt-0.5 shrink-0" />
-                            <span>Upload high-quality images for best results</span>
+                            <span>{{ __('Upload high-quality images for best results') }}</span>
                         </li>
                         <li class="flex gap-2">
                             <x-lucide-eye class="w-4 h-4 mt-0.5 shrink-0" />
-                            <span>Use preview to see changes live</span>
+                            <span>{{ __('Use preview to see changes live') }}</span>
                         </li>
                     </ul>
                 </div>
@@ -132,9 +132,9 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                Basic Information
+                                {{ __('Basic Information') }}
                             </h2>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Title and subtitle for this section</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('Title and subtitle for this section') }}</p>
                         </div>
                     </div>
 
@@ -144,7 +144,7 @@
                             <div
                                 class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-full">
                                 <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <span class="text-xs font-medium text-blue-700 dark:text-blue-400">Saving...</span>
+                                <span class="text-xs font-medium text-blue-700 dark:text-blue-400">{{ __('Saving...') }}</span>
                             </div>
                         </template>
                         <template
@@ -152,13 +152,13 @@
                             <div
                                 class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-full">
                                 <x-lucide-check class="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                                <span class="text-xs font-medium text-emerald-700 dark:text-emerald-400">Saved</span>
+                                <span class="text-xs font-medium text-emerald-700 dark:text-emerald-400">{{ __('Saved') }}</span>
                             </div>
                         </template>
                         <template x-if="states.title === 'error' || states.subtitle === 'error'">
                             <div class="flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-full">
                                 <x-lucide-alert-circle class="w-3 h-3 text-red-600 dark:text-red-400" />
-                                <span class="text-xs font-medium text-red-700 dark:text-red-400">Error</span>
+                                <span class="text-xs font-medium text-red-700 dark:text-red-400">{{ __('Error') }}</span>
                             </div>
                         </template>
                     </div>
@@ -166,14 +166,14 @@
 
                 {{-- Fields --}}
                 <div class="space-y-6">
-                    <x-core::input label="Section Title" x-model="data.title" @input.debounce.1000ms="save('title')"
-                        placeholder="e.g. Welcome to Our Platform" />
+                    <x-core::input :label="__('Section Title')" x-model="data.title" @input.debounce.1000ms="save('title')"
+                        :placeholder="__('e.g. Welcome to Our Platform')" />
 
                     <div>
-                        <x-core::label value="Subtitle / Description" />
+                        <x-core::label :value="__('Subtitle / Description')" />
                         <textarea x-model="data.subtitle" @input.debounce.1000ms="save('subtitle')" rows="3"
                             class="block w-full py-3 px-4 text-gray-900 placeholder-gray-500 transition-all duration-200 bg-white border border-gray-300 form-input dark:border-gray-600 rounded-xl dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent resize-none"
-                            placeholder="Add a brief description or subtitle..."></textarea>
+                            placeholder="{{ __('Add a brief description or subtitle...') }}"></textarea>
                     </div>
                 </div>
             </div>
@@ -189,11 +189,11 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                Action Buttons
+                                {{ __('Action Buttons') }}
                             </h2>
                             <p class="text-sm text-gray-500 dark:text-gray-400">
-                                <span x-text="data.buttons.length"></span> button<span
-                                    x-show="data.buttons.length !== 1">s</span> configured
+                                <span x-text="data.buttons.length"></span> {{ __('button') }}<span
+                                    x-show="data.buttons.length !== 1">s</span> {{ __('configured') }}
                             </p>
                         </div>
                     </div>
@@ -204,20 +204,20 @@
                             <div
                                 class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-full">
                                 <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <span class="text-xs font-medium text-blue-700 dark:text-blue-400">Saving...</span>
+                                <span class="text-xs font-medium text-blue-700 dark:text-blue-400">{{ __('Saving...') }}</span>
                             </div>
                         </template>
                         <template x-if="states.buttons === 'saved'">
                             <div
                                 class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-full">
                                 <x-lucide-check class="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                                <span class="text-xs font-medium text-emerald-700 dark:text-emerald-400">Saved</span>
+                                <span class="text-xs font-medium text-emerald-700 dark:text-emerald-400">{{ __('Saved') }}</span>
                             </div>
                         </template>
                         <template x-if="states.buttons === 'error'">
                             <div class="flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-full">
                                 <x-lucide-alert-circle class="w-3 h-3 text-red-600 dark:text-red-400" />
-                                <span class="text-xs font-medium text-red-700 dark:text-red-400">Error</span>
+                                <span class="text-xs font-medium text-red-700 dark:text-red-400">{{ __('Error') }}</span>
                             </div>
                         </template>
                     </div>
@@ -239,13 +239,13 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pl-2">
                                 {{-- Label --}}
                                 <div>
-                                    <x-core::input label="Button Label" x-model="button.label"
-                                        @input.debounce.1000ms="save('buttons')" placeholder="Button Text" />
+                                    <x-core::input :label="__('Button Label')" x-model="button.label"
+                                        @input.debounce.1000ms="save('buttons')" :placeholder="__('Button Text')" />
                                 </div>
 
                                 {{-- URL --}}
                                 <div>
-                                    <x-core::input label="URL / Link" x-model="button.url"
+                                    <x-core::input :label="__('URL / Link')" x-model="button.url"
                                         @input.debounce.1000ms="save('buttons')" placeholder="https:// or /path" />
                                 </div>
 
@@ -255,22 +255,22 @@
                                         {{-- Icon --}}
                                         <div class="flex items-end gap-2">
                                             <div class="flex-1">
-                                                <x-core::input label="Icon (Optional)" x-model="button.icon"
+                                                <x-core::input :label="__('Icon (Optional)')" x-model="button.icon"
                                                     @input.debounce.1000ms="save('buttons')"
-                                                    placeholder="e.g. arrow-right, check, star" />
+                                                    :placeholder="__('e.g. arrow-right, check, star')" />
                                             </div>
                                             <a href="https://lucide.dev/icons" target="_blank"
                                                 class="p-3 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-xl transition-colors border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 mb-0.5"
-                                                title="Browse Icons">
+                                                :title="__('Browse Icons')">
                                                 <x-lucide-external-link class="w-5 h-5" />
                                             </a>
                                         </div>
 
                                         {{-- Class --}}
                                         <div>
-                                            <x-core::input label="Attribute Class (Optional)" x-model="button.class"
+                                            <x-core::input :label="__('Attribute Class (Optional)')" x-model="button.class"
                                                 @input.debounce.1000ms="save('buttons')"
-                                                placeholder="e.g. bg-blue-500 rounded-lg" />
+                                                :placeholder="__('e.g. bg-blue-500 rounded-lg')" />
                                         </div>
                                     </div>
                                 </div>
@@ -285,14 +285,13 @@
                                     <div
                                         class="relative w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-purple-300 dark:peer-focus:ring-purple-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-purple-600">
                                     </div>
-                                    <span class="ms-3 text-sm font-medium text-gray-700 dark:text-gray-300">Show
-                                        button</span>
+                                    <span class="ms-3 text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Show button') }}</span>
                                 </label>
 
                                 <button type="button" @click="removeButton(index)"
                                     class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
                                     <x-lucide-trash-2 class="w-4 h-4" />
-                                    Remove
+                                    {{ __('Remove') }}
                                 </button>
                             </div>
                         </div>
@@ -305,7 +304,7 @@
                             class="p-1.5 bg-gray-100 dark:bg-slate-700 rounded-lg group-hover:bg-purple-100 dark:group-hover:bg-purple-900/30 transition-colors">
                             <x-lucide-plus class="w-4 h-4" />
                         </div>
-                        Add New Button
+                        {{ __('Add New Button') }}
                     </button>
                 </div>
             </div>
@@ -321,9 +320,9 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                Background
+                                {{ __('Background') }}
                             </h2>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Configure section background images</p>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('Configure section background images') }}</p>
                         </div>
                     </div>
 
@@ -333,20 +332,20 @@
                             <div
                                 class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-full">
                                 <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <span class="text-xs font-medium text-blue-700 dark:text-blue-400">Saving...</span>
+                                <span class="text-xs font-medium text-blue-700 dark:text-blue-400">{{ __('Saving...') }}</span>
                             </div>
                         </template>
                         <template x-if="states.background === 'saved'">
                             <div
                                 class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-full">
                                 <x-lucide-check class="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                                <span class="text-xs font-medium text-emerald-700 dark:text-emerald-400">Saved</span>
+                                <span class="text-xs font-medium text-emerald-700 dark:text-emerald-400">{{ __('Saved') }}</span>
                             </div>
                         </template>
                         <template x-if="states.background === 'error'">
                             <div class="flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-full">
                                 <x-lucide-alert-circle class="w-3 h-3 text-red-600 dark:text-red-400" />
-                                <span class="text-xs font-medium text-red-700 dark:text-red-400">Error</span>
+                                <span class="text-xs font-medium text-red-700 dark:text-red-400">{{ __('Error') }}</span>
                             </div>
                         </template>
                     </div>
@@ -355,11 +354,11 @@
                 <div class="space-y-6">
                     {{-- Type Selector --}}
                     <div>
-                        <x-core::label value="Background Type" />
+                        <x-core::label :value="__('Background Type')" />
                         <select x-model="data.backgroundType" @change="save('background')"
                             class="block w-full py-3 px-4 text-gray-900 placeholder-gray-500 transition-all duration-200 bg-white border border-gray-300 form-input dark:border-gray-600 rounded-xl dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
-                            <option value="image">Static Image</option>
-                            <option value="slider">Image Slider</option>
+                            <option value="image">{{ __('Static Image') }}</option>
+                            <option value="slider">{{ __('Image Slider') }}</option>
                         </select>
                     </div>
 
@@ -381,7 +380,7 @@
                                             <button type="button" @click="confirmDelete(index)"
                                                 class="px-3 py-1.5 bg-white text-red-600 rounded-lg shadow-lg hover:bg-red-50 transition-colors text-sm font-medium flex items-center gap-1.5">
                                                 <x-lucide-trash-2 class="w-3.5 h-3.5" />
-                                                Remove
+                                                {{ __('Remove') }}
                                             </button>
                                         </div>
                                     </div>
@@ -398,7 +397,7 @@
 
                                 <x-core::input-error for="background_new" />
                                 <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                    Max 512KB. Formats: PNG, JPG, JPEG
+                                    {{ __('Max 512KB. Formats: PNG, JPG, JPEG') }}
                                 </p>
                             </div>
                         </div>
@@ -418,10 +417,9 @@
                             </div>
                             <div class="text-left">
                                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                    Advanced Settings
+                                    {{ __('Advanced Settings') }}
                                 </h2>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Additional configuration options for
-                                    this section type</p>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('Additional configuration options for this section type') }}</p>
                             </div>
                         </div>
                         <x-lucide-chevron-down class="w-5 h-5 text-gray-400 transition-transform duration-200"
@@ -484,7 +482,7 @@
                                             class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-full">
                                             <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
                                             <span
-                                                class="text-xs font-medium text-blue-700 dark:text-blue-400">Saving...</span>
+                                                class="text-xs font-medium text-blue-700 dark:text-blue-400">{{ __('Saving...') }}</span>
                                         </div>
                                     </template>
                                     <template x-if="states.custom === 'saved'">
@@ -492,14 +490,14 @@
                                             class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-full">
                                             <x-lucide-check class="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
                                             <span
-                                                class="text-xs font-medium text-emerald-700 dark:text-emerald-400">Saved</span>
+                                                class="text-xs font-medium text-emerald-700 dark:text-emerald-400">{{ __('Saved') }}</span>
                                         </div>
                                     </template>
                                     <template x-if="states.custom === 'error'">
                                         <div
                                             class="flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-full">
                                             <x-lucide-alert-circle class="w-3 h-3 text-red-600 dark:text-red-400" />
-                                            <span class="text-xs font-medium text-red-700 dark:text-red-400">Error</span>
+                                            <span class="text-xs font-medium text-red-700 dark:text-red-400">{{ __('Error') }}</span>
                                         </div>
                                     </template>
                                 </div>
@@ -520,12 +518,12 @@
                         </div>
                         <div>
                             <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
-                                Custom Keys
+                                {{ __('Custom Keys') }}
                             </h2>
                             <p class="text-sm text-gray-500 dark:text-gray-400">
                                 <span
                                     x-text="Object.keys(data.custom || {}).filter(k => !@js(array_keys($this->customFieldsConfig ?? [])).includes(k)).length"></span>
-                                user-defined key<span
+                                {{ __('user-defined key') }}<span
                                     x-show="Object.keys(data.custom || {}).filter(k => !@js(array_keys($this->customFieldsConfig ?? [])).includes(k)).length !== 1">s</span>
                             </p>
                         </div>
@@ -537,20 +535,20 @@
                             <div
                                 class="flex items-center gap-2 px-3 py-1.5 bg-blue-50 dark:bg-blue-900/20 rounded-full">
                                 <div class="w-2 h-2 bg-blue-500 rounded-full animate-pulse"></div>
-                                <span class="text-xs font-medium text-blue-700 dark:text-blue-400">Saving...</span>
+                                <span class="text-xs font-medium text-blue-700 dark:text-blue-400">{{ __('Saving...') }}</span>
                             </div>
                         </template>
                         <template x-if="states.custom === 'saved'">
                             <div
                                 class="flex items-center gap-2 px-3 py-1.5 bg-emerald-50 dark:bg-emerald-900/20 rounded-full">
                                 <x-lucide-check class="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                                <span class="text-xs font-medium text-emerald-700 dark:text-emerald-400">Saved</span>
+                                <span class="text-xs font-medium text-emerald-700 dark:text-emerald-400">{{ __('Saved') }}</span>
                             </div>
                         </template>
                         <template x-if="states.custom === 'error'">
                             <div class="flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 rounded-full">
                                 <x-lucide-alert-circle class="w-3 h-3 text-red-600 dark:text-red-400" />
-                                <span class="text-xs font-medium text-red-700 dark:text-red-400">Error</span>
+                                <span class="text-xs font-medium text-red-700 dark:text-red-400">{{ __('Error') }}</span>
                             </div>
                         </template>
                     </div>
@@ -567,8 +565,7 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 {{-- Key Name (readonly badge) --}}
                                 <div>
-                                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Key
-                                        Name</label>
+                                    <label class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">{{ __('Key Name') }}</label>
                                     <div
                                         class="flex items-center gap-2 py-2.5 px-4 bg-white dark:bg-slate-800 border border-gray-200 dark:border-slate-600 rounded-xl">
                                         <x-lucide-hash class="w-3.5 h-3.5 text-teal-500 shrink-0" />
@@ -580,11 +577,11 @@
                                 {{-- Value Input --}}
                                 <div>
                                     <label
-                                        class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">Value</label>
+                                        class="block text-xs font-medium text-gray-500 dark:text-gray-400 mb-1.5">{{ __('Value') }}</label>
                                     <input type="text" :value="data.custom[key]"
                                         @input.debounce.1000ms="data.custom[key] = $event.target.value; save('custom')"
                                         class="block w-full py-2.5 px-4 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white border border-gray-300 dark:border-gray-600 rounded-xl dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
-                                        placeholder="Enter value..." />
+                                        :placeholder="__('Enter value...')" />
                                 </div>
                             </div>
 
@@ -593,7 +590,7 @@
                                 <button type="button" @click="removeCustomKey(key)"
                                     class="inline-flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
                                     <x-lucide-trash-2 class="w-4 h-4" />
-                                    Remove
+                                    {{ __('Remove') }}
                                 </button>
                             </div>
                         </div>
@@ -604,37 +601,36 @@
                         class="bg-linear-to-br from-teal-50 to-cyan-50/50 dark:from-teal-900/20 dark:to-cyan-900/10 p-6 rounded-xl border-2 border-dashed border-teal-300 dark:border-teal-700">
                         <h3 class="text-sm font-semibold text-teal-800 dark:text-teal-300 mb-4 flex items-center gap-2">
                             <x-lucide-plus-circle class="w-4 h-4" />
-                            New Custom Key
+                            {{ __('New Custom Key') }}
                         </h3>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
                             <div>
-                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Key
-                                    Name <span class="text-red-500">*</span></label>
+                                <label class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">{{ __('Key Name') }} <span class="text-red-500">*</span></label>
                                 <input type="text" x-model="newKeyName" @keydown.enter.prevent="addCustomKey"
                                     @keydown.escape="showAddKeyForm = false; newKeyName = ''; newKeyValue = ''"
                                     class="block w-full py-2.5 px-4 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white border border-gray-300 dark:border-gray-600 rounded-xl dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm font-mono"
-                                    placeholder="e.g. my_key" />
-                                <p class="mt-1 text-xs text-gray-400">Spaces will be replaced with underscores</p>
+                                    :placeholder="__('e.g. my_key')" />
+                                <p class="mt-1 text-xs text-gray-400">{{ __('Spaces will be replaced with underscores') }}</p>
                             </div>
                             <div>
                                 <label
-                                    class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">Value</label>
+                                    class="block text-xs font-medium text-gray-600 dark:text-gray-400 mb-1.5">{{ __('Value') }}</label>
                                 <input type="text" x-model="newKeyValue" @keydown.enter.prevent="addCustomKey"
                                     @keydown.escape="showAddKeyForm = false; newKeyName = ''; newKeyValue = ''"
                                     class="block w-full py-2.5 px-4 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white border border-gray-300 dark:border-gray-600 rounded-xl dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
-                                    placeholder="Enter value..." />
+                                    :placeholder="__('Enter value...')" />
                             </div>
                         </div>
                         <div class="flex items-center gap-3">
                             <button type="button" @click="addCustomKey" :disabled="!newKeyName.trim()"
                                 class="inline-flex items-center gap-2 px-4 py-2 bg-teal-600 hover:bg-teal-700 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-medium rounded-lg transition-colors">
                                 <x-lucide-save class="w-4 h-4" />
-                                Save Key
+                                {{ __('Save Key') }}
                             </button>
                             <button type="button" @click="showAddKeyForm = false; newKeyName = ''; newKeyValue = ''"
                                 class="inline-flex items-center gap-2 px-4 py-2 text-gray-600 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-slate-700 text-sm font-medium rounded-lg transition-colors">
                                 <x-lucide-x class="w-4 h-4" />
-                                Cancel
+                                {{ __('Cancel') }}
                             </button>
                         </div>
                     </div>
@@ -646,7 +642,7 @@
                             class="p-1.5 bg-gray-100 dark:bg-slate-700 rounded-lg group-hover:bg-teal-100 dark:group-hover:bg-teal-900/30 transition-colors">
                             <x-lucide-plus class="w-4 h-4" />
                         </div>
-                        Add Key
+                        {{ __('Add Key') }}
                     </button>
                 </div>
             </div>
@@ -749,7 +745,7 @@
 
                     confirmDelete ( index )
                     {
-                        if ( confirm( 'Are you sure you want to delete this image?' ) ) {
+                        if ( confirm( '{{ __('Are you sure you want to delete this image?') }}' ) ) {
                             this.$wire.removeBackgroundImage( index );
                         }
                     }

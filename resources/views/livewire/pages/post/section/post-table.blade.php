@@ -4,9 +4,9 @@
         <x-slot name="filters">
             <div class="space-y-4">
                 <select wire:model.live="filterPublished">
-                    <option value="">All Published</option>
-                    <option value="published">Published</option>
-                    <option value="unpublished">Unpublished</option>
+                    <option value="">{{ __('All Published') }}</option>
+                    <option value="published">{{ __('Published') }}</option>
+                    <option value="unpublished">{{ __('Unpublished') }}</option>
                 </select>
             </div>
         </x-slot>
@@ -14,34 +14,34 @@
         <x-slot name="thead">
             <tr>
                 <x-core::table-th
-                    label="Post Title"
+                    label="{{ __('Post Title') }}"
                     sortBy="title"
                     :sortField="$sortField"
                     :sortDirection="$sortDirection"
                 />
                 <x-core::table-th
                     class="hidden lg:table-cell"
-                    label="Category"
+                    label="{{ __('Category') }}"
                     sortBy="category"
                     :sortField="$sortField"
                     :sortDirection="$sortDirection"
                 />
                 <x-core::table-th
                     class="hidden md:table-cell"
-                    label="Author"
+                    label="{{ __('Author') }}"
                     sortBy="author"
                     :sortField="$sortField"
                     :sortDirection="$sortDirection"
                 />
                 <x-core::table-th
                     class="hidden sm:table-cell"
-                    label="Status"
+                    label="{{ __('Status') }}"
                     sortBy="published"
                     :sortField="$sortField"
                     :sortDirection="$sortDirection"
                 />
                 <x-core::table-th
-                    label="Action"
+                    label="{{ __('Action') }}"
                 />
             </tr>
         </x-slot>
@@ -85,14 +85,14 @@
                                     </div>
 
                                     <dl class="font-normal lg:hidden">
-                                        <dt class="sr-only">Post Slug</dt>
+                                        <dt class="sr-only">{{ __('Post Slug') }}</dt>
                                         <dd class="text-gray-700 truncate">
-                                            <span class="block text-xs text-gray-600 dark:text-gray-200">by
-                                                {{ $post->author->name ?? 'unknown' }}</span>
-                                            <span class="block text-xs text-gray-500">created at
+                                            <span class="block text-xs text-gray-600 dark:text-gray-200">{{ __('by') }}
+                                                {{ $post->author->name ?? __('unknown') }}</span>
+                                            <span class="block text-xs text-gray-500">{{ __('created at') }}
                                                 {{ $post->created_at }}</span>
                                         </dd>
-                                        <dt class="sr-only sm:hidden">Status</dt>
+                                        <dt class="sr-only sm:hidden">{{ __('Status') }}</dt>
                                         <dd class="text-gray-500 truncate sm:hidden">
                                             <span class="block text-xs text-gray-500">
                                                 @if ($post->published)
@@ -103,9 +103,9 @@
                                                             <path
                                                                 d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
                                                         </svg>
-                                                        Published
+                                                        {{ __('Published') }}
                                                     </button>
-                                                    <span class="block text-xs text-gray-500">published at
+                                                    <span class="block text-xs text-gray-500">{{ __('published at') }}
                                                         {{ $post->published_at }}</span>
                                                 @else
                                                     <button wire:click="publishPost('{{ $post->id }}')"
@@ -115,7 +115,7 @@
                                                             <path
                                                                 d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
                                                         </svg>
-                                                        Unpublished
+                                                        {{ __('Unpublished') }}
                                                     </button>
                                                 @endif
                                             </span>
@@ -135,8 +135,8 @@
                     {{-- Author, Created At --}}
                     <td class="hidden px-3 py-4 text-sm text-gray-500 md:table-cell">
                         <span
-                            class="block text-sm text-gray-800 dark:text-gray-200">{{ $post->author->name ?? 'unknown' }}</span>
-                        <span class="block text-xs text-gray-500">created at
+                            class="block text-sm text-gray-800 dark:text-gray-200">{{ $post->author->name ?? __('unknown') }}</span>
+                        <span class="block text-xs text-gray-500">{{ __('created at') }}
                             {{ $post->created_at }}</span>
                     </td>
 
@@ -150,9 +150,9 @@
                                     <path
                                         d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z" />
                                 </svg>
-                                Published
+                                {{ __('Published') }}
                             </button>
-                            <span class="block text-xs text-gray-500">published at
+                            <span class="block text-xs text-gray-500">{{ __('published at') }}
                                 {{ $post->published_at }}</span>
                         @else
                             <button wire:click="publishPost('{{ $post->id }}')"
@@ -162,7 +162,7 @@
                                     <path
                                         d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z" />
                                 </svg>
-                                Unpublished
+                                {{ __('Unpublished') }}
                             </button>
                         @endif
                     </td>
@@ -173,7 +173,7 @@
                                 :editUrl="route('bale.cms.posts.edit', $post->slug)"
                                 :deleteId="$post->id"
                                 wire:key="item-actions-{{ $post->id }}"
-                                confirmMessage="Yakin ingin menghapus data ini?">
+                                confirmMessage="{{ __('Yakin ingin menghapus data ini?') }}">
                             </livewire:core.shared-components.item-actions>
                         </div>
                     </td>

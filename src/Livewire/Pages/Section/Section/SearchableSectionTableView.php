@@ -95,7 +95,7 @@ class SearchableSectionTableView extends Component
         });
     }
 
-    public function deleteItem($index)
+    public function deleteItem(string $itemId)
     {
         DB::beginTransaction();
 
@@ -111,16 +111,15 @@ class SearchableSectionTableView extends Component
             $content = $section->content ?? [];
             $items = $content['items'] ?? [];
 
-            // Remove item
-            unset($items[$index]);
-            $items = array_values($items); // Re-index
+            // Find item by id instead of index
+            $items = array_values(array_filter($items, function ($item) use ($itemId) {
+                $id = $item['id'][0] ?? $item['id'] ?? null;
+                return $id !== $itemId;
+            }));
 
             // Update content
             $content['items'] = $items;
             $section->update(['content' => $content]);
-
-            // Refresh section
-            // $this->section = $section->fresh();
 
             DB::commit();
             $this->dispatch('toast', message: 'Item deleted successfully!', type: 'success');

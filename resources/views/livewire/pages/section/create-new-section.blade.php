@@ -23,8 +23,7 @@
         return iconMap[iconName] || 'box';
     }
 }" x-cloak>
-    <x-core::breadcrumb :items="[['label' => 'Sections', 'route' => 'bale.cms.sections.index']]"
-        active="Create New Section" />
+    <x-core::breadcrumb :items="[['label' => __('Sections'), 'route' => 'bale.cms.sections.index']]" :active="__('Create New Section')" />
 
     <x-core::page-container>
         <div class="w-full px-4 py-6 mx-auto sm:px-6 lg:px-8 lg:py-8 select-none">
@@ -42,10 +41,10 @@
                             <x-lucide-layout class="w-8 h-8 text-white" />
                         </div>
                         <h1 class="text-3xl font-bold text-gray-900 dark:text-white mb-3">
-                            Choose Section Type
+                            {{ __('Choose Section Type') }}
                         </h1>
                         <p class="text-lg text-gray-600 dark:text-gray-400">
-                            Select the type of section you want to create
+                            {{ __('Select the type of section you want to create') }}
                         </p>
                     </div>
 
@@ -113,7 +112,7 @@
                         <button type="button" @click="step = 1"
                             class="inline-flex items-center gap-2 text-sm cursor-pointer text-gray-600 dark:text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 mb-4 transition-colors">
                             <x-lucide-arrow-left class="w-4 h-4" />
-                            Change section type
+                            {{ __('Change section type') }}
                         </button>
 
                         <div
@@ -156,10 +155,10 @@
                         </div>
 
                         <h1 class="text-2xl font-bold text-gray-900 dark:text-white mb-2">
-                            Section Details
+                            {{ __('Section Details') }}
                         </h1>
                         <p class="text-gray-600 dark:text-gray-400">
-                            Configure your new section
+                            {{ __('Configure your new section') }}
                         </p>
                     </div>
 
@@ -173,18 +172,20 @@
 
                         {{-- Section Name --}}
                         <div>
-                            <x-core::input label="Section Name" x-model="sectionName" name="name"
-                                placeholder="e.g. Main Hero, Latest News, Company Features" autofocus />
+                            <x-core::input :label="__('Section Name')" x-model="sectionName" name="name"
+                                :placeholder="__('e.g. Main Hero, Latest News, Company Features')" autofocus />
                             <x-core::input-error for="name" />
-                            <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">Display name for this section</p>
+                            <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                                {{ __('Display name for this section') }}</p>
                         </div>
 
                         {{-- URL Slug --}}
                         <div>
-                            <x-core::input label="URL Slug" name="slug" x-slug="sectionName" x-model="sectionSlug"
-                                placeholder="main-hero" />
+                            <x-core::input :label="__('URL Slug')" name="slug" x-slug="sectionName"
+                                x-model="sectionSlug" placeholder="main-hero" />
                             <x-core::input-error for="slug" />
-                            <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">Auto-generated from section name
+                            <p class="mt-1.5 text-xs text-gray-500 dark:text-gray-400">
+                                {{ __('Auto-generated from section name') }}
                             </p>
                         </div>
 
@@ -197,10 +198,10 @@
                                     <div>
                                         <label for="section-active-toggle"
                                             class="text-sm font-medium text-gray-900 dark:text-white cursor-pointer">
-                                            Enable Section
+                                            {{ __('Enable Section') }}
                                         </label>
-                                        <p class="text-xs text-gray-500 dark:text-gray-400">Show this section on your
-                                            website</p>
+                                        <p class="text-xs text-gray-500 dark:text-gray-400">
+                                            {{ __('Show this section on your website') }}</p>
                                     </div>
                                 </div>
                                 <label for="section-active-toggle"
@@ -217,7 +218,7 @@
 
                         {{-- Submit Button --}}
                         <div class="flex justify-center pt-4">
-                            <x-core::button label="Create Section" spinner type="submit">
+                            <x-core::button :label="__('Create Section')" spinner type="submit">
                                 <x-slot name="icon">
                                     <x-lucide-plus class="w-4 h-4" />
                                 </x-slot>

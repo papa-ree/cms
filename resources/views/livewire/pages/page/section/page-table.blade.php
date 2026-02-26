@@ -5,9 +5,9 @@
             <div class="space-y-4">
                 <select wire:model.live="filterType"
                     class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-300">
-                    <option value="">All Types</option>
-                    <option value="dynamic">Dynamic</option>
-                    <option value="static">Static</option>
+                    <option value="">{{ __('All Types') }}</option>
+                    <option value="dynamic">{{ __('Dynamic') }}</option>
+                    <option value="static">{{ __('Static') }}</option>
                 </select>
             </div>
         </x-slot>
@@ -15,27 +15,27 @@
         <x-slot name="thead">
             <tr>
                 <x-core::table-th
-                    label="Page Title"
+                    label="{{ __('Page Title') }}"
                     sortBy="title"
                     :sortField="$sortField"
                     :sortDirection="$sortDirection"
                 />
                 <x-core::table-th
                     class="hidden lg:table-cell"
-                    label="Type"
+                    label="{{ __('Type') }}"
                     sortBy="type"
                     :sortField="$sortField"
                     :sortDirection="$sortDirection"
                 />
                 <x-core::table-th
                     class="hidden lg:table-cell"
-                    label="Created At"
+                    label="{{ __('Created At') }}"
                     sortBy="created_at"
                     :sortField="$sortField"
                     :sortDirection="$sortDirection"
                 />
                 <x-core::table-th
-                    label="Action"
+                    label="{{ __('Action') }}"
                     align="right"
                 />
             </tr>
@@ -54,13 +54,13 @@
                                     {{ $page->title }}
                                 </a>
                                 <dl class="font-normal lg:hidden">
-                                    <dt class="sr-only">Type</dt>
+                                    <dt class="sr-only">{{ __('Type') }}</dt>
                                     <dd class="text-gray-700 truncate">
                                         <span class="block text-xs text-gray-600 dark:text-gray-200 uppercase tracking-wider">{{ $page->type }}</span>
                                     </dd>
-                                    <dt class="sr-only sm:hidden">Created At</dt>
+                                    <dt class="sr-only sm:hidden">{{ __('Created At') }}</dt>
                                     <dd class="text-gray-500 truncate sm:hidden">
-                                        <span class="block text-xs text-gray-500">created at {{ $page->created_at }}</span>
+                                        <span class="block text-xs text-gray-500">{{ __('created at') }} {{ $page->created_at }}</span>
                                     </dd>
                                 </dl>
                             </div>
@@ -85,7 +85,7 @@
                                 :editUrl="route('bale.cms.pages.edit', $page->slug)"
                                 :deleteId="$page->id"
                                 wire:key="item-actions-{{ $page->id }}"
-                                confirmMessage="Yakin ingin menghapus halaman ini?"
+                                confirmMessage="{{ __('Yakin ingin menghapus halaman ini?') }}"
                             />
                         </div>
                     </td>

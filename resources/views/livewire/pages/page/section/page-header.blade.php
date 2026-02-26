@@ -12,16 +12,16 @@
                         <x-lucide-file class="w-8 h-8 text-white" />
                     </div>
                     <div>
-                        <h1 class="text-3xl font-bold text-white md:text-4xl">Page Management</h1>
+                        <h1 class="text-3xl font-bold text-white md:text-4xl">{{ __('Page Management') }}</h1>
                     </div>
                 </div>
                 <p class="max-w-2xl text-white/90 text-lg">
-                    Manage static pages and create new landing pages for your website.
+                    {{ __('Manage static pages and create new landing pages for your website.') }}
                 </p>
             </div>
             <div class="shrink-0">
-                <x-core::button type="button" label="Create Page" link :href="route('bale.cms.pages.create')"
-                    class="gap-x-2 bg-white text-purple-600 hover:bg-white/90">
+                <x-core::button type="button" label="{{ __('Create Page') }}" link
+                    :href="route('bale.cms.pages.create')" class="gap-x-2 bg-white text-purple-600 hover:bg-white/90">
                     <x-slot name="icon">
                         <x-lucide-plus class="w-5 h-5" />
                     </x-slot>

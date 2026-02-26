@@ -9,14 +9,14 @@
             <a href="{{ route('bale.cms.sections.index') }}" wire:navigate.hover
                 class="inline-flex items-center gap-2 text-white/90 hover:text-white mb-4 transition-colors">
                 <x-lucide-arrow-left class="w-4 h-4" />
-                <span class="text-sm">Back to Sections</span>
+                <span class="text-sm">{{ __('Back to Sections') }}</span>
             </a>
             <div class="flex items-center gap-3">
                 <div class="p-2.5 bg-white/20 backdrop-blur-md rounded-lg">
                     <x-lucide-layout class="w-6 h-6 text-white" />
                 </div>
                 <div>
-                    <h1 class="text-2xl md:text-3xl font-bold text-white">Edit Section</h1>
+                    <h1 class="text-2xl md:text-3xl font-bold text-white">{{ __('Edit Section') }}</h1>
                     <p class="text-white/80 text-sm mt-1">{{ $slug }}</p>
                 </div>
             </div>
@@ -44,11 +44,11 @@
                 <div class="flex items-center gap-2 mb-1">
                     <h3 class="text-lg font-bold text-gray-900 dark:text-white">
                         @if($slug == 'hero-section')
-                            Hero Section Configuration
+                            {{ __('Hero Section Configuration') }}
                         @elseif($slug == 'post-section')
-                            Post Section Configuration
+                            {{ __('Post Section Configuration') }}
                         @else
-                            Extension Section Configuration
+                            {{ __('Extension Section Configuration') }}
                         @endif
                     </h3>
                     <span class="px-2.5 py-0.5 text-xs font-semibold rounded-full {{
@@ -57,21 +57,21 @@
         'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300')
                     }}">
                         @if($slug == 'hero-section')
-                            Hero
+                            {{ __('Hero') }}
                         @elseif($slug == 'post-section')
-                            Post
+                            {{ __('Post') }}
                         @else
-                            Extension
+                            {{ __('Extension') }}
                         @endif
                     </span>
                 </div>
                 <p class="text-sm text-gray-600 dark:text-gray-400">
                     @if($slug == 'hero-section')
-                        Configure the hero banner section for your page
+                        {{ __('Configure the hero banner section for your page') }}
                     @elseif($slug == 'post-section')
-                        Manage post listings and content sections
+                        {{ __('Manage post listings and content sections') }}
                     @else
-                        Customize extension section settings
+                        {{ __('Customize extension section settings') }}
                     @endif
                 </p>
             </div>
@@ -83,7 +83,7 @@
         <div class="mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
             <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                 <x-lucide-settings class="w-4 h-4" />
-                <span>Section Settings</span>
+                <span>{{ __('Section Settings') }}</span>
             </div>
         </div>
 

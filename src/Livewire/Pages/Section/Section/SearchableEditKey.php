@@ -51,17 +51,15 @@ class SearchableEditKey extends Component
         $items = $content['items'] ?? [];
 
         $sysKeys = ['id', 'created_at', 'updated_at'];
-        $orderedKeys = $this->meta['order'] ?? [];
-        $orderedKeys = array_values(array_diff($orderedKeys, $sysKeys));
+        $this->availableKeys = $this->meta['order'] ?? [];
 
-        $itemKeys = [];
-        if (count($items) > 0) {
-            $itemKeys = array_keys($items[0]);
-            $itemKeys = array_values(array_diff($itemKeys, $sysKeys));
+        // Fallback hanya jika meta order kosong dan ada items
+        if (empty($this->availableKeys) && count($items) > 0) {
+            $this->availableKeys = array_keys($items[0]);
         }
 
-        $remainingKeys = array_diff($itemKeys, $orderedKeys);
-        $this->availableKeys = array_values(array_merge($orderedKeys, $remainingKeys));
+        // Pastikan tidak ada system keys di availableKeys
+        $this->availableKeys = array_values(array_diff($this->availableKeys, $sysKeys));
     }
 
     public function updateOrder($orderedKeys)
@@ -97,8 +95,8 @@ class SearchableEditKey extends Component
 
     public function save($keys = [])
     {
-        // Update available keys from argument if provided
-        if (!empty($keys)) {
+        // Update available keys from argument if provided (allow empty array if intended)
+        if (is_array($keys)) {
             $this->availableKeys = $keys;
         }
 
@@ -124,34 +122,37 @@ class SearchableEditKey extends Component
             // Update items to match new keys structure
             $items = $content['items'] ?? [];
 
-            // If no items exist, create one empty item to persist the keys
-            if (count($items) === 0) {
-                $emptyItem = [];
-                foreach ($this->availableKeys as $key) {
-                    $emptyItem[$key] = [];
-                }
-                $items = [$emptyItem];
-            } else {
+            // Jika ada items — update struktur key + backfill UUID/timestamps jika belum ada
+            if (count($items) > 0) {
                 $updatedItems = [];
                 foreach ($items as $item) {
                     $newItem = [];
 
-                    // Preserve system keys
+                    // Preserve system keys + backfill jika belum ada
                     foreach (['id', 'created_at', 'updated_at'] as $sysKey) {
                         if (isset($item[$sysKey])) {
                             $newItem[$sysKey] = $item[$sysKey];
                         }
                     }
+                    if (!isset($newItem['id'])) {
+                        $newItem['id'] = [\Illuminate\Support\Str::uuid()->toString()];
+                    }
+                    if (!isset($newItem['created_at'])) {
+                        $newItem['created_at'] = [now()->toDateTimeString()];
+                    }
+                    if (!isset($newItem['updated_at'])) {
+                        $newItem['updated_at'] = [now()->toDateTimeString()];
+                    }
 
-                    // Add user-defined keys
+                    // Add user-defined keys (pertahankan nilai lama jika ada)
                     foreach ($this->availableKeys as $key) {
-                        // Keep existing values if key exists, otherwise empty array
                         $newItem[$key] = $item[$key] ?? [];
                     }
                     $updatedItems[] = $newItem;
                 }
                 $items = $updatedItems;
             }
+            // Jika items kosong — tidak perlu buat dummy, meta['order'] sudah cukup untuk menyimpan key order
 
             // Save key order to meta
             if (!isset($content['meta'])) {
