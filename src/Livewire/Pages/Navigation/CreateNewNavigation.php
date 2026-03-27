@@ -25,6 +25,7 @@ class CreateNewNavigation extends Component
 
     public function mount($parent)
     {
+        $this->authorize('bale-navigation.create');
         if ($parent) {
             TenantConnectionService::ensureActive();
             $connection = TenantConnectionService::connection();
@@ -64,6 +65,7 @@ class CreateNewNavigation extends Component
 
     public function store($data)
     {
+        $this->authorize('bale-navigation.create');
         $this->name = $data['name'] ?? $this->name;
         $this->slug = $data['slug'] ?? $this->slug;
         $this->validate();

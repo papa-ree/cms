@@ -149,40 +149,42 @@
     </div>
 
     {{-- Sticky Save Button Section --}}
-    <div x-show="hasLocalChanges" x-transition:enter="transition ease-out duration-300"
-        x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
-        x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0"
-        x-transition:leave-end="opacity-0 translate-y-4"
-        class="fixed bottom-6 right-6 z-50 flex items-center gap-3 p-4 bg-white dark:bg-gray-800 border-2 border-purple-500 dark:border-purple-600 rounded-2xl shadow-2xl backdrop-blur-sm"
-        style="display: none;">
+    @can('bale-navigation.update')
+        <div x-show="hasLocalChanges" x-transition:enter="transition ease-out duration-300"
+            x-transition:enter-start="opacity-0 translate-y-4" x-transition:enter-end="opacity-100 translate-y-0"
+            x-transition:leave="transition ease-in duration-200" x-transition:leave-start="opacity-100 translate-y-0"
+            x-transition:leave-end="opacity-0 translate-y-4"
+            class="fixed bottom-6 right-6 z-50 flex items-center gap-3 p-4 bg-white dark:bg-gray-800 border-2 border-purple-500 dark:border-purple-600 rounded-2xl shadow-2xl backdrop-blur-sm"
+            style="display: none;">
 
-        {{-- Indicator Badge --}}
-        <div
-            class="flex items-center gap-2 px-3 py-1.5 bg-linear-to-r from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 rounded-lg">
-            <div class="w-2 h-2 bg-purple-600 rounded-full animate-pulse"></div>
-            <span class="text-sm font-semibold text-purple-700 dark:text-purple-400">{{ __('Unsaved Changes') }}</span>
+            {{-- Indicator Badge --}}
+            <div
+                class="flex items-center gap-2 px-3 py-1.5 bg-linear-to-r from-purple-100 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30 rounded-lg">
+                <div class="w-2 h-2 bg-purple-600 rounded-full animate-pulse"></div>
+                <span class="text-sm font-semibold text-purple-700 dark:text-purple-400">{{ __('Unsaved Changes') }}</span>
+            </div>
+
+            {{-- Action Buttons --}}
+            <div class="flex items-center gap-2">
+                {{-- Cancel Button --}}
+                <button @click="handleCancel()" :disabled="$wire.isSaving"
+                    class="px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
+                    <x-lucide-x class="w-4 h-4" />
+                    {{ __('Cancel') }}
+                </button>
+
+                {{-- Save Button --}}
+                <button @click="handleSave()" :disabled="$wire.isSaving"
+                    class="px-5 py-2.5 text-sm font-bold text-white bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2">
+                    <div wire:loading wire:target="saveAllChanges"
+                        class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                    <x-lucide-save class="w-4 h-4" wire:loading.remove wire:target="saveAllChanges" />
+                    <span wire:loading.remove wire:target="saveAllChanges">{{ __('Save Changes') }}</span>
+                    <span wire:loading wire:target="saveAllChanges">{{ __('Saving...') }}</span>
+                </button>
+            </div>
         </div>
-
-        {{-- Action Buttons --}}
-        <div class="flex items-center gap-2">
-            {{-- Cancel Button --}}
-            <button @click="handleCancel()" :disabled="$wire.isSaving"
-                class="px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-300 bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-xl transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2">
-                <x-lucide-x class="w-4 h-4" />
-                {{ __('Cancel') }}
-            </button>
-
-            {{-- Save Button --}}
-            <button @click="handleSave()" :disabled="$wire.isSaving"
-                class="px-5 py-2.5 text-sm font-bold text-white bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none flex items-center gap-2">
-                <div wire:loading wire:target="saveAllChanges"
-                    class="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-                <x-lucide-save class="w-4 h-4" wire:loading.remove wire:target="saveAllChanges" />
-                <span wire:loading.remove wire:target="saveAllChanges">{{ __('Save Changes') }}</span>
-                <span wire:loading wire:target="saveAllChanges">{{ __('Saving...') }}</span>
-            </button>
-        </div>
-    </div>
+    @endcan
 
     @if(count($this->availableNavigations) > 0)
         {{-- Responsive Grid: 3 cols desktop, 2 cols tablet, 1 col mobile --}}
@@ -197,11 +199,13 @@
                         class="p-6 bg-linear-to-r from-purple-50/50 to-indigo-50/50 dark:from-purple-900/10 dark:to-indigo-900/10">
                         <div class="flex items-center justify-between">
                             <div class="flex items-center gap-4 flex-1">
-                                <button
-                                    class="parent-handle p-2.5 text-gray-400 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20 rounded-lg cursor-move transition-all group"
-                                    title="{{ __('Drag to reorder') }}">
-                                    <x-lucide-grip-vertical class="w-5 h-5 group-hover:scale-110 transition-transform" />
-                                </button>
+                                @can('bale-navigation.update')
+                                    <button
+                                        class="parent-handle p-2.5 text-gray-400 hover:text-purple-600 hover:bg-purple-100 dark:hover:bg-purple-900/20 rounded-lg cursor-move transition-all group"
+                                        title="{{ __('Drag to reorder') }}">
+                                        <x-lucide-grip-vertical class="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                    </button>
+                                @endcan
 
                                 <div class="p-3 bg-linear-to-br from-purple-500 to-purple-600 rounded-xl shadow-lg">
                                     <x-lucide-menu class="w-6 h-6 text-white" />
@@ -247,14 +251,18 @@
                             </div>
 
                             <div class="flex items-center gap-2">
-                                <a href="{{ route('bale.cms.navigations.edit', $navigation->slug) }}" wire:navigate.hover
-                                    title="{{ __('Edit navigation') }}"
-                                    class="p-2.5 text-gray-600 hover:text-purple-600 hover:bg-purple-50 dark:text-gray-400 dark:hover:text-purple-400 dark:hover:bg-purple-900/20 rounded-lg transition-all">
-                                    <x-lucide-edit class="w-5 h-5" />
-                                </a>
-                                <livewire:core.shared-components.item-actions :deleteId="$navigation->id"
-                                    wire:key="item-actions-{{ $navigation->id }}"
-                                    confirmMessage="{{ __('Hapus \':name\' dan semua sub-menu?', ['name' => $navigation->name]) }}" />
+                                @can('bale-navigation.update')
+                                    <a href="{{ route('bale.cms.navigations.edit', $navigation->slug) }}" wire:navigate.hover
+                                        title="{{ __('Edit navigation') }}"
+                                        class="p-2.5 text-gray-600 hover:text-purple-600 hover:bg-purple-50 dark:text-gray-400 dark:hover:text-purple-400 dark:hover:bg-purple-900/20 rounded-lg transition-all">
+                                        <x-lucide-edit class="w-5 h-5" />
+                                    </a>
+                                @endcan
+                                @can('bale-navigation.delete')
+                                    <livewire:core.shared-components.item-actions :deleteId="$navigation->id"
+                                        wire:key="item-actions-{{ $navigation->id }}"
+                                        confirmMessage="{{ __('Hapus \':name\' dan semua sub-menu?', ['name' => $navigation->name]) }}" />
+                                @endcan
                             </div>
                         </div>
                     </div>
@@ -290,11 +298,13 @@
 
                                         <div class="flex items-center justify-between">
                                             <div class="flex items-center gap-3 flex-1">
-                                                <button
-                                                    class="child-handle p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded cursor-move transition-all"
-                                                    title="{{ __('Drag to reorder sub-item') }}">
-                                                    <x-lucide-grip-vertical class="w-4 h-4" />
-                                                </button>
+                                                @can('bale-navigation.update')
+                                                    <button
+                                                        class="child-handle p-1.5 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-900/20 rounded cursor-move transition-all"
+                                                        title="{{ __('Drag to reorder sub-item') }}">
+                                                        <x-lucide-grip-vertical class="w-4 h-4" />
+                                                    </button>
+                                                @endcan
 
                                                 <div class="p-2 bg-linear-to-br from-indigo-500 to-indigo-600 rounded-lg shadow-sm">
                                                     <x-lucide-corner-down-right class="w-4 h-4 text-white" />
@@ -332,13 +342,17 @@
 
                                             <div
                                                 class="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                                                <a href="{{ route('bale.cms.navigations.edit', $child->slug) }}" wire:navigate.hover
-                                                    class="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/20 rounded transition-all">
-                                                    <x-lucide-edit class="w-4 h-4" />
-                                                </a>
-                                                <livewire:core.shared-components.item-actions :deleteId="$child->id"
-                                                    wire:key="item-actions-{{ $child->id }}"
-                                                    confirmMessage="{{ __('Hapus \':name\'?', ['name' => $child->name]) }}" />
+                                                @can('bale-navigation.update')
+                                                    <a href="{{ route('bale.cms.navigations.edit', $child->slug) }}" wire:navigate.hover
+                                                        class="p-2 text-gray-600 hover:text-indigo-600 hover:bg-indigo-50 dark:text-gray-400 dark:hover:text-indigo-400 dark:hover:bg-indigo-900/20 rounded transition-all">
+                                                        <x-lucide-edit class="w-4 h-4" />
+                                                    </a>
+                                                @endcan
+                                                @can('bale-navigation.delete')
+                                                    <livewire:core.shared-components.item-actions :deleteId="$child->id"
+                                                        wire:key="item-actions-{{ $child->id }}"
+                                                        confirmMessage="{{ __('Hapus \':name\'?', ['name' => $child->name]) }}" />
+                                                @endcan
                                             </div>
                                         </div>
                                     </div>
@@ -348,12 +362,14 @@
                     </div>
 
                     <div class="px-6 pb-6">
-                        <a href="{{ route('bale.cms.navigations.create', ['parent' => $navigation->slug]) }}"
-                            wire:navigate.hover
-                            class="flex items-center justify-center gap-2 w-full py-3 px-4 bg-linear-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 dark:from-indigo-900/20 dark:to-purple-900/20 dark:hover:from-indigo-900/30 dark:hover:to-purple-900/30 border-2 border-dashed border-indigo-300 dark:border-indigo-700 rounded-xl text-indigo-700 dark:text-indigo-400 font-semibold transition-all hover:shadow-md group">
-                            <x-lucide-plus class="w-5 h-5 group-hover:rotate-90 transition-transform" />
-                            <span>{{ __('Add Sub-Navigation to ":name"', ['name' => $navigation->name]) }}</span>
-                        </a>
+                        @can('bale-navigation.create')
+                            <a href="{{ route('bale.cms.navigations.create', ['parent' => $navigation->slug]) }}"
+                                wire:navigate.hover
+                                class="flex items-center justify-center gap-2 w-full py-3 px-4 bg-linear-to-r from-indigo-50 to-purple-50 hover:from-indigo-100 hover:to-purple-100 dark:from-indigo-900/20 dark:to-purple-900/20 dark:hover:from-indigo-900/30 dark:hover:to-purple-900/30 border-2 border-dashed border-indigo-300 dark:border-indigo-700 rounded-xl text-indigo-700 dark:text-indigo-400 font-semibold transition-all hover:shadow-md group">
+                                <x-lucide-plus class="w-5 h-5 group-hover:rotate-90 transition-transform" />
+                                <span>{{ __('Add Sub-Navigation to ":name"', ['name' => $navigation->name]) }}</span>
+                            </a>
+                        @endcan
                     </div>
                 </div>
             @endforeach
@@ -377,11 +393,13 @@
                     {{ __('Create your first navigation item to build your site\'s menu structure.') }}
                 </p>
 
-                <a href="{{ route('bale.cms.navigations.create', 'new') }}"
-                    class="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all">
-                    <x-lucide-plus class="w-5 h-5" />
-                    {{ __('Create First Navigation') }}
-                </a>
+                @can('bale-navigation.create')
+                    <a href="{{ route('bale.cms.navigations.create', 'new') }}"
+                        class="inline-flex items-center gap-2 px-6 py-3 bg-linear-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg hover:shadow-xl transform hover:-translate-y-0.5 transition-all">
+                        <x-lucide-plus class="w-5 h-5" />
+                        {{ __('Create First Navigation') }}
+                    </a>
+                @endcan
             </div>
         </div>
     @endif

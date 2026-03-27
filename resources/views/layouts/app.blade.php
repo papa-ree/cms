@@ -15,12 +15,6 @@
         href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;1,500&family=Noto+Color+Emoji&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Open+Sans:ital,wght@0,500;1,500&family=Quicksand&display=swap"
         rel="stylesheet">
 
-    @assets
-    <link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
-    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css"
-        rel="stylesheet" />
-    @endassets
-
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
 
@@ -56,18 +50,6 @@
     @livewireScripts
 
     <x-core::toast />
-
-    @assets
-    <script
-        src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
-    <script
-        src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
-    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
-    <script
-        src="https://unpkg.com/filepond-plugin-image-validate-size/dist/filepond-plugin-image-validate-size.js"></script>
-    <script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
-
-    @endassets
 </body>
 
 </html>

@@ -34,10 +34,12 @@
                     :sortField="$sortField"
                     :sortDirection="$sortDirection"
                 />
-                <x-core::table-th
-                    label="{{ __('Action') }}"
-                    align="right"
-                />
+                @canany(['bale-page.update', 'bale-page.delete'])
+                    <x-core::table-th
+                        label="{{ __('Action') }}"
+                        align="right"
+                    />
+                @endcanany
             </tr>
         </x-slot>
 
@@ -79,16 +81,18 @@
                         <span class="block text-sm text-gray-500">{{ $page->created_at }}</span>
                     </td>
 
-                    <td class="size-px whitespace-nowrap text-right">
-                        <div class="px-6 py-1.5 inline-block">
-                            <livewire:core.shared-components.item-actions
-                                :editUrl="route('bale.cms.pages.edit', $page->slug)"
-                                :deleteId="$page->id"
-                                wire:key="item-actions-{{ $page->id }}"
-                                confirmMessage="{{ __('Yakin ingin menghapus halaman ini?') }}"
-                            />
-                        </div>
-                    </td>
+                    @canany(['bale-page.update', 'bale-page.delete'])
+                        <td class="size-px whitespace-nowrap text-right">
+                            <div class="px-6 py-1.5 inline-block">
+                                <livewire:core.shared-components.item-actions
+                                    :editUrl="route('bale.cms.pages.edit', $page->slug)"
+                                    :deleteId="$page->id"
+                                    wire:key="item-actions-{{ $page->id }}"
+                                    confirmMessage="{{ __('Yakin ingin menghapus halaman ini?') }}"
+                                />
+                            </div>
+                        </td>
+                    @endcanany
                 </tr>
             @endforeach
         </x-slot>

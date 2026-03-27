@@ -37,6 +37,7 @@ class EditNavigation extends Component
 
     public function mount($slug)
     {
+        $this->authorize('bale-navigation.read');
         TenantConnectionService::ensureActive();
         $connection = TenantConnectionService::connection();
 
@@ -174,6 +175,7 @@ class EditNavigation extends Component
 
     public function update($data)
     {
+        $this->authorize('bale-navigation.update');
         $this->name = $data['name'] ?? $this->name;
         $this->slug = $data['slug'] ?? $this->slug;
         $this->validate();

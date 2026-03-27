@@ -17,15 +17,20 @@ class CmsSidebar extends Component
     #[Computed]
     public function availableMenus()
     {
-        $menu = [
-            ['label' => 'overview', 'url' => 'overview', 'icon' => 'layout-dashboard'],
-            ['label' => 'posts', 'url' => 'posts', 'icon' => 'file-text'],
-            ['label' => 'pages', 'url' => 'pages', 'icon' => 'file'],
-            ['label' => 'navigations', 'url' => 'navigations', 'icon' => 'navigation'],
-            ['label' => 'sections', 'url' => 'sections', 'icon' => 'layers'],
+        $allMenus = [
+            ['label' => 'posts', 'url' => 'posts', 'icon' => 'file-text', 'permission' => 'bale-post.read'],
+            ['label' => 'categories', 'url' => 'categories', 'icon' => 'tag', 'permission' => 'bale-category.read'],
+            ['label' => 'pages', 'url' => 'pages', 'icon' => 'file', 'permission' => 'bale-page.read'],
+            ['label' => 'navigations', 'url' => 'navigations', 'icon' => 'navigation', 'permission' => 'bale-navigation.read'],
+            ['label' => 'sections', 'url' => 'sections', 'icon' => 'layers', 'permission' => 'bale-section.read'],
+            ['label' => 'roles', 'url' => 'roles', 'icon' => 'shield-check', 'permission' => 'bale-role.read'],
+            ['label' => 'permissions', 'url' => 'permissions', 'icon' => 'shield', 'permission' => 'bale-role.read'],
+            ['label' => 'users', 'url' => 'users', 'icon' => 'users', 'permission' => 'bale-user.read'],
         ];
 
-        return $menu;
+        return array_filter($allMenus, function ($item) {
+            return auth()->user()->can($item['permission']);
+        });
     }
 
     #[Computed]

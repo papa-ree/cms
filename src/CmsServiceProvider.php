@@ -5,6 +5,8 @@ namespace Bale\Cms;
 use Bale\Cms\Commands\GenerateBaleCommand;
 use Bale\Cms\Commands\GenerateOrganisasiCommand;
 use Bale\Cms\Commands\GenerateUserBaleCommand;
+use Bale\Cms\Commands\InstallCmsCommand;
+use Bale\Cms\Commands\PublishMigrationCommand;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Component as LivewireComponent;
@@ -30,6 +32,8 @@ class CmsServiceProvider extends ServiceProvider
             'command.cms:make-organisasi' => GenerateOrganisasiCommand::class,
             'command.cms:make-bale' => GenerateBaleCommand::class,
             'command.cms:make-user' => GenerateUserBaleCommand::class,
+            'command.cms:install' => InstallCmsCommand::class,
+            'command.cms:publish-migration' => PublishMigrationCommand::class,
         ];
 
         foreach ($commands as $key => $class) {
@@ -56,11 +60,26 @@ class CmsServiceProvider extends ServiceProvider
             return session('bale_active_slug');
         });
 
-        $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+        $this->app->booted(function () {
+            $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+        });
+
         $this->registerViews();
         $this->loadMigrations();
         $this->offerPublishing();
+        $this->registerLivewire4Namespaces();
         $this->registerLivewireComponents();
+    }
+
+    /**
+     * Mendaftarkan namespace untuk Livewire 4 Single-File Components
+     */
+    protected function registerLivewire4Namespaces(): void
+    {
+        Livewire::addNamespace(
+            'cms-pages',
+            __DIR__ . '/../resources/views/livewire/pages'
+        );
     }
 
     /**

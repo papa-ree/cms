@@ -47,6 +47,7 @@ class CreateNewPost extends Component
 
     public function store($data)
     {
+        $this->authorize('bale-post.create');
         $this->title = $data['title'] ?? $this->title;
         $this->slug = $data['slug'] ?? $this->slug;
         $this->validate();
@@ -63,7 +64,7 @@ class CreateNewPost extends Component
             $post = (new Post)
                 ->setConnection($connection)
                 ->create([
-                    'author' => Auth::user()->uuid,
+                    'author' => session('bale_active_user_uuid', Auth::user()->uuid),
                     'title' => $this->title,
                     'slug' => $this->slug,
                     'published' => false,
@@ -77,7 +78,7 @@ class CreateNewPost extends Component
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
             info('Post creation failed: ' . $th->getMessage());
-            $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
+            $this->dispatch('toast', message: __('Something went wrong!'), type: 'error');
         }
     }
 

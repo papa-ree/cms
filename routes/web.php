@@ -40,7 +40,7 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
     Route::middleware([EnsureBaleSelected::class, SwitchBaleConnection::class])->group(function () {
         Route::get('overview', Index::class)->name('overview');
 
-        Route::name('posts.')->group(function () {
+        Route::name('posts.')->middleware('permission:bale-post.read')->group(function () {
             Route::get('posts', PostIndex::class)->name('index');
             Route::get('posts.create', CreateNewPost::class)->name('create');
             Route::get('posts.edit.{slug}', EditPost::class)->name('edit');
@@ -113,19 +113,19 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             }
         });
 
-        Route::name('pages.')->group(function () {
+        Route::name('pages.')->middleware('permission:bale-page.read')->group(function () {
             Route::get('pages', PageIndex::class)->name('index');
             Route::get('pages.create', CreateNewPage::class)->name('create');
             Route::get('pages.edit.{slug}', EditPage::class)->name('edit');
         });
 
-        Route::name('navigations.')->group(function () {
+        Route::name('navigations.')->middleware('permission:bale-navigation.read')->group(function () {
             Route::get('navigations', NavigationIndex::class)->name('index');
             Route::get('navigations.create.{parent?}', CreateNewNavigation::class)->name('create');
             Route::get('navigations.edit.{slug?}', EditNavigation::class)->name('edit');
         });
 
-        Route::name('sections.')->group(function () {
+        Route::name('sections.')->middleware('permission:bale-section.read')->group(function () {
             Route::get('sections', SectionIndex::class)->name('index');
             Route::get('sections.create', CreateNewSection::class)->name('create'); // create new section
             Route::get('sections.meta-editor.{slug}', SectionMetaEditor::class)->name('meta-editor'); // edit section meta
@@ -133,9 +133,27 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             Route::get('sections.view.items.{slug}', SearchableSectionTableView::class)->name('view-searchable'); // view searchable section data
             Route::get('sections.create-item.{slug}', SearchableCreateItem::class)->name('create-searchable-item'); // create new item
             Route::get('sections.edit-item.{slug}.{itemId}', SearchableCreateItem::class)->name('edit-searchable-item'); // edit existing item
-            // Route::get('sections.edit.searchable.{slug}', SearchableSectionForm::class)->name('edit-searchable'); // direct ke form extension form
-            // Route::get('sections.create.general', ExtensionSectionForm::class)->name('create'); // direct ke form extension form
-            // Route::get('sections.edit.{slug}', EditSection::class)->name('edit'); // diarahkan ke edit section dulu untuk pemilihan form section
+        });
+
+        // Route::name('roles.')->middleware('permission:bale-role.read')->group(function () {
+        //     Route::livewire('roles', 'cms-pages::role.index')->name('index');
+        //     Route::livewire('roles.create', 'cms-pages::role.create')->name('create');
+        //     Route::livewire('roles.edit.{roleId}', 'cms-pages::role.edit')->name('edit');
+        // });
+
+        // Categories Management
+        Route::name('categories.')->middleware('permission:bale-category.read')->group(function () {
+            Route::livewire('categories', 'cms-pages::category.index')->name('index');
+            Route::livewire('categories.create', 'cms-pages::category.create')->name('create');
+            Route::livewire('categories.edit.{slug}', 'cms-pages::category.create')->name('edit');
+        });
+
+        // Route::name('permissions.')->middleware('permission:bale-role.read')->group(function () {
+        //     Route::livewire('permissions', 'cms-pages::permission.index')->name('index');
+        // });
+
+        Route::name('users.')->middleware('permission:bale-user.read')->group(function () {
+            Route::livewire('users', 'cms-pages::user.index')->name('index');
         });
 
         // add other CMS routes here...

@@ -52,11 +52,27 @@
         {{-- ========== Navigation ========== --}}
         <nav class="flex flex-col w-full px-3 pb-24" data-hs-accordion-always-open>
             <ul class="space-y-0.5">
+                <li>
+                    <a href="/cms/overview" wire:navigate.hover class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                                           text-slate-400 hover:text-white hover:bg-white/8
+                                           transition-all duration-150 ease-in-out"
+                        wire:current="bg-indigo-600/25 border border-indigo-500/40 text-white">
+
+                        {{-- Icon --}}
+                        <span
+                            class="shrink-0 w-5 h-5 text-slate-500 group-hover:text-indigo-400 transition-colors duration-150">
+                            <x-lucide-layout-dashboard class="w-5 h-5" />
+                        </span>
+
+                        {{-- Label --}}
+                        <span class="capitalize tracking-wide">{{ __('Overview') }}</span>
+                    </a>
+                </li>
                 @foreach ($this->availableMenus as $menu)
                     <li>
                         <a href="/cms/{{ $menu['url'] }}" wire:navigate.hover class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                                               text-slate-400 hover:text-white hover:bg-white/8
-                                               transition-all duration-150 ease-in-out"
+                                                   text-slate-400 hover:text-white hover:bg-white/8
+                                                   transition-all duration-150 ease-in-out"
                             wire:current="bg-indigo-600/25 border border-indigo-500/40 text-white">
 
                             {{-- Icon --}}

@@ -8,8 +8,10 @@ use Livewire\Component;
 use Livewire\Attributes\{Layout, Locked, Title};
 use Livewire\WithFileUploads;
 use Bale\Cms\Models\Post;
+use Bale\Cms\Models\Category;
 use Bale\Cms\Services\TenantConnectionService;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Computed;
 
 #[Layout('cms::layouts.post-editor')]
 #[Title('Bale | Edit Post')]
@@ -37,6 +39,7 @@ class EditPost extends Component
 
     public function mount($slug)
     {
+        $this->authorize('bale-post.read');
         // Pastikan koneksi tenant aktif SEBELUM query dilakukan
         TenantConnectionService::ensureActive();
 
@@ -62,6 +65,17 @@ class EditPost extends Component
         return view('cms::livewire.pages.post.edit-post');
     }
 
+    #[Computed]
+    public function categories()
+    {
+        TenantConnectionService::ensureActive();
+        $connection = TenantConnectionService::connection();
+        return (new Category)
+            ->setConnection($connection)
+            ->orderBy('name', 'asc')
+            ->get();
+    }
+
     public function rules()
     {
         // pastikan koneksi tenant aktif
@@ -77,11 +91,13 @@ class EditPost extends Component
                 'string',
                 Rule::unique($connection . '.posts', 'slug')->ignore($this->id),
             ],
+            'category_slug' => 'nullable|string',
         ];
     }
 
     public function update()
     {
+        $this->authorize('bale-post.update');
         $this->validate();
 
         DB::beginTransaction();
@@ -94,6 +110,7 @@ class EditPost extends Component
                 'title' => $this->title,
                 'slug' => $this->slug,
                 'content' => $this->content,
+                'category_slug' => $this->category_slug,
             ];
 
             // Thumbnail is now handled immediately via updatedThumbnailNew()
@@ -107,7 +124,7 @@ class EditPost extends Component
             DB::commit();
 
             // Dispatch events for UI feedback
-            $this->dispatch('toast', message: 'Post berhasil disimpan!', type: 'success');
+            $this->dispatch('toast', message: __('Post saved successfully!'), type: 'success');
             $this->dispatch('save-complete');
 
             // session()->flash('success', 'Post Updated!');
@@ -119,7 +136,7 @@ class EditPost extends Component
 
             // Dispatch failure events
             $this->dispatch('save-complete');
-            $this->dispatch('toast', message: 'Gagal menyimpan post: ' . $th->getMessage(), type: 'error');
+            $this->dispatch('toast', message: __('Failed to save post: ') . $th->getMessage(), type: 'error');
 
             info('Post update failed: ' . $th->getMessage());
         }
@@ -187,10 +204,10 @@ class EditPost extends Component
                 $this->show_upload_zone = false;
                 $this->thumbnail_new = null;
 
-                $this->dispatch('toast', message: 'Thumbnail updated immediately!', type: 'success');
+                $this->dispatch('toast', message: __('Thumbnail updated successfully!'), type: 'success');
             }
         } catch (\Throwable $th) {
-            $this->dispatch('toast', message: 'Failed to upload thumbnail: ' . $th->getMessage(), type: 'error');
+            $this->dispatch('toast', message: __('Failed to upload thumbnail: ') . $th->getMessage(), type: 'error');
             info('Immediate thumbnail upload failed: ' . $th->getMessage());
         }
     }
@@ -210,9 +227,10 @@ class EditPost extends Component
                     'title' => $this->title,
                     'slug' => $this->slug,
                     'content' => $this->content,
+                    'category_slug' => $this->category_slug,
                 ]);
 
-                $this->dispatch('toast', message: 'Auto-saved successfully!', type: 'success');
+                $this->dispatch('toast', message: __('Auto-saved successfully!'), type: 'success');
             }
         } catch (\Throwable $th) {
             info('Auto-save failed: ' . $th->getMessage());

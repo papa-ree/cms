@@ -54,6 +54,7 @@ class SectionMetaEditor extends Component
 
     public function mount($slug)
     {
+        $this->authorize('bale-section.read');
         $this->slug = $slug;
 
         TenantConnectionService::ensureActive();
@@ -103,6 +104,7 @@ class SectionMetaEditor extends Component
     // Generic save method called by Alpine
     public function save($field, $value = null)
     {
+        $this->authorize('bale-section.update');
         // If value is provided (e.g. from Alpine), update the property
         if ($value !== null) {
             // Handle custom fields

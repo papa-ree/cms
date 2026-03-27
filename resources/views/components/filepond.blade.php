@@ -1,8 +1,8 @@
-<style>
+{{-- <style>
     .filepond--root {
         z-index: 1;
     }
-</style>
+</style> --}}
 <div wire:ignore x-data x-init="() => {
     const post = FilePond.create($refs.{{ $attributes->get('ref') ?? 'input' }});
     post.setOptions({

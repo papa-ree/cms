@@ -20,12 +20,14 @@
                 </p>
             </div>
             <div class="shrink-0">
-                <x-core::button link href="{{ route('bale.cms.sections.create') }}" label="{{ __('Create Section') }}"
-                    class="">
-                    <x-slot name="icon">
-                        <x-lucide-plus class="w-5 h-5" />
-                    </x-slot>
-                </x-core::button>
+                @can('bale-section.create')
+                    <x-core::button link href="{{ route('bale.cms.sections.create') }}" label="{{ __('Create Section') }}"
+                        class="">
+                        <x-slot name="icon">
+                            <x-lucide-plus class="w-5 h-5" />
+                        </x-slot>
+                    </x-core::button>
+                @endcan
             </div>
         </div>
     </div>

@@ -52,6 +52,7 @@ class CreateNewSection extends Component
 
     public function store($data)
     {
+        $this->authorize('bale-section.create');
         $this->name = $data['name'] ?? $this->name;
         $this->slug = $data['slug'] ?? $this->slug;
         $this->usage = $data['usage'] ?? $this->usage;

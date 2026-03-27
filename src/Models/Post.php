@@ -37,6 +37,14 @@ class Post extends Model
         return $this->belongsTo(config('auth.providers.users.model'), 'user_uuid', 'user_uuid');
     }
 
+    /**
+     * Relasi dengan user (author) - Nama relasi dibedakan dari nama kolom 'author' di DB untuk menghindari bentrok/shadowing
+     */
+    public function userAuthor()
+    {
+        return $this->belongsTo(User::class, 'author', 'uuid');
+    }
+
     protected function createdAt(): Attribute
     {
         return Attribute::make(
@@ -68,13 +76,11 @@ class Post extends Model
         );
     }
 
-    // /**
-    //  * Scope untuk post yang sudah terbit
-    //  */
-    // public function scopePublished($query)
-    // {
-    //     return $query->where('status', 'published')
-    //         ->whereNotNull('published_at')
-    //         ->where('published_at', '<=', now());
-    // }
+    /**
+     * Relasi ke Category melalui category_slug
+     */
+    public function category()
+    {
+        return $this->belongsTo(Category::class, 'category_slug', 'slug');
+    }
 }

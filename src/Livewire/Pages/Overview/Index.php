@@ -12,6 +12,7 @@ class Index extends Component
     #[Layout('cms::layouts.app')]
     #[Title('Bale | Overview')]
     #[Lazy]
+
     public function render()
     {
         $analytics = new \Bale\Cms\Services\AnalyticsService();

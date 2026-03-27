@@ -41,6 +41,7 @@ class CreateNewPage extends Component
 
     public function store($data)
     {
+        $this->authorize('bale-page.create');
         $this->title = $data['title'] ?? $this->title;
         $this->slug = $data['slug'] ?? $this->slug;
 

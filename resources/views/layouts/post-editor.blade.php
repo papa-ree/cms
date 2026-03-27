@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}" class="scroll-smooth">
 
 <head>
     <meta charset="utf-8">
@@ -8,16 +7,23 @@
     <title>{{ $title ?? 'Page Title' }}</title>
     <link rel="icon" type="image/x-icon" href="{{ asset('favicon.ico') }}">
 
+    <script>
+        const theme = localStorage.getItem( 'hs_theme' );
+        const html = document.querySelector( 'html' );
+
+        if ( theme === 'dark' || ( !theme && window.matchMedia( '(prefers-color-scheme: dark)' ).matches ) ) {
+            html.classList.add( 'dark' );
+        } else {
+            html.classList.remove( 'dark' );
+        }
+    </script>
+
     {{-- Font --}}
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
         href="https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,500;1,500&family=Noto+Color+Emoji&family=Nunito:ital,wght@0,200..1000;1,200..1000&family=Open+Sans:ital,wght@0,500;1,500&family=Quicksand&display=swap"
         rel="stylesheet">
-
-    <link href="https://unpkg.com/filepond@^4/dist/filepond.css" rel="stylesheet" />
-    <link href="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css"
-        rel="stylesheet" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
@@ -40,7 +46,7 @@
                     role="status" aria-label="loading">
                     <span class="sr-only">Loading...</span>
                 </div>
-                <p class="text-sm text-gray-600 dark:text-gray-400 font-medium">Loading Editor...</p>
+                <p class="text-sm text-gray-600 dark:text-gray-400 font-medium">{{ __('Loading Editor...') }}</p>
             </div>
         </div>
         <span class="sr-only">preloader</span>
@@ -58,16 +64,6 @@
 
     @livewireScripts
     <x-core::toast />
-
-    {{-- FilePond Scripts --}}
-    <script
-        src="https://unpkg.com/filepond-plugin-file-validate-type/dist/filepond-plugin-file-validate-type.js"></script>
-    <script
-        src="https://unpkg.com/filepond-plugin-file-validate-size/dist/filepond-plugin-file-validate-size.js"></script>
-    <script src="https://unpkg.com/filepond-plugin-image-preview/dist/filepond-plugin-image-preview.js"></script>
-    <script
-        src="https://unpkg.com/filepond-plugin-image-validate-size/dist/filepond-plugin-image-validate-size.js"></script>
-    <script src="https://unpkg.com/filepond@^4/dist/filepond.js"></script>
 </body>
 
 </html>

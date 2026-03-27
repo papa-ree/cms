@@ -24,6 +24,7 @@ class EditPage extends Component
 
     public function mount($slug)
     {
+        $this->authorize('bale-page.read');
         TenantConnectionService::ensureActive();
 
         $page = Page::whereSlug($slug)->first();
@@ -64,6 +65,7 @@ class EditPage extends Component
 
     public function update()
     {
+        $this->authorize('bale-page.update');
         $this->validate();
         DB::beginTransaction();
 
@@ -75,10 +77,10 @@ class EditPage extends Component
                 ->setConnection($connection)
                 ->find($this->id)
                 ->update([
-                        'title' => $this->title,
-                        'slug' => $this->slug,
-                        'content' => $this->content,
-                    ]);
+                    'title' => $this->title,
+                    'slug' => $this->slug,
+                    'content' => $this->content,
+                ]);
 
             DB::commit();
 

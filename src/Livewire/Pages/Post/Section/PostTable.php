@@ -23,6 +23,7 @@ class PostTable extends Component
     public $sortDirection = 'desc';
 
     public $filterPublished = '';
+    public $navigate = false;
 
     public function sort($field)
     {
@@ -69,6 +70,7 @@ class PostTable extends Component
         $connection = TenantConnectionService::connection();
         return (new Post)
             ->setConnection($connection)
+            ->with('userAuthor')
             ->where('title', 'like', '%' . $this->query . '%')
             ->when($this->filterPublished, function ($query) {
                 if ($this->filterPublished === 'published') {

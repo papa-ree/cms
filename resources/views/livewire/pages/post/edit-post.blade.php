@@ -1,4 +1,50 @@
 <div>
+    <style>
+        /* Editor.js Dark Mode Support */
+        .dark .ce-block {
+            color: #e2e8f0;
+        }
+
+        .dark .ce-toolbar__plus,
+        .dark .ce-toolbar__settings-btn {
+            color: #e2e8f0;
+            background-color: #1e293b;
+        }
+
+        .dark .ce-toolbar__plus:hover,
+        .dark .ce-toolbar__settings-btn:hover {
+            background-color: #334155;
+        }
+
+        .dark .ce-popover {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            color: #f1f5f9;
+        }
+
+        .dark .ce-popover__item:hover {
+            background-color: #334155;
+        }
+
+        .dark .ce-popover__item-icon {
+            background-color: #334155;
+            color: #f1f5f9;
+        }
+
+        .dark .ce-inline-toolbar {
+            background-color: #1e293b;
+            border: 1px solid #334155;
+            color: #f1f5f9;
+        }
+
+        .dark .ce-inline-tool:hover {
+            background-color: #334155;
+        }
+
+        .dark .ce-paragraph[data-placeholder]:empty::before {
+            color: #64748b;
+        }
+    </style>
     {{-- Help Guide --}}
     <div
         class="mb-6 p-5 bg-linear-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border border-amber-200 dark:border-amber-800 rounded-2xl">
@@ -7,19 +53,20 @@
                 <x-lucide-pen-tool class="w-6 h-6 text-white" />
             </div>
             <div class="flex-1">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">Post Editor Guide</h3>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">{{ __('Post Editor Guide') }}</h3>
                 <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                    Edit your post content using the powerful Bale Editor. Fill in the metadata on the left, then create
-                    your content on the right.
+                    {{ __('Edit your post content using the powerful Bale Editor. Fill in the metadata on the left, then create your content on the right.') }}
                 </p>
                 <div class="grid gap-2 md:grid-cols-2">
                     <div class="flex items-start gap-2">
                         <x-lucide-check class="w-4 h-4 text-amber-600 mt-0.5" />
-                        <span class="text-sm text-gray-600 dark:text-gray-400">Title & slug are auto-synced</span>
+                        <span
+                            class="text-sm text-gray-600 dark:text-gray-400">{{ __('Title & slug are auto-synced') }}</span>
                     </div>
                     <div class="flex items-start gap-2">
                         <x-lucide-check class="w-4 h-4 text-amber-600 mt-0.5" />
-                        <span class="text-sm text-gray-600 dark:text-gray-400">Content auto-saves on change</span>
+                        <span
+                            class="text-sm text-gray-600 dark:text-gray-400">{{ __('Content auto-saves on change') }}</span>
                     </div>
                 </div>
             </div>
@@ -44,8 +91,8 @@
                             <x-lucide-file-text class="w-5 h-5 text-white" />
                         </div>
                         <div>
-                            <h3 class="font-bold text-lg text-gray-900 dark:text-white">Post Details</h3>
-                            <p class="text-sm text-gray-500 dark:text-gray-400">Metadata & settings</p>
+                            <h3 class="font-bold text-lg text-gray-900 dark:text-white">{{ __('Post Details') }}</h3>
+                            <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('Metadata & settings') }}</p>
                         </div>
                     </div>
 
@@ -53,11 +100,14 @@
                     <div>
                         <div class="flex items-center gap-2 mb-2">
                             <x-lucide-type class="w-4 h-4 text-gray-400" />
-                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Post Title *</label>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Post Title') }}
+                                *</label>
                         </div>
-                        <x-core::input wire:model='title' placeholder="Enter post title..." x-model="postTitle" />
+                        <x-core::input wire:model='title' placeholder="{{ __('Enter post title...') }}"
+                            x-model="postTitle" />
                         <x-core::input-error for="title" />
-                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Main title for your post</p>
+                        <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Main title for your post') }}
+                        </p>
                     </div>
 
                     {{-- Advanced Settings Toggle --}}
@@ -65,10 +115,10 @@
                         class="flex items-center gap-2 w-full p-3 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900/50 dark:hover:bg-gray-900 rounded-lg transition-colors"
                         type="button" @click="showSetting=!showSetting"
                         :class="showSetting ? 'ring-2 ring-blue-500 dark:ring-blue-400' : ''">
-                        <x-lucide-settings class="w-4 h-4" />
+                        <x-lucide-settings class="w-4 h-4 text-gray-400" />
                         <span class="flex-1 text-left text-sm font-medium"
                             :class="showSetting ? 'text-blue-600 dark:text-blue-400' : 'text-gray-700 dark:text-gray-300'">
-                            Advanced Settings
+                            {{ __('Advanced Settings') }}
                         </span>
                         <x-lucide-chevron-down class="w-4 h-4 transition-transform" />
                     </button>
@@ -79,8 +129,8 @@
                             class="p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl space-y-3">
                             <div class="flex items-center gap-2 mb-2">
                                 <x-lucide-link class="w-4 h-4 text-blue-600" />
-                                <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Permalink /
-                                    Slug</label>
+                                <label
+                                    class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Permalink / Slug') }}</label>
                                 <div class="hs-tooltip">
                                     <button type="button" class="hs-tooltip-toggle">
                                         <x-lucide-info class="w-3.5 h-3.5 text-blue-600" />
@@ -88,52 +138,72 @@
                                     <span
                                         class="hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible opacity-0 transition-opacity inline-block absolute invisible z-10 py-2 px-3 bg-gray-900 text-xs text-white rounded-lg shadow-lg dark:bg-gray-700"
                                         role="tooltip">
-                                        Permalink is the permanent URL for this post
+                                        {{ __('Permalink is the permanent URL for this post') }}
                                     </span>
                                 </div>
                             </div>
                             <x-core::input wire:model='slug' name="slug" x-slug="postTitle" x-model="postSlug"
-                                placeholder="auto-generated-from-title" />
+                                placeholder="{{ __('auto-generated-from-title') }}" />
                             <x-core::input-error for="slug" />
                             <p class="text-xs text-blue-700 dark:text-blue-400">
-                                Auto-generated from title. Customize if needed.
+                                {{ __('Auto-generated from title. Customize if needed.') }}
                             </p>
                         </div>
                     </div>
 
+
+                    
+                    {{-- Post Category --}}
+                    <div>
+                        <div class="flex items-center gap-2 mb-2">
+                            <x-lucide-layers class="w-4 h-4 text-gray-400" />
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Category') }}</label>
+                        </div>
+                        <x-core::select-dropdown 
+                            :label="__('Select Category')" 
+                            :items="$this->categories" 
+                            model="category_slug" 
+                            labelField="name" 
+                            valueField="slug" 
+                        />
+                        <x-core::input-error for="category_slug" />
+                    </div>
+
                     {{-- Post Thumbnail --}}
-                    <div x-data="{ showUploadZone: $wire.entangle('show_upload_zone').live }">
+                    <div>
                         <div class="flex items-center gap-2 mb-3">
                             <x-lucide-image class="w-4 h-4 text-gray-400" />
-                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Featured Image</label>
+                            <label class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Featured Image') }}</label>
                         </div>
 
+                        {{-- Existing saved thumbnail --}}
                         @if ($thumbnail)
-                            <div x-show="!showUploadZone"
-                                class="relative group overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-blue-400 dark:hover:border-blue-600 transition-all">
+                            <div class="relative group overflow-hidden rounded-xl border-2 border-gray-200 dark:border-gray-700 hover:border-red-400 dark:hover:border-red-600 transition-all mb-3">
                                 <img loading="lazy"
-                                    class="w-full h-48 object-cover object-center group-hover:scale-105 transition-transform duration-300"
+                                    class="w-full h-40 object-cover object-center group-hover:scale-105 transition-transform duration-300"
                                     src="{{ \Bale\Core\Support\Cdn::url('thumbnails/' . $thumbnail) }}" alt="{{ $title }}">
-                                <div
-                                    class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                <div class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
                                     <button wire:click='deleteThumbnail' type="button"
                                         class="absolute top-3 right-3 p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-lg transition-colors">
                                         <x-lucide-trash-2 class="w-4 h-4" />
                                     </button>
                                 </div>
+                                <div class="absolute bottom-2 left-2 px-2 py-0.5 rounded-full bg-black/50 text-white text-[10px] font-medium">
+                                    {{ __('Current thumbnail') }}
+                                </div>
                             </div>
                         @endif
 
-                        <div x-show="showUploadZone">
-                            <x-cms::filepond wire:model.live="thumbnail_new" allowImagePreview
-                                imagePreviewMaxHeight="200" allowFileTypeValidation
-                                acceptedFileTypes="['image/png', 'image/jpg', 'image/jpeg']" allowFileSizeValidation
-                                maxFileSize="512kb" />
-                            <x-core::input-error for="thumbnail_new" />
-                            <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                Max 512KB. Formats: PNG, JPG, JPEG
-                            </p>
-                        </div>
+                        {{-- Upload new thumbnail --}}
+                        <x-core::upload-zone
+                            wire:model.live="thumbnail_new"
+                            accept="image/png,image/jpeg,image/jpg"
+                            maxSize="512"
+                            :label="__('Drop image here or click to browse')"
+                            :hint="__('PNG, JPG, JPEG · Max 512KB')"
+                        />
+
+                        <x-core::input-error for="thumbnail_new" class="mt-1" />
                     </div>
 
                     {{-- Submit Button - Hidden (moved to topbar) --}}
@@ -154,14 +224,17 @@
                                 <x-lucide-file-edit class="w-4 md:w-5 h-4 md:h-5 text-white" />
                             </div>
                             <div>
-                                <h3 class="font-bold text-lg text-gray-900 dark:text-white">Content Editor</h3>
-                                <p class="text-sm text-gray-500 dark:text-gray-400">Write your post content</p>
+                                <h3 class="font-bold text-lg text-gray-900 dark:text-white">{{ __('Content Editor') }}
+                                </h3>
+                                <p class="text-sm text-gray-500 dark:text-gray-400">{{ __('Write your post content') }}
+                                </p>
                             </div>
                         </div>
                         <div
                             class="flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-full">
                             <div class="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
-                            <span class="text-xs font-medium text-green-700 dark:text-green-400">Auto-save ON</span>
+                            <span
+                                class="text-xs font-medium text-green-700 dark:text-green-400">{{ __('Auto-save ON') }}</span>
                         </div>
                     </div>
 
@@ -171,19 +244,19 @@
                         <div class="flex items-start gap-2 text-xs text-blue-700 dark:text-blue-400">
                             <x-lucide-lightbulb class="w-4 h-4 mt-0.5" />
                             <div>
-                                <span class="font-semibold">Quick tip:</span>
-                                <span>Press <kbd
-                                        class="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-blue-300 rounded text-blue-800 dark:text-blue-300 font-mono">Content
-                                        Editor</kbd> to start typing, and use <kbd
-                                        class="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-blue-300 rounded text-blue-800 dark:text-blue-300 font-mono">+</kbd>
-                                    button on the left.</span>
+                                <span class="font-semibold">{{ __('Quick tip:') }}</span>
+                                <span>{{ __('Press') }} <kbd
+                                        class="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-blue-300 dark:border-blue-800 rounded text-blue-800 dark:text-blue-300 font-mono">{{ __('Content Editor') }}</kbd>
+                                    {{ __('to start typing, and use') }} <kbd
+                                        class="px-1.5 py-0.5 bg-white dark:bg-gray-800 border border-blue-300 dark:border-blue-800 rounded text-blue-800 dark:text-blue-300 font-mono">+</kbd>
+                                    {{ __('button on the left.') }}</span>
                             </div>
                         </div>
                     </div>
 
                     {{-- EditorJS Container --}}
                     <div wire:ignore id="editorjs"
-                        class="px-6 py-8 bg-white dark:bg-gray-800 min-h-[70vh] max-h-[70vh] overflow-y-auto prose prose-slate dark:prose-invert max-w-none
+                        class="px-6 py-8 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 min-h-[70vh] max-h-[70vh] overflow-y-auto prose prose-slate dark:prose-invert max-w-none
                         scrollbar-thin scrollbar-thumb-gray-400 dark:scrollbar-thumb-gray-600 scrollbar-track-gray-200 dark:scrollbar-track-gray-800 scrollbar-thumb-rounded-full">
                     </div>
 
@@ -195,18 +268,19 @@
                             <div class="flex items-center gap-4">
                                 <div class="flex items-center gap-1.5">
                                     <x-lucide-text class="w-3.5 h-3.5" />
-                                    <span>Editor</span>
+                                    <span>{{ __('Editor') }}</span>
                                 </div>
                                 <div class="flex items-center gap-1.5">
                                     <x-lucide-image class="w-3.5 h-3.5" />
-                                    <span>Image support</span>
+                                    <span>{{ __('Image support') }}</span>
                                 </div>
                                 <div class="flex items-center gap-1.5">
                                     <x-lucide-list class="w-3.5 h-3.5" />
-                                    <span>Lists</span>
+                                    <span>{{ __('Lists') }}</span>
                                 </div>
                             </div>
-                            <span class="text-gray-500">Last edited: {{ $updated_at->diffForHumans() }}</span>
+                            <span class="text-gray-500">{{ __('Last edited:') }}
+                                {{ $updated_at->diffForHumans() }}</span>
                         </div>
                     </div>
                 </div>
@@ -245,9 +319,7 @@
                                 byFile: '/cms/editorjs/upload',
                                 byUrl: '/cms/editorjs/fetchUrl',
                             },
-                            field: 'image',
-                            types: 'image/*',
-                            captionPlaceholder: 'Tambahkan keterangan gambar...',
+                            captionPlaceholder: "{{ __('Add image caption...') }}",
                         },
                     },
                 },
@@ -257,7 +329,7 @@
                     const savedData = await api.saver.save();
                     $wire.set( 'content', savedData );
                 },
-                placeholder: 'Start writing your post content here...'
+                placeholder: "{{ __('Start writing your post content here...') }}"
             } );
         }
     </script>
