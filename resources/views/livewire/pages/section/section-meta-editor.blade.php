@@ -166,8 +166,8 @@
 
                 {{-- Fields --}}
                 <div class="space-y-6">
-                    <x-core::input :label="__('Section Title')" x-model="data.title" @input.debounce.1000ms="save('title')"
-                        :placeholder="__('e.g. Welcome to Our Platform')" />
+                    <x-core::input label="{{ __('Section Title') }}" x-model="data.title" @input.debounce.1000ms="save('title')"
+                        placeholder="{{ __('e.g. Welcome to Our Platform') }}" />
 
                     <div>
                         <x-core::label :value="__('Subtitle / Description')" />
@@ -239,13 +239,13 @@
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pl-2">
                                 {{-- Label --}}
                                 <div>
-                                    <x-core::input :label="__('Button Label')" x-model="button.label"
-                                        @input.debounce.1000ms="save('buttons')" :placeholder="__('Button Text')" />
+                                    <x-core::input label="{{ __('Button Label') }}" x-model="button.label"
+                                        @input.debounce.1000ms="save('buttons')" placeholder="{{ __('Button Text') }}" />
                                 </div>
 
                                 {{-- URL --}}
                                 <div>
-                                    <x-core::input :label="__('URL / Link')" x-model="button.url"
+                                    <x-core::input label="{{ __('URL / Link') }}" x-model="button.url"
                                         @input.debounce.1000ms="save('buttons')" placeholder="https:// or /path" />
                                 </div>
 
@@ -255,22 +255,22 @@
                                         {{-- Icon --}}
                                         <div class="flex items-end gap-2">
                                             <div class="flex-1">
-                                                <x-core::input :label="__('Icon (Optional)')" x-model="button.icon"
+                                                <x-core::input label="{{ __('Icon (Optional)') }}" x-model="button.icon"
                                                     @input.debounce.1000ms="save('buttons')"
-                                                    :placeholder="__('e.g. arrow-right, check, star')" />
+                                                    placeholder="{{ __('e.g. arrow-right, check, star') }}" />
                                             </div>
                                             <a href="https://lucide.dev/icons" target="_blank"
                                                 class="p-3 text-gray-400 hover:text-purple-600 dark:hover:text-purple-400 hover:bg-purple-50 dark:hover:bg-purple-900/20 rounded-xl transition-colors border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 mb-0.5"
-                                                :title="__('Browse Icons')">
+                                                title="{{ __('Browse Icons') }}">
                                                 <x-lucide-external-link class="w-5 h-5" />
                                             </a>
                                         </div>
 
                                         {{-- Class --}}
                                         <div>
-                                            <x-core::input :label="__('Attribute Class (Optional)')" x-model="button.class"
+                                            <x-core::input label="{{ __('Attribute Class (Optional)') }}" x-model="button.class"
                                                 @input.debounce.1000ms="save('buttons')"
-                                                :placeholder="__('e.g. bg-blue-500 rounded-lg')" />
+                                                placeholder="{{ __('e.g. bg-blue-500 rounded-lg') }}" />
                                         </div>
                                     </div>
                                 </div>
@@ -354,7 +354,7 @@
                 <div class="space-y-6">
                     {{-- Type Selector --}}
                     <div>
-                        <x-core::label :value="__('Background Type')" />
+                        <x-core::label value="{{ __('Background Type') }}" />
                         <select x-model="data.backgroundType" @change="save('background')"
                             class="block w-full py-3 px-4 text-gray-900 placeholder-gray-500 transition-all duration-200 bg-white border border-gray-300 form-input dark:border-gray-600 rounded-xl dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent">
                             <option value="image">{{ __('Static Image') }}</option>
@@ -390,10 +390,9 @@
                             {{-- Upload Dropzone --}}
                             <div x-show="data.backgroundType === 'slider' || data.backgroundImages.length === 0"
                                 class="mt-4">
-                                <x-cms::filepond wire:model.live="background_new" allowImagePreview
-                                    imagePreviewMaxHeight="200" allowFileTypeValidation
-                                    acceptedFileTypes="['image/png', 'image/jpg', 'image/jpeg']" allowFileSizeValidation
-                                    maxFileSize="512kb" :allowMultiple="$backgroundType === 'slider'" />
+                                <x-core::upload-zone wire:model.live="background_new"
+                                    accept="image/png,image/jpg,image/jpeg" maxSize="512"
+                                    :multiple="$backgroundType === 'slider'" />
 
                                 <x-core::input-error for="background_new" />
                                 <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
@@ -581,7 +580,7 @@
                                     <input type="text" :value="data.custom[key]"
                                         @input.debounce.1000ms="data.custom[key] = $event.target.value; save('custom')"
                                         class="block w-full py-2.5 px-4 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white border border-gray-300 dark:border-gray-600 rounded-xl dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
-                                        :placeholder="__('Enter value...')" />
+                                        placeholder="{{ __('Enter value...') }}" />
                                 </div>
                             </div>
 
@@ -609,7 +608,7 @@
                                 <input type="text" x-model="newKeyName" @keydown.enter.prevent="addCustomKey"
                                     @keydown.escape="showAddKeyForm = false; newKeyName = ''; newKeyValue = ''"
                                     class="block w-full py-2.5 px-4 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white border border-gray-300 dark:border-gray-600 rounded-xl dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm font-mono"
-                                    :placeholder="__('e.g. my_key')" />
+                                    placeholder="{{ __('e.g. my_key') }}" />
                                 <p class="mt-1 text-xs text-gray-400">{{ __('Spaces will be replaced with underscores') }}</p>
                             </div>
                             <div>
@@ -618,7 +617,7 @@
                                 <input type="text" x-model="newKeyValue" @keydown.enter.prevent="addCustomKey"
                                     @keydown.escape="showAddKeyForm = false; newKeyName = ''; newKeyValue = ''"
                                     class="block w-full py-2.5 px-4 text-gray-900 placeholder-gray-400 transition-all duration-200 bg-white border border-gray-300 dark:border-gray-600 rounded-xl dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent text-sm"
-                                    :placeholder="__('Enter value...')" />
+                                    placeholder="{{ __('Enter value...') }}" />
                             </div>
                         </div>
                         <div class="flex items-center gap-3">

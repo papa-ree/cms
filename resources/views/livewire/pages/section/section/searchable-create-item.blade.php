@@ -1,6 +1,7 @@
 <div>
     <div x-data="baleCreateItem">
 
+        {{-- Breadcrumb Navigation --}}
         @php
             $breadcrumbs = [
                 ['label' => 'Sections', 'route' => 'bale.cms.sections.index'],
@@ -14,9 +15,9 @@
 
         <x-core::breadcrumb :items="$breadcrumbs" :active="$editMode ? 'Edit Item' : 'Create Item'" />
 
-        {{-- Header Section --}}
-        <div class="relative overflow-hidden p-8 mb-8 text-white rounded-2xl shadow-xl"
-            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);">
+        {{-- Main Page Header --}}
+        <div class="relative overflow-hidden p-8 mb-8 text-white rounded-2xl shadow-xl" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);">
+            {{-- Decorative Background Elements --}}
             <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
             <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
 
@@ -34,18 +35,16 @@
                             </div>
                         </div>
                         <p class="text-white/90 text-lg mb-2">
-                            {{ $editMode ? 'Update' : 'Add new data to' }}: <span
-                                class="font-semibold">{{ $name }}</span>
+                            {{ $editMode ? 'Update' : 'Add new data to' }}: <span class="font-semibold">{{ $name }}</span>
                         </p>
                         <p class="text-white/80 text-sm">
                             Fill in the fields below based on your defined keys
                         </p>
                     </div>
 
-                    {{-- Actions --}}
+                    {{-- Header Actions --}}
                     <div class="flex items-center gap-3 shrink-0 justify-center">
-                        <a href="{{ route('bale.cms.sections.view-searchable', $slug) }}" wire:navigate
-                            class="inline-flex items-center gap-2 px-4 py-2.5 bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30 rounded-lg text-sm font-medium text-white transition-all">
+                        <a href="{{ route('bale.cms.sections.view-searchable', $slug) }}" wire:navigate class="inline-flex items-center gap-2 px-4 py-2.5 bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30 rounded-lg text-sm font-medium text-white transition-all">
                             <x-lucide-arrow-left class="w-4 h-4 hidden lg:block" />
                             Back to Table
                         </a>
@@ -54,9 +53,8 @@
             </div>
         </div>
 
-        {{-- Help Guide --}}
-        <div
-            class="mb-8 p-5 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl">
+        {{-- Interactive Help Guide for Users --}}
+        <div class="mb-8 p-5 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl">
             <div class="flex items-start gap-4">
                 <div class="p-3 bg-blue-600 rounded-xl shadow-lg">
                     <x-lucide-lightbulb class="w-6 h-6 text-white" />
@@ -98,8 +96,9 @@
             </div>
         </div>
 
-        {{-- Item Form --}}
+        {{-- Main Item Form Container --}}
         <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
+            {{-- Form Header --}}
             <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
                 <div class="p-2.5 bg-linear-to-br from-blue-500 to-blue-600 rounded-lg shadow-md">
                     <x-lucide-edit class="w-5 h-5 text-white" />
@@ -112,25 +111,28 @@
                 </div>
             </div>
 
+            {{-- Dynamic Fields Iteration --}}
             <div class="space-y-5">
                 @foreach ($availableKeys as $key)
+                    {{-- Skip internal database fields --}}
                     @continue(in_array($key, ['id', 'created_at', 'updated_at']))
+                    
                     <div class="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700">
 
-                        {{-- Key Label --}}
+                        {{-- Field Key/Label Header --}}
                         <div class="flex items-center gap-1.5 mb-3">
                             @if (in_array($key, $fileKeys))
                                 <x-lucide-paperclip class="w-4 h-4 text-violet-600" />
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
-                                <span
-                                    class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 rounded">file
-                                    upload</span>
+                                <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 rounded">
+                                    file upload
+                                </span>
                             @elseif (in_array($key, $socialKeys))
                                 <x-lucide-share-2 class="w-4 h-4 text-pink-500" />
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
-                                <span
-                                    class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400 rounded">social
-                                    media</span>
+                                <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400 rounded">
+                                    social media
+                                </span>
                             @else
                                 <x-lucide-tag class="w-4 h-4 text-blue-600" />
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
@@ -138,32 +140,19 @@
                         </div>
 
                         @if (in_array($key, $fileKeys))
-                            {{-- ── FILE UPLOAD FIELD (FilePond) ── --}}
-
-                            {{-- FilePond Dropzone --}}
-                            <div wire:ignore x-data x-init="() => {
-                                                                                                                    $wire.set('activeUploadKey', '{{ $key }}');
-                                                                                                                    const pond = FilePond.create($refs['filepond_{{ $key }}']);
-                                                                                                                    pond.setOptions({
-                                                                                                                        allowMultiple: true,
-                                                                                                                        labelIdle: 'Drag & drop files or <span class=\'filepond--label-action\'>Browse</span>',
-                                                                                                                        server: {
-                                                                                                                            process: (fieldName, file, metadata, load, error, progress, abort) => {
-                                                                                                                                $wire.set('activeUploadKey', '{{ $key }}');
-                                                                                                                                @this.upload('tempUpload', file, load, error, progress);
-                                                                                                                            },
-                                                                                                                            revert: (filename, load) => {
-                                                                                                                                @this.removeUpload('tempUpload', filename, load);
-                                                                                                                            },
-                                                                                                                        },
-                                                                                                                        allowImagePreview: true,
-                                                                                                                        imagePreviewMaxHeight: 200,
-                                                                                                                        allowFileTypeValidation: false,
-                                                                                                                        allowFileSizeValidation: true,
-                                                                                                                        maxFileSize: '10MB',
-                                                                                                                    });
-                                                                                                                }">
-                                <input type="file" hidden x-ref="filepond_{{ $key }}" />
+                            {{-- ── FILE UPLOAD FIELD (Enhanced Upload Zone) ── --}}
+                            <div class="mt-2">
+                                <x-core::upload-zone 
+                                    wire:model.live="tempUpload"
+                                    accept="image/*,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
+                                    maxSize="10240"
+                                    multiple
+                                    @click="$wire.set('activeUploadKey', '{{ $key }}')"
+                                    @drop="$wire.set('activeUploadKey', '{{ $key }}')"
+                                    label="{{ __('Drop files here or click to browse') }}"
+                                    hint="{{ __('Images, PDF, Excel, Word up to 10MB') }}"
+                                />
+                                <x-core::input-error for="tempUpload" />
                             </div>
 
                             {{-- Uploaded Files Grid --}}
@@ -189,15 +178,13 @@
                                             <template x-if="!isImage(file)">
                                                 <div class="w-full h-24 flex flex-col items-center justify-center gap-1"
                                                     :class="{
-                                                                                                                                                                                    'bg-red-50 dark:bg-red-900/20': fileIcon(file) === 'pdf',
-                                                                                                                                                                                    'bg-green-50 dark:bg-green-900/20': fileIcon(file) === 'xlsx',
-                                                                                                                                                                                    'bg-blue-50 dark:bg-blue-900/20': fileIcon(file) === 'docx',
-                                                                                                                                                                                    'bg-gray-50 dark:bg-gray-900/20': fileIcon(file) === 'file'
-                                                                                                                                                                                }">
-                                                    <span class="text-3xl"
-                                                        x-text="fileIcon(file) === 'pdf' ? '📄' : (fileIcon(file) === 'xlsx' ? '📊' : (fileIcon(file) === 'docx' ? '📝' : '📎'))"></span>
-                                                    <span class="text-xs font-bold uppercase text-gray-500"
-                                                        x-text="file.name ? file.name.split('.').pop() : 'file'"></span>
+                                                        'bg-red-50 dark:bg-red-900/20': fileIcon(file) === 'pdf',
+                                                        'bg-green-50 dark:bg-green-900/20': fileIcon(file) === 'xlsx',
+                                                        'bg-blue-50 dark:bg-blue-900/20': fileIcon(file) === 'docx',
+                                                        'bg-gray-50 dark:bg-gray-900/20': fileIcon(file) === 'file'
+                                                    }">
+                                                    <span class="text-3xl" x-text="fileIcon(file) === 'pdf' ? '📄' : (fileIcon(file) === 'xlsx' ? '📊' : (fileIcon(file) === 'docx' ? '📝' : '📎'))"></span>
+                                                    <span class="text-xs font-bold uppercase text-gray-500" x-text="file.name ? file.name.split('.').pop() : 'file'"></span>
                                                 </div>
                                             </template>
 
@@ -295,28 +282,24 @@
                                                 <button :id="'soc-dd-{{ $key }}-' + idx" type="button"
                                                     class="hs-dropdown-toggle p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors opacity-0 group-hover:opacity-100">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
                                                 </button>
                                                 <div class="hs-dropdown-menu transition-[opacity,margin] hs-dropdown-open:opacity-100 opacity-0 hidden min-w-[280px] z-50 bg-white dark:bg-gray-800 shadow-xl rounded-xl p-4 border border-gray-100 dark:border-gray-700"
                                                     :aria-labelledby="'soc-dd-{{ $key }}-' + idx">
                                                     <div x-data="{ editedUrl: url }" x-init="$watch('url', v => editedUrl = v)">
-                                                        <label
-                                                            class="block text-xs font-bold mb-1.5 text-gray-700 dark:text-gray-200">Edit
-                                                            URL</label>
+                                                        <label class="block text-xs font-bold mb-1.5 text-gray-700 dark:text-gray-200">
+                                                            Edit URL
+                                                        </label>
                                                         <input type="url" x-model="editedUrl" @keydown.stop
                                                             class="block w-full py-2 px-3 text-sm border border-gray-200 dark:border-gray-700 rounded-lg dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400"
                                                             placeholder="https://..." />
-                                                        <div
-                                                            class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+                                                        
+                                                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                                                             <button type="button" @click="removeValue('{{ $key }}', idx)"
                                                                 class="inline-flex items-center gap-1 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 px-2 py-1 rounded-lg transition-colors">
-                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                                    viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                                        stroke-width="2"
-                                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                                 </svg>
                                                                 Hapus
                                                             </button>
@@ -324,10 +307,8 @@
                                                                 @click="updateValue('{{ $key }}', idx, editedUrl); $el.closest('.hs-dropdown').classList.remove('open');"
                                                                 :style="'background:' + platform.color"
                                                                 class="inline-flex items-center gap-1 text-sm text-white px-3 py-1.5 rounded-lg transition-opacity hover:opacity-90">
-                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
-                                                                    viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round"
-                                                                        stroke-width="2" d="M5 13l4 4L19 7" />
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                                                                 </svg>
                                                                 Simpan
                                                             </button>
@@ -475,14 +456,6 @@
             </button>
         </div>
 
-        @script
-        <script>
-            FilePond.registerPlugin( FilePondPluginFileValidateType );
-            FilePond.registerPlugin( FilePondPluginFileValidateSize );
-            FilePond.registerPlugin( FilePondPluginImagePreview );
-        </script>
-        @endscript
-
         {{-- Social platform map (kept in plain
         <script> so SVG quotes never break x-data)--}}
             <script>
@@ -507,11 +480,14 @@
             // Factory function – defined once, registered two ways:
             // 1) Directly → handles wire:navigate (Alpine already initialized)
             // 2) alpine:init → handles full page reload (before Alpine scans the DOM)
-            const _baleCreateItemFactory = () => ( {
-                    item: @js($currentItem),
-                tempInputs: { },
+            const _baleCreateItemFactory = () => ({
+                // Initialize component state from backend data
+                item: @js($currentItem),
+                tempInputs: {},
                 fileKeys: @js($fileKeys),
                 socialKeys: @js($socialKeys),
+                
+                // Map uploaded files to a structured array for Alpine.js tracking
                 uploadedFiles: @js(
                     collect($fileKeys)->mapWithKeys(function ($key) use ($currentItem, $slug, $orgSlug) {
                         $urls = $currentItem[$key] ?? [];
@@ -527,100 +503,122 @@
                     })->all()
                 ),
 
-                init ()
-                {
-                    window.addEventListener( 'file-uploaded', e =>
-                    {
-                        const { key, url, name, mime, s3Path } = e.detail[ 0 ] ?? e.detail;
-                        if ( !this.uploadedFiles[ key ] ) this.uploadedFiles[ key ] = [];
-                        this.uploadedFiles[ key ].push( { url, name, mime, s3Path } );
-                        if ( !this.item[ key ] ) this.item[ key ] = [];
-                        this.item[ key ].push( url );
-                    } );
+                // Component initialization
+                init() {
+                    // Subscribe to 'file-uploaded' event from Livewire backend
+                    window.addEventListener('file-uploaded', e => {
+                        const { key, url, name, mime, s3Path } = e.detail[0] ?? e.detail;
+                        if (!this.uploadedFiles[key]) this.uploadedFiles[key] = [];
+                        
+                        // Push new file to local state for instant UI update
+                        this.uploadedFiles[key].push({ url, name, mime, s3Path });
+                        
+                        if (!this.item[key]) this.item[key] = [];
+                        this.item[key].push(url);
+                    });
                 },
 
-                isFileKey ( key ) { return this.fileKeys.includes( key ); },
-                isSocialKey ( key ) { return this.socialKeys.includes( key ); },
+                // Helper methods to identify field types based on conventions
+                isFileKey(key) { return this.fileKeys.includes(key); },
+                isSocialKey(key) { return this.socialKeys.includes(key); },
 
-                getSocialPlatform ( key )
-                {
+                // Retrieve styling and metadata based on social media platform name
+                getSocialPlatform(key) {
                     const p = window.baleSocialPlatforms;
-                const k = key.toLowerCase();
-                if ( p[ k ] ) return p[ k ];
-                for ( const [ n, d ] of Object.entries( p ) ) { if ( k.endsWith( '_' + n ) ) return d; }
-                for ( const [ n, d ] of Object.entries( p ) ) { if ( k.startsWith( n + '_' ) ) return d; }
-                return { name: key, color: '#6366f1', text: 'text-indigo-600', border: 'border-indigo-200', placeholder: 'https://...', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" /><path d="M10.172 13.828a4 4 0 015.656 0l4 4a4 4 0 01-5.656 5.656l-1.102-1.101" /></svg>' };
+                    const k = key.toLowerCase();
+                    
+                    // Direct platform match
+                    if (p[k]) return p[k];
+                    
+                    // Suffix or prefix match (e.g., 'facebook_url' or 'link_instagram')
+                    for (const [n, d] of Object.entries(p)) { if (k.endsWith('_' + n)) return d; }
+                    for (const [n, d] of Object.entries(p)) { if (k.startsWith(n + '_')) return d; }
+                    
+                    // Fallback to default link style
+                    return { 
+                        name: key, 
+                        color: '#6366f1', 
+                        text: 'text-indigo-600', 
+                        border: 'border-indigo-200', 
+                        placeholder: 'https://...', 
+                        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" /><path d="M10.172 13.828a4 4 0 015.656 0l4 4a4 4 0 01-5.656 5.656l-1.102-1.101" /></svg>' 
+                    };
                 },
 
-                removeUploadedFile ( key, index )
-                {
-                    if ( !confirm( 'Remove this file? This cannot be undone.' ) ) return;
-                const file = this.uploadedFiles[ key ][ index ];
-                this.uploadedFiles[ key ].splice( index, 1 );
-                this.item[ key ].splice( index, 1 );
-                if ( file.s3Path ) this.$wire.deleteFile( key, file.url, file.s3Path );
+                // Handle file deletion from both UI and server (S3)
+                removeUploadedFile(key, index) {
+                    if (!confirm('Remove this file? This cannot be undone.')) return;
+                    
+                    const file = this.uploadedFiles[key][index];
+                    
+                    // Remove from local arrays immediately for UI feedback
+                    this.uploadedFiles[key].splice(index, 1);
+                    this.item[key].splice(index, 1);
+                    
+                    // Dispatch delete request to backend if S3 path exists
+                    if (file.s3Path) this.$wire.deleteFile(key, file.url, file.s3Path);
                 },
 
-                detectMime ( name )
-                {
-                    if ( !name ) return '';
-                const ext = name.split( '.' ).pop().toLowerCase();
-                if ( [ 'jpg', 'jpeg', 'png', 'gif', 'webp', 'svg' ].includes( ext ) ) return 'image/' + ext;
-                if ( ext === 'pdf' ) return 'application/pdf';
-                if ( [ 'xlsx', 'xls', 'csv' ].includes( ext ) ) return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-                if ( [ 'docx', 'doc' ].includes( ext ) ) return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-                return '';
+                // Attempt to infer MIME type from file extension
+                detectMime(name) {
+                    if (!name) return '';
+                    const ext = name.split('.').pop().toLowerCase();
+                    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image/' + ext;
+                    if (ext === 'pdf') return 'application/pdf';
+                    if (['xlsx', 'xls', 'csv'].includes(ext)) return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                    if (['docx', 'doc'].includes(ext)) return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+                    return '';
                 },
 
-                fileIcon ( file )
-                {
-                    const mime = file.mime || this.detectMime( file.name );
-                if ( !mime ) return 'file';
-                if ( mime.startsWith( 'image/' ) ) return null;
-                if ( mime === 'application/pdf' ) return 'pdf';
-                if ( mime.includes( 'spreadsheet' ) || mime.includes( 'excel' ) || mime.includes( 'xlsx' ) || mime.includes( 'xls' ) ) return 'xlsx';
-                if ( mime.includes( 'word' ) || mime.includes( 'document' ) || mime.includes( 'docx' ) || mime.includes( 'doc' ) ) return 'docx';
-                return 'file';
+                // Get corresponding icon class for document files
+                fileIcon(file) {
+                    const mime = file.mime || this.detectMime(file.name);
+                    if (!mime) return 'file';
+                    if (mime.startsWith('image/')) return null;
+                    if (mime === 'application/pdf') return 'pdf';
+                    if (mime.includes('spreadsheet') || mime.includes('excel') || mime.includes('xlsx') || mime.includes('xls')) return 'xlsx';
+                    if (mime.includes('word') || mime.includes('document') || mime.includes('docx') || mime.includes('doc')) return 'docx';
+                    return 'file';
                 },
 
-                isImage ( file )
-                {
-                    const mime = file.mime || this.detectMime( file.name );
-                return mime && mime.startsWith( 'image/' );
+                // Check if file is displayable as an image
+                isImage(file) {
+                    const mime = file.mime || this.detectMime(file.name);
+                    return mime && mime.startsWith('image/');
                 },
 
-                addValue ( key )
-                {
-                    const val = this.tempInputs[ key ] || '';
-                if ( typeof val === 'string' && val.trim() === '' ) return;
-                if ( !this.item[ key ] ) this.item[ key ] = [];
-                this.item[ key ].push( val );
-                this.tempInputs[ key ] = '';
+                // Array value manipulators (used for Text and Social Media inputs)
+                addValue(key) {
+                    const val = this.tempInputs[key] || '';
+                    if (typeof val === 'string' && val.trim() === '') return;
+                    
+                    if (!this.item[key]) this.item[key] = [];
+                    this.item[key].push(val);
+                    this.tempInputs[key] = ''; // Reset input after adding
                 },
-                removeValue ( key, index )
-                {
-                    if ( confirm( 'Are you sure you want to remove this value?' ) ) this.item[ key ].splice( index, 1 );
+                removeValue(key, index) {
+                    if (confirm('Are you sure you want to remove this value?')) this.item[key].splice(index, 1);
                 },
-                updateValue ( key, index, newValue )
-                {
-                    this.item[ key ][ index ] = newValue;
+                updateValue(key, index, newValue) {
+                    this.item[key][index] = newValue;
                 },
-            } );
+            });
 
-                // Untuk wire:navigate – Alpine sudah init, daftarkan langsung
-                if ( window.Alpine ) {
-                    Alpine.data( 'baleCreateItem', _baleCreateItemFactory );
+            // For wire:navigate – Alpine is already initialized, register directly
+            if (window.Alpine) {
+                Alpine.data('baleCreateItem', _baleCreateItemFactory);
             }
 
-            // Untuk full page reload – daftarkan via alpine:init sebelum Alpine scan DOM
-            document.addEventListener( 'alpine:init', () => {
-                    Alpine.data( 'baleCreateItem', _baleCreateItemFactory );
-            } );
-            }) (); // end IIFE
+            // For full page reload – register via alpine:init before Alpine scans the DOM
+            document.addEventListener('alpine:init', () => {
+                Alpine.data('baleCreateItem', _baleCreateItemFactory);
+            });
+            })(); // end IIFE
 
-            document.addEventListener( 'livewire:navigated', () => {
-                    window.HSStaticMethods.autoInit();
-            } );
+            // Re-initialize Preline UI scripts after Livewire navigation completes
+            document.addEventListener('livewire:navigated', () => {
+                window.HSStaticMethods.autoInit();
+            });
         </script>
     </div>
 </div>

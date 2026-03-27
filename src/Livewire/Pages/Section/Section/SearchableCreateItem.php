@@ -78,7 +78,7 @@ class SearchableCreateItem extends Component
 
         if (count($this->availableKeys) === 0) {
             session()->flash('error', 'Please add keys first before creating items');
-            return $this->redirectRoute('bale.cms.sections.edit-searchable-keys', $slug, navigate: true);
+            return $this->redirectRoute('bale.cms.sections.edit-keys', $slug, navigate: true);
         }
 
         // If edit mode, load existing item data
