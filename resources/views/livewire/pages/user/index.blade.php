@@ -117,7 +117,7 @@ new #[Layout('cms::layouts.app')]
                         {{ $user->username }}
                     </td>
                     <td class="px-6 py-4 text-sm text-gray-500">
-                        {{ $user->created_at->format('d M Y') }}
+                        {{ $user->created_at }}
                     </td>
                 </tr>
             @empty

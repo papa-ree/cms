@@ -14,4 +14,8 @@ class User extends Authenticatable
     protected $table = 'users';
 
     protected $guarded = ['id'];
+
+    protected $casts = [
+        'created_at' => 'date',
+    ];
 }
