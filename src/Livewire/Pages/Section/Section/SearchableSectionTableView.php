@@ -97,35 +97,39 @@ class SearchableSectionTableView extends Component
 
     public function deleteItem(string $itemId)
     {
-        DB::beginTransaction();
+        TenantConnectionService::ensureActive();
+        $connection = TenantConnectionService::connection();
+
+        DB::connection($connection)->beginTransaction();
 
         try {
-            TenantConnectionService::ensureActive();
-            $connection = TenantConnectionService::connection();
-
             $section = (new Section)
                 ->setConnection($connection)
                 ->whereSlug($this->sectionSlug)
                 ->first();
 
+            if (!$section) {
+                throw new \Exception('Section not found');
+            }
+
             $content = $section->content ?? [];
             $items = $content['items'] ?? [];
 
-            // Find item by id instead of index
-            $items = array_values(array_filter($items, function ($item) use ($itemId) {
-                $id = $item['id'][0] ?? $item['id'] ?? null;
-                return $id !== $itemId;
-            }));
+            // Find item by id or index to match Blade logic
+            $items = array_values(array_filter($items, function ($item, $idx) use ($itemId) {
+                $id = $item['id'][0] ?? $item['id'] ?? (string) $idx;
+                return (string) $id !== (string) $itemId;
+            }, ARRAY_FILTER_USE_BOTH));
 
             // Update content
             $content['items'] = $items;
             $section->update(['content' => $content]);
 
-            DB::commit();
+            DB::connection($connection)->commit();
             $this->dispatch('toast', message: 'Item deleted successfully!', type: 'success');
 
         } catch (\Throwable $th) {
-            DB::rollBack();
+            DB::connection($connection)->rollBack();
             info('Item delete failed: ' . $th->getMessage());
             $this->dispatch('toast', message: 'Failed to delete item!', type: 'error');
         }

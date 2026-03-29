@@ -115,24 +115,17 @@
                 </div>
             </div>
 
-            {{-- Dynamic Fields Iteration --}}
+            {{-- Dynamic Non-Upload Fields --}}
             <div class="space-y-5">
                 @foreach ($availableKeys as $key)
-                    {{-- Skip internal database fields --}}
                     @continue(in_array($key, ['id', 'created_at', 'updated_at']))
+                    @continue(in_array($key, $fileKeys)) {{-- Upload fields rendered below --}}
 
                     <div class="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700">
 
                         {{-- Field Key/Label Header --}}
                         <div class="flex items-center gap-1.5 mb-3">
-                            @if (in_array($key, $fileKeys))
-                                <x-lucide-paperclip class="w-4 h-4 text-violet-600" />
-                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
-                                <span
-                                    class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 rounded">
-                                    file upload
-                                </span>
-                            @elseif (in_array($key, $socialKeys))
+                            @if (in_array($key, $socialKeys))
                                 <x-lucide-share-2 class="w-4 h-4 text-pink-500" />
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
                                 <span
@@ -145,79 +138,7 @@
                             @endif
                         </div>
 
-                        @if (in_array($key, $fileKeys))
-                            {{-- ── FILE UPLOAD FIELD (Enhanced Upload Zone) ── --}}
-                            <div class="mt-2">
-                                <x-core::upload-zone wire:model.live="tempUpload"
-                                    accept="image/*,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                                    maxSize="10240" multiple @click="$wire.set('activeUploadKey', '{{ $key }}')"
-                                    @drop="$wire.set('activeUploadKey', '{{ $key }}')"
-                                    label="{{ __('Drop files here or click to browse') }}"
-                                    hint="{{ __('Images, PDF, Excel, Word up to 10MB') }}" />
-                                <x-core::input-error for="tempUpload" />
-                            </div>
-
-                            {{-- Uploaded Files Grid --}}
-                            <div class="mt-3" x-show="uploadedFiles['{{ $key }}'] && uploadedFiles['{{ $key }}'].length > 0">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <x-lucide-check-circle class="w-3.5 h-3.5 text-emerald-600" />
-                                    <span class="text-xs font-medium text-gray-600 dark:text-gray-400">
-                                        Uploaded (<span
-                                            x-text="uploadedFiles['{{ $key }}'] ? uploadedFiles['{{ $key }}'].length : 0"></span>)
-                                    </span>
-                                </div>
-                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                                    <template x-for="(file, fIndex) in uploadedFiles['{{ $key }}']" :key="fIndex">
-                                        <div
-                                            class="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all">
-
-                                            {{-- Image preview --}}
-                                            <template x-if="isImage(file)">
-                                                <img :src="file.url" :alt="file.name" class="w-full h-24 object-cover" />
-                                            </template>
-
-                                            {{-- Non-image file icon --}}
-                                            <template x-if="!isImage(file)">
-                                                <div class="w-full h-24 flex flex-col items-center justify-center gap-1" :class="{
-                                                                                                        'bg-red-50 dark:bg-red-900/20': fileIcon(file) === 'pdf',
-                                                                                                        'bg-green-50 dark:bg-green-900/20': fileIcon(file) === 'xlsx',
-                                                                                                        'bg-blue-50 dark:bg-blue-900/20': fileIcon(file) === 'docx',
-                                                                                                        'bg-gray-50 dark:bg-gray-900/20': fileIcon(file) === 'file'
-                                                                                                    }">
-                                                    <span class="text-3xl"
-                                                        x-text="fileIcon(file) === 'pdf' ? '📄' : (fileIcon(file) === 'xlsx' ? '📊' : (fileIcon(file) === 'docx' ? '📝' : '📎'))"></span>
-                                                    <span class="text-xs font-bold uppercase text-gray-500"
-                                                        x-text="file.name ? file.name.split('.').pop() : 'file'"></span>
-                                                </div>
-                                            </template>
-
-                                            {{-- File name + remove --}}
-                                            <div class="p-2">
-                                                <p class="text-xs text-gray-600 dark:text-gray-400 truncate" :title="file.name"
-                                                    x-text="file.name"></p>
-                                            </div>
-
-                                            {{-- Remove button (visible on hover) --}}
-                                            <button type="button" @click="removeUploadedFile('{{ $key }}', fIndex)"
-                                                class="absolute top-1 right-1 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                                                title="Remove file">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                                        d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-
-                            {{-- Empty state --}}
-                            <div x-show="!uploadedFiles['{{ $key }}'] || uploadedFiles['{{ $key }}'].length === 0"
-                                class="mt-2 p-3 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg text-center">
-                                <p class="text-xs text-gray-500 dark:text-gray-400">No files uploaded yet.</p>
-                            </div>
-
-                        @elseif (in_array($key, $socialKeys))
+                        @if (in_array($key, $socialKeys))
                             {{-- ── SOCIAL MEDIA INPUT FIELD ── --}}
                             <div x-data="{ platform: getSocialPlatform('{{ $key }}') }" class="space-y-3">
 
@@ -448,7 +369,7 @@
             </div>
         </div>
 
-        {{-- Save Section --}}
+        {{-- ── Save Bar (non-upload fields) ── --}}
         <div
             class="mt-6 flex items-center justify-between p-6 bg-gray-50 dark:bg-gray-900/50 rounded-2xl border border-gray-200 dark:border-gray-700">
             <div class="flex items-center gap-3">
@@ -468,6 +389,96 @@
                 {{ $editMode ? 'Update Item' : 'Create Item' }}
             </button>
         </div>
+
+        {{-- ── Upload Section (auto-save) ── --}}
+        @if (count($fileKeys) > 0)
+        <div class="mt-6 bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden">
+            {{-- Section header with auto-save indicator --}}
+            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
+                <div class="flex items-center gap-2.5">
+                    <div class="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
+                        <x-lucide-paperclip class="w-4 h-4 text-violet-600" />
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-sm text-gray-900 dark:text-white">File Uploads</h3>
+                        <p class="text-xs text-gray-500">Otomatis tersimpan saat diupload</p>
+                    </div>
+                </div>
+                {{-- Auto-save status indicator --}}
+                <div>
+                    @if ($saveStatus === 'saving')
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-medium animate-pulse">
+                            <x-lucide-loader-circle class="w-3 h-3 animate-spin" /> Menyimpan...
+                        </span>
+                    @elseif ($saveStatus === 'saved')
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-medium">
+                            <x-lucide-check-circle class="w-3 h-3" /> Tersimpan
+                        </span>
+                    @else
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 text-xs font-medium">
+                            <x-lucide-cloud class="w-3 h-3" /> Auto-save
+                        </span>
+                    @endif
+                </div>
+            </div>
+
+            <div class="p-6 space-y-6">
+                @foreach ($fileKeys as $key)
+                <div>
+                    {{-- Field label --}}
+                    <div class="flex items-center gap-1.5 mb-3">
+                        <x-lucide-paperclip class="w-4 h-4 text-violet-600" />
+                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
+                        <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 rounded">file upload</span>
+                    </div>
+
+                    {{-- Already-uploaded thumbnails --}}
+                    <div x-show="uploadedFiles['{{ $key }}'] && uploadedFiles['{{ $key }}'].length > 0" class="mb-3">
+                        <div class="flex flex-wrap gap-2">
+                            <template x-for="(file, fIndex) in uploadedFiles['{{ $key }}']" :key="fIndex">
+                                <div class="relative group w-16 h-16 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 shadow-sm flex-shrink-0">
+
+                                    {{-- Image thumbnail --}}
+                                    <template x-if="isImage(file)">
+                                        <img :src="file.url" :alt="file.name" class="w-full h-full object-cover" />
+                                    </template>
+
+                                    {{-- Document icon --}}
+                                    <template x-if="!isImage(file)">
+                                        <div class="w-full h-full flex flex-col items-center justify-center gap-0.5">
+                                            <span class="text-xl leading-none"
+                                                x-text="fileIcon(file) === 'pdf' ? '📄' : (fileIcon(file) === 'xlsx' ? '📊' : (fileIcon(file) === 'docx' ? '📝' : '📎'))"></span>
+                                            <span class="text-[8px] font-bold uppercase text-gray-400"
+                                                x-text="file.name ? file.name.split('.').pop() : 'file'"></span>
+                                        </div>
+                                    </template>
+
+                                    {{-- Delete on hover --}}
+                                    <button type="button"
+                                        @click="removeUploadedFile('{{ $key }}', fIndex)"
+                                        title="Hapus file"
+                                        class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                                        <x-lucide-x class="w-4 h-4 text-white" />
+                                    </button>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+
+                    {{-- Upload Zone --}}
+                    <x-core::upload-zone wire:model.live="tempUpload"
+                        accept="image/*,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        maxSize="10240" multiple
+                        @click="$wire.set('activeUploadKey', '{{ $key }}')"
+                        @drop="$wire.set('activeUploadKey', '{{ $key }}')"
+                        label="{{ __('Drop files here or click to browse') }}"
+                        hint="{{ __('Images, PDF, Excel, Word up to 10MB') }}" />
+                    <x-core::input-error for="tempUpload" />
+                </div>
+                @endforeach
+            </div>
+        </div>
+        @endif
 
         {{-- Social platform map (kept in plain
         <script> so SVG quotes never break x-data)--}}
@@ -502,10 +513,12 @@
 
                 // Map uploaded files to a structured array for Alpine.js tracking
                 uploadedFiles: @js(
-                    collect($fileKeys)->mapWithKeys(function ($key) use ($currentItem, $slug, $orgSlug) {
+                    collect($fileKeys)->mapWithKeys(function ($key) use ($currentItem, $slug) {
                         $urls = $currentItem[$key] ?? [];
                         if (!is_array($urls))
                             $urls = [$urls];
+                        
+                        $orgSlug = session('bale_active_slug', '');
                         return [
                             $key => array_map(function ($u) use ($slug, $orgSlug) {
                                 $name = basename($u);
@@ -623,6 +636,16 @@
                 },
 
                 init() {
+                    // Subscribe to 'file-uploaded' event from Livewire backend
+                    window.addEventListener('file-uploaded', e => {
+                        const { key, url, name, mime, s3Path } = e.detail[0] ?? e.detail;
+                        if (!this.uploadedFiles[key]) this.uploadedFiles[key] = [];
+                        this.uploadedFiles[key].push({ url, name, mime, s3Path });
+                        if (!this.item[key]) this.item[key] = [];
+                        this.item[key].push(url);
+                    });
+
+                    // Listen for cross-scope save dispatch
                     window.addEventListener('bale-save-item', () => this.saveItem());
                 },
             });

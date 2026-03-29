@@ -16,6 +16,7 @@ use Livewire\WithFileUploads;
 class SearchableCreateItem extends Component
 {
     use WithFileUploads;
+
     #[Locked]
     public $id;
 
@@ -36,6 +37,9 @@ class SearchableCreateItem extends Component
     // File upload
     public $tempUpload = [];
     public $activeUploadKey = '';
+
+    // Upload auto-save status: null | 'saving' | 'saved'
+    public $saveStatus = null;
 
     public function mount($slug, $itemId = null)
     {
@@ -81,9 +85,7 @@ class SearchableCreateItem extends Component
             return $this->redirectRoute('bale.cms.sections.edit-keys', $slug, navigate: true);
         }
 
-        // If edit mode, load existing item data
         if ($this->editMode) {
-            // Find item by id
             $foundItem = null;
             foreach ($items as $item) {
                 $id = $item['id'][0] ?? $item['id'] ?? null;
@@ -100,14 +102,12 @@ class SearchableCreateItem extends Component
 
             $this->currentItem = $foundItem;
 
-            // Ensure all values are arrays
             foreach ($this->currentItem as $key => &$value) {
                 if (!is_array($value)) {
                     $value = $value !== '' ? [$value] : [];
                 }
             }
         } else {
-            // Initialize empty item with all keys
             foreach ($this->availableKeys as $key) {
                 $this->currentItem[$key] = [];
             }
@@ -124,8 +124,7 @@ class SearchableCreateItem extends Component
     }
 
     /**
-     * Returns keys that should render a FilePond uploader.
-     * Matches common naming patterns for image/file fields.
+     * Returns keys that should render a file uploader.
      */
     public function getFileKeys(): array
     {
@@ -145,53 +144,36 @@ class SearchableCreateItem extends Component
 
     /**
      * Returns keys that should render a Social Media URL input.
-     * Matches exact platform names, _suffix patterns, and social_ prefix patterns.
      */
     public function getSocialKeys(): array
     {
         $platforms = [
-            'facebook',
-            'instagram',
-            'youtube',
-            'whatsapp',
-            'tiktok',
-            'twitter',
-            'x',
-            'linkedin',
-            'telegram',
-            'pinterest',
-            'snapchat',
-            'threads',
-            'line',
-            'wechat',
+            'facebook', 'instagram', 'youtube', 'whatsapp', 'tiktok',
+            'twitter', 'x', 'linkedin', 'telegram', 'pinterest',
+            'snapchat', 'threads', 'line', 'wechat',
         ];
 
         $suffixes = [];
         foreach ($platforms as $p) {
             $suffixes[] = '_' . $p;
         }
-        // generic social suffixes
         $suffixes[] = '_sosmed';
         $suffixes[] = '_social';
 
         $prefixes = ['social_', 'sosmed_'];
 
         return array_values(array_filter($this->availableKeys, function ($key) use ($platforms, $suffixes, $prefixes) {
-            // already tagged as file key → skip
             if (in_array($key, $this->getFileKeys())) {
                 return false;
             }
-            // exact platform name
             if (in_array($key, $platforms)) {
                 return true;
             }
-            // suffix match
             foreach ($suffixes as $suffix) {
                 if (str_ends_with($key, $suffix)) {
                     return true;
                 }
             }
-            // prefix match
             foreach ($prefixes as $prefix) {
                 if (str_starts_with($key, $prefix)) {
                     return true;
@@ -202,14 +184,15 @@ class SearchableCreateItem extends Component
     }
 
     /**
-     * Triggered by FilePond after uploading a file via $wire.upload('tempUpload', ...).
-     * Skips validate() intentionally — causes "Unable to retrieve file_size" on S3 temp disk.
-     * Client-side validation is handled by FilePond plugins.
+     * Triggered by Livewire after a file is uploaded via $wire.upload('tempUpload', ...).
+     * Immediately stores the file to S3 and persists the URL to the database (auto-save).
      */
     public function updatedTempUpload()
     {
         if (empty($this->tempUpload))
             return;
+
+        $this->saveStatus = 'saving';
 
         try {
             $files = is_array($this->tempUpload) ? $this->tempUpload : [$this->tempUpload];
@@ -221,22 +204,20 @@ class SearchableCreateItem extends Component
                 $fileName = $this->slug . '-' . uniqid() . '.' . $extension;
                 $s3Path = session('bale_active_slug') . '/landing-page/items/' . $this->slug . "/" . $fileName;
 
-                // Use Storage::put() directly — same approach as SectionMetaEditor (avoids S3 temp disk issues)
                 Storage::disk('s3')->put($s3Path, $file->get());
 
                 $cdnUrl = Cdn::url('landing-page/items/' . $this->slug . "/" . $fileName);
-                $mime = $file->getMimeType();
                 $origName = $file->getClientOriginalName();
+                $mime = $file->getMimeType();
 
                 $this->dispatch('file-uploaded', [
-                    'key' => $this->activeUploadKey,
-                    'url' => $cdnUrl,
-                    'name' => $origName,
-                    'mime' => $mime,
+                    'key'    => $this->activeUploadKey,
+                    'url'    => $cdnUrl,
+                    'name'   => $origName,
+                    'mime'   => $mime,
                     's3Path' => $s3Path,
                 ]);
 
-                // Push URL into currentItem so persistFileChange() saves it
                 if (!isset($this->currentItem[$this->activeUploadKey])) {
                     $this->currentItem[$this->activeUploadKey] = [];
                 }
@@ -246,89 +227,77 @@ class SearchableCreateItem extends Component
             }
 
             $this->persistFileChange();
+            $this->saveStatus = 'saved';
 
         } catch (\Throwable $th) {
             info('SearchableCreateItem file upload failed: ' . $th->getMessage());
             $this->dispatch('toast', message: 'Upload failed: ' . $th->getMessage(), type: 'error');
+            $this->saveStatus = null;
         } finally {
             $this->tempUpload = [];
         }
     }
 
     /**
-     * Delete a file from S3 and remove its URL from the item data.
-     * Called from Alpine when user clicks the remove button on an uploaded file card.
+     * Delete a file from S3 and remove its URL from the item data. Auto-persists.
      */
     public function deleteFile(string $key, string $url, string $s3Path): void
     {
+        $this->saveStatus = 'saving';
         try {
-            // Skip exists() check — it throws "Unable to check existence" on first S3 request
-            // after Livewire navigation (S3 client not yet fully booted).
-            // Storage::delete() on a non-existent key is a no-op on S3, so this is safe.
             if ($s3Path) {
                 Storage::disk('s3')->delete($s3Path);
             }
 
-            // Remove the URL from currentItem so it's excluded on next save
             if (isset($this->currentItem[$key]) && is_array($this->currentItem[$key])) {
                 $this->currentItem[$key] = array_values(
                     array_filter($this->currentItem[$key], fn($u) => $u !== $url)
                 );
             }
 
-            $this->dispatch('toast', message: 'File deleted.', type: 'success');
-
             $this->persistFileChange();
+            $this->saveStatus = 'saved';
+            $this->dispatch('toast', message: 'File deleted.', type: 'success');
 
         } catch (\Throwable $th) {
             info('SearchableCreateItem deleteFile failed: ' . $th->getMessage());
             $this->dispatch('toast', message: 'Failed to delete file: ' . $th->getMessage(), type: 'error');
+            $this->saveStatus = null;
         }
     }
 
     public function addValue($key)
     {
-        // Validate input is not empty
         if (!isset($this->tempInputs[$key]) || $this->tempInputs[$key] === '') {
             return;
         }
 
-        // Ensure array structure exists
         if (!isset($this->currentItem[$key])) {
             $this->currentItem[$key] = [];
         }
 
-        // Convert to array if it's still a string
         if (!is_array($this->currentItem[$key])) {
             $this->currentItem[$key] = $this->currentItem[$key] !== ''
                 ? [$this->currentItem[$key]]
                 : [];
         }
 
-        // Add new value
         $this->currentItem[$key][] = $this->tempInputs[$key];
-
-        // Clear temporary input
         $this->tempInputs[$key] = '';
     }
 
     public function removeValue($key, $valueIndex)
     {
-        // Ensure it's an array
         if (!is_array($this->currentItem[$key])) {
             return;
         }
 
-        // Remove value
         unset($this->currentItem[$key][$valueIndex]);
-
-        // Re-index array
         $this->currentItem[$key] = array_values($this->currentItem[$key]);
     }
 
     public function updateValue($key, $valueIndex, $newValue)
     {
-        // Ensure it's an array
         if (!is_array($this->currentItem[$key])) {
             return;
         }
@@ -340,7 +309,8 @@ class SearchableCreateItem extends Component
 
     /**
      * Auto-save currentItem to the database after a file upload or delete.
-     * Does NOT redirect. In create mode, inserts the item and switches to edit mode.
+     * In create mode: inserts the item and switches to edit mode so subsequent
+     * uploads are associated with the same record.
      */
     private function persistFileChange(): void
     {
@@ -356,7 +326,6 @@ class SearchableCreateItem extends Component
             $items = $content['items'] ?? [];
 
             if ($this->editMode && $this->itemId !== null) {
-                // Edit mode: find item by id and update in-place
                 $this->currentItem['updated_at'] = [now()->toDateTimeString()];
 
                 if (!isset($this->currentItem['created_at'])) {
@@ -373,9 +342,7 @@ class SearchableCreateItem extends Component
                         break;
                     }
                 }
-
             } else {
-                // Create mode: insert new item and switch to edit mode
                 $now = now()->toDateTimeString();
                 $this->currentItem['created_at'] = [$now];
                 $this->currentItem['updated_at'] = [$now];
@@ -384,7 +351,6 @@ class SearchableCreateItem extends Component
 
                 $items[] = $this->currentItem;
 
-                // Switch to edit mode so subsequent auto-saves update this same item
                 $this->itemId = $newId;
                 $this->editMode = true;
             }
@@ -394,23 +360,31 @@ class SearchableCreateItem extends Component
 
         } catch (\Throwable $th) {
             info('SearchableCreateItem auto-save failed: ' . $th->getMessage());
-            // Silent — don't show error toast for background auto-save
         }
     }
 
+    /**
+     * Save non-file field data (called from Alpine via the Save button).
+     * File keys are intentionally excluded from the $data merge so that URLs
+     * already auto-saved by persistFileChange() are never overwritten.
+     */
     public function save($data = [])
     {
-        // Update current item from alpine data if provided
         if (!empty($data)) {
-            $this->currentItem = $data;
+            $fileKeys = $this->getFileKeys();
+            foreach ($data as $key => $value) {
+                if (!in_array($key, $fileKeys)) {
+                    $this->currentItem[$key] = $value;
+                }
+            }
         }
 
-        DB::beginTransaction();
+        TenantConnectionService::ensureActive();
+        $connection = TenantConnectionService::connection();
+
+        DB::connection($connection)->beginTransaction();
 
         try {
-            TenantConnectionService::ensureActive();
-            $connection = TenantConnectionService::connection();
-
             $section = (new Section)
                 ->setConnection($connection)
                 ->findOrFail($this->id);
@@ -419,20 +393,16 @@ class SearchableCreateItem extends Component
             $items = $content['items'] ?? [];
 
             if ($this->editMode) {
-                // Update generated timestamps
                 $this->currentItem['updated_at'] = [now()->toDateTimeString()];
 
-                // Ensure created_at exists
                 if (!isset($this->currentItem['created_at'])) {
                     $this->currentItem['created_at'] = [now()->toDateTimeString()];
                 }
 
-                // Ensure id exists
                 if (!isset($this->currentItem['id'])) {
                     $this->currentItem['id'] = [$this->itemId ?? \Illuminate\Support\Str::uuid()->toString()];
                 }
 
-                // Find and update item by id
                 foreach ($items as $i => $item) {
                     $id = $item['id'][0] ?? $item['id'] ?? null;
                     if ($id === $this->itemId) {
@@ -442,32 +412,24 @@ class SearchableCreateItem extends Component
                 }
                 $message = 'Item updated successfully!';
             } else {
-                // Set generated timestamps
                 $now = now()->toDateTimeString();
                 $this->currentItem['created_at'] = [$now];
                 $this->currentItem['updated_at'] = [$now];
-
-                // Generate UUID
                 $this->currentItem['id'] = [\Illuminate\Support\Str::uuid()->toString()];
-
-                // Add new item
                 $items[] = $this->currentItem;
                 $message = 'Item created successfully!';
             }
 
             $content['items'] = $items;
-
             $section->update(['content' => $content]);
 
-            DB::commit();
+            DB::connection($connection)->commit();
 
             $this->dispatch('toast', message: $message, type: 'success');
-
-            // Redirect to view table
             $this->redirectRoute('bale.cms.sections.view-searchable', $this->slug, navigate: true);
 
         } catch (\Throwable $th) {
-            DB::rollBack();
+            DB::connection($connection)->rollBack();
             info('Item save failed: ' . $th->getMessage());
             $this->dispatch('toast', message: 'Something went wrong!', type: 'error');
         }
