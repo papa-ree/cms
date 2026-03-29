@@ -32,7 +32,6 @@ class SearchableCreateItem extends Component
     public $currentItem = [];
     public $tempInputs = [];
     public $editMode = false;
-    public $uploaderCounts = [];
 
     // File upload
     public $tempUpload = [];
@@ -80,11 +79,6 @@ class SearchableCreateItem extends Component
         if (count($this->availableKeys) === 0) {
             session()->flash('error', 'Please add keys first before creating items');
             return $this->redirectRoute('bale.cms.sections.edit-keys', $slug, navigate: true);
-        }
-
-        // Initialize uploader counts to 1
-        foreach ($this->availableKeys as $key) {
-            $this->uploaderCounts[$key] = 1;
         }
 
         // If edit mode, load existing item data
@@ -342,14 +336,6 @@ class SearchableCreateItem extends Component
         if (isset($this->currentItem[$key][$valueIndex])) {
             $this->currentItem[$key][$valueIndex] = $newValue;
         }
-    }
-
-    public function addUploader($key)
-    {
-        if (!isset($this->uploaderCounts[$key])) {
-            $this->uploaderCounts[$key] = 1;
-        }
-        $this->uploaderCounts[$key]++;
     }
 
     /**

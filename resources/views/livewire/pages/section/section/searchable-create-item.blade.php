@@ -147,27 +147,13 @@
 
                         @if (in_array($key, $fileKeys))
                             {{-- ── FILE UPLOAD FIELD (Enhanced Upload Zone) ── --}}
-                            <div class="mt-2 space-y-3">
-                                @for ($i = 0; $i < ($uploaderCounts[$key] ?? 1); $i++)
-                                    <div>
-                                        <x-core::upload-zone wire:model.live="tempUpload"
-                                            accept="image/*,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                                            maxSize="10240" multiple @click="$wire.set('activeUploadKey', '{{ $key }}')"
-                                            @drop="$wire.set('activeUploadKey', '{{ $key }}')"
-                                            label="{{ __('Drop files here or click to browse') }}"
-                                            hint="{{ __('Images, PDF, Excel, Word up to 10MB') }}" />
-                                    </div>
-                                @endfor
-                                <div class="cursor-pointer mt-2">
-                                    <button type="button" wire:click="addUploader('{{ $key }}')"
-                                        class="w-full py-4 cursor-pointer border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-500 dark:text-gray-400 hover:border-violet-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/10 transition-all flex items-center justify-center gap-2 group">
-                                        <div
-                                            class="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg group-hover:bg-violet-100 dark:group-hover:bg-violet-900/30 transition-colors">
-                                            <x-lucide-plus class="w-4 h-4" />
-                                        </div>
-                                        {{ __('Tambah Upload') }}
-                                    </button>
-                                </div>
+                            <div class="mt-2">
+                                <x-core::upload-zone wire:model.live="tempUpload"
+                                    accept="image/*,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                    maxSize="10240" multiple @click="$wire.set('activeUploadKey', '{{ $key }}')"
+                                    @drop="$wire.set('activeUploadKey', '{{ $key }}')"
+                                    label="{{ __('Drop files here or click to browse') }}"
+                                    hint="{{ __('Images, PDF, Excel, Word up to 10MB') }}" />
                                 <x-core::input-error for="tempUpload" />
                             </div>
 
@@ -474,7 +460,7 @@
                     </p>
                 </div>
             </div>
-            <button type="button" @click="$wire.save(item)"
+            <button type="button" @click="saveItem()"
                 class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all">
                 <x-lucide-save class="w-4 h-4" />
                 {{ $editMode ? 'Update Item' : 'Create Item' }}
@@ -627,6 +613,11 @@
                 },
                 updateValue(key, index, newValue) {
                     this.item[ key ][ index ] = newValue;
+                },
+
+                // Proxy save method to avoid context loss in Livewire 3
+                saveItem() {
+                    this.$wire.save(this.item);
                 },
             });
 
