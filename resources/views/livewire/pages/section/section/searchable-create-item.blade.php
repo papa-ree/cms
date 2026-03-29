@@ -460,7 +460,9 @@
                     </p>
                 </div>
             </div>
-            <button type="button" @click="saveItem()"
+            <button type="button"
+                x-data
+                @click="$dispatch('bale-save-item')"
                 class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all">
                 <x-lucide-save class="w-4 h-4" />
                 {{ $editMode ? 'Update Item' : 'Create Item' }}
@@ -618,6 +620,10 @@
                 // Proxy save method to avoid context loss in Livewire 3
                 saveItem() {
                     this.$wire.save(this.item);
+                },
+
+                init() {
+                    window.addEventListener('bale-save-item', () => this.saveItem());
                 },
             });
 
