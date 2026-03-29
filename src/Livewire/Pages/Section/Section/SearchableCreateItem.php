@@ -35,7 +35,7 @@ class SearchableCreateItem extends Component
     public $uploaderCounts = [];
 
     // File upload
-    public $tempUpload;
+    public $tempUpload = [];
     public $activeUploadKey = '';
 
     public function mount($slug, $itemId = null)
@@ -214,37 +214,41 @@ class SearchableCreateItem extends Component
      */
     public function updatedTempUpload()
     {
-        if (!$this->tempUpload)
+        if (empty($this->tempUpload))
             return;
 
         try {
-            $file = $this->tempUpload;
+            $files = is_array($this->tempUpload) ? $this->tempUpload : [$this->tempUpload];
 
-            $extension = $file->getClientOriginalExtension();
-            $fileName = $this->slug . '-' . uniqid() . '.' . $extension;
-            $s3Path = session('bale_active_slug') . '/landing-page/items/' . $this->slug . "/" . $fileName;
+            foreach ($files as $file) {
+                if (!is_object($file)) continue;
 
-            // Use Storage::put() directly — same approach as SectionMetaEditor (avoids S3 temp disk issues)
-            Storage::disk('s3')->put($s3Path, $file->get());
+                $extension = $file->getClientOriginalExtension();
+                $fileName = $this->slug . '-' . uniqid() . '.' . $extension;
+                $s3Path = session('bale_active_slug') . '/landing-page/items/' . $this->slug . "/" . $fileName;
 
-            $cdnUrl = Cdn::url('landing-page/items/' . $this->slug . "/" . $fileName);
-            $mime = $file->getMimeType();
-            $origName = $file->getClientOriginalName();
+                // Use Storage::put() directly — same approach as SectionMetaEditor (avoids S3 temp disk issues)
+                Storage::disk('s3')->put($s3Path, $file->get());
 
-            $this->dispatch('file-uploaded', [
-                'key' => $this->activeUploadKey,
-                'url' => $cdnUrl,
-                'name' => $origName,
-                'mime' => $mime,
-                's3Path' => $s3Path,
-            ]);
+                $cdnUrl = Cdn::url('landing-page/items/' . $this->slug . "/" . $fileName);
+                $mime = $file->getMimeType();
+                $origName = $file->getClientOriginalName();
 
-            // Push URL into currentItem so persistFileChange() saves it
-            if (!isset($this->currentItem[$this->activeUploadKey])) {
-                $this->currentItem[$this->activeUploadKey] = [];
-            }
-            if (!in_array($cdnUrl, $this->currentItem[$this->activeUploadKey])) {
-                $this->currentItem[$this->activeUploadKey][] = $cdnUrl;
+                $this->dispatch('file-uploaded', [
+                    'key' => $this->activeUploadKey,
+                    'url' => $cdnUrl,
+                    'name' => $origName,
+                    'mime' => $mime,
+                    's3Path' => $s3Path,
+                ]);
+
+                // Push URL into currentItem so persistFileChange() saves it
+                if (!isset($this->currentItem[$this->activeUploadKey])) {
+                    $this->currentItem[$this->activeUploadKey] = [];
+                }
+                if (!in_array($cdnUrl, $this->currentItem[$this->activeUploadKey])) {
+                    $this->currentItem[$this->activeUploadKey][] = $cdnUrl;
+                }
             }
 
             $this->persistFileChange();
@@ -253,7 +257,7 @@ class SearchableCreateItem extends Component
             info('SearchableCreateItem file upload failed: ' . $th->getMessage());
             $this->dispatch('toast', message: 'Upload failed: ' . $th->getMessage(), type: 'error');
         } finally {
-            $this->tempUpload = null;
+            $this->tempUpload = [];
         }
     }
 
