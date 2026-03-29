@@ -22,7 +22,9 @@ class SearchableEditKey extends Component
     public $slug = '';
 
     public $availableKeys = [];
+    public $keyTypes = [];   // key => type map (text|file|social|url|date|number|textarea)
     public $newKey = '';
+    public $newKeyType = 'text';
     public $meta = [];
 
     public function mount($slug)
@@ -60,6 +62,9 @@ class SearchableEditKey extends Component
 
         // Pastikan tidak ada system keys di availableKeys
         $this->availableKeys = array_values(array_diff($this->availableKeys, $sysKeys));
+
+        // Load existing type definitions
+        $this->keyTypes = $this->meta['types'] ?? [];
     }
 
     public function updateOrder($orderedKeys)
@@ -69,7 +74,9 @@ class SearchableEditKey extends Component
 
     public function render()
     {
-        return view('cms::livewire.pages.section.section.searchable-edit-key');
+        return view('cms::livewire.pages.section.section.searchable-edit-key', [
+            'keyTypes' => $this->keyTypes,
+        ]);
     }
 
     public function addKey()
@@ -93,11 +100,14 @@ class SearchableEditKey extends Component
         }
     }
 
-    public function save($keys = [])
+    public function save($keys = [], $types = [])
     {
-        // Update available keys from argument if provided (allow empty array if intended)
+        // Update available keys and types from Alpine data
         if (is_array($keys)) {
             $this->availableKeys = $keys;
+        }
+        if (is_array($types)) {
+            $this->keyTypes = $types;
         }
 
         // Validate at least one key exists
@@ -154,11 +164,12 @@ class SearchableEditKey extends Component
             }
             // Jika items kosong — tidak perlu buat dummy, meta['order'] sudah cukup untuk menyimpan key order
 
-            // Save key order to meta
+            // Save key order and type definitions to meta
             if (!isset($content['meta'])) {
                 $content['meta'] = [];
             }
             $content['meta']['order'] = $this->availableKeys;
+            $content['meta']['types'] = $this->keyTypes;
             $content['items'] = $items;
 
             $section->update(['content' => $content]);

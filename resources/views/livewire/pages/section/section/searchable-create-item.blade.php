@@ -119,102 +119,74 @@
                     
                     <div class="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700">
 
-                        {{-- Field Key/Label Header --}}
+                        @php $fieldType = $keyTypes[$key] ?? 'text'; @endphp
+
+                        {{-- Field Key/Label Header with type badge --}}
                         <div class="flex items-center gap-1.5 mb-3">
-                            @if (in_array($key, $fileKeys))
+                            @if ($fieldType === 'file')
                                 <x-lucide-paperclip class="w-4 h-4 text-violet-600" />
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
                                 <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 rounded">
-                                    file upload
+                                    📎 file upload
                                 </span>
-                            @elseif (in_array($key, $socialKeys))
+                            @elseif ($fieldType === 'social')
                                 <x-lucide-share-2 class="w-4 h-4 text-pink-500" />
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
                                 <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400 rounded">
-                                    social media
+                                    💬 social media
+                                </span>
+                            @elseif ($fieldType === 'date')
+                                <x-lucide-calendar class="w-4 h-4 text-amber-500" />
+                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
+                                <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded">
+                                    📅 date
+                                </span>
+                            @elseif ($fieldType === 'number')
+                                <x-lucide-hash class="w-4 h-4 text-orange-500" />
+                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
+                                <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 rounded">
+                                    🔢 number
+                                </span>
+                            @elseif ($fieldType === 'url')
+                                <x-lucide-link class="w-4 h-4 text-cyan-600" />
+                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
+                                <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400 rounded">
+                                    🔗 url
+                                </span>
+                            @elseif ($fieldType === 'textarea')
+                                <x-lucide-align-left class="w-4 h-4 text-indigo-500" />
+                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
+                                <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 rounded">
+                                    📝 textarea
                                 </span>
                             @else
                                 <x-lucide-tag class="w-4 h-4 text-blue-600" />
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
+                                <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded">
+                                    ✏️ text
+                                </span>
                             @endif
                         </div>
 
-                        @if (in_array($key, $fileKeys))
-                            {{-- ── FILE UPLOAD FIELD (Enhanced Upload Zone) ── --}}
-                            <div class="mt-2">
-                                <x-core::upload-zone 
-                                    wire:model.live="tempUpload"
-                                    accept="image/*,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document" 
-                                    maxSize="10240"
-                                    multiple
-                                    @click="$wire.set('activeUploadKey', '{{ $key }}')"
-                                    @drop="$wire.set('activeUploadKey', '{{ $key }}')"
-                                    label="{{ __('Drop files here or click to browse') }}"
-                                    hint="{{ __('Images, PDF, Excel, Word up to 10MB') }}"
-                                />
-                                <x-core::input-error for="tempUpload" />
-                            </div>
+                        @if ($fieldType === 'file')
+                            {{-- ── FILE UPLOAD (upload-zone with built-in preview) ── --}}
+                            {{-- existingFiles is passed so previews live inside the component --}}
+                            {{-- @upload-zone:remove triggers immediate server-side deletion --}}
+                            <x-core::upload-zone
+                                wire:model.live="tempUpload"
+                                accept="image/*,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/msword"
+                                maxSize="10240"
+                                multiple
+                                @click="$wire.set('activeUploadKey', '{{ $key }}')"
+                                @drop="$wire.set('activeUploadKey', '{{ $key }}')"
+                                :existingFiles="uploadedFiles['{{ $key }}'] ?? []"
+                                @upload-zone:remove="removeUploadedFile('{{ $key }}', $event.detail.index)"
+                                label="{{ __('Drop files here or click to browse') }}"
+                                hint="{{ __('Images, PDF, Excel, Word up to 10MB') }}"
+                            />
+                            <x-core::input-error for="tempUpload" />
 
-                            {{-- Uploaded Files Grid --}}
-                            <div class="mt-3" x-show="uploadedFiles['{{ $key }}'] && uploadedFiles['{{ $key }}'].length > 0">
-                                <div class="flex items-center gap-2 mb-2">
-                                    <x-lucide-check-circle class="w-3.5 h-3.5 text-emerald-600" />
-                                    <span class="text-xs font-medium text-gray-600 dark:text-gray-400">
-                                        Uploaded (<span
-                                            x-text="uploadedFiles['{{ $key }}'] ? uploadedFiles['{{ $key }}'].length : 0"></span>)
-                                    </span>
-                                </div>
-                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
-                                    <template x-for="(file, fIndex) in uploadedFiles['{{ $key }}']" :key="fIndex">
-                                        <div
-                                            class="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all">
-
-                                            {{-- Image preview --}}
-                                            <template x-if="isImage(file)">
-                                                <img :src="file.url" :alt="file.name" class="w-full h-24 object-cover" />
-                                            </template>
-
-                                            {{-- Non-image file icon --}}
-                                            <template x-if="!isImage(file)">
-                                                <div class="w-full h-24 flex flex-col items-center justify-center gap-1"
-                                                    :class="{
-                                                        'bg-red-50 dark:bg-red-900/20': fileIcon(file) === 'pdf',
-                                                        'bg-green-50 dark:bg-green-900/20': fileIcon(file) === 'xlsx',
-                                                        'bg-blue-50 dark:bg-blue-900/20': fileIcon(file) === 'docx',
-                                                        'bg-gray-50 dark:bg-gray-900/20': fileIcon(file) === 'file'
-                                                    }">
-                                                    <span class="text-3xl" x-text="fileIcon(file) === 'pdf' ? '📄' : (fileIcon(file) === 'xlsx' ? '📊' : (fileIcon(file) === 'docx' ? '📝' : '📎'))"></span>
-                                                    <span class="text-xs font-bold uppercase text-gray-500" x-text="file.name ? file.name.split('.').pop() : 'file'"></span>
-                                                </div>
-                                            </template>
-
-                                            {{-- File name + remove --}}
-                                            <div class="p-2">
-                                                <p class="text-xs text-gray-600 dark:text-gray-400 truncate" :title="file.name"
-                                                    x-text="file.name"></p>
-                                            </div>
-
-                                            {{-- Remove button (visible on hover) --}}
-                                            <button type="button" @click="removeUploadedFile('{{ $key }}', fIndex)"
-                                                class="absolute top-1 right-1 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
-                                                title="Remove file">
-                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
-                                                        d="M6 18L18 6M6 6l12 12" />
-                                                </svg>
-                                            </button>
-                                        </div>
-                                    </template>
-                                </div>
-                            </div>
-
-                            {{-- Empty state --}}
-                            <div x-show="!uploadedFiles['{{ $key }}'] || uploadedFiles['{{ $key }}'].length === 0"
-                                class="mt-2 p-3 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg text-center">
-                                <p class="text-xs text-gray-500 dark:text-gray-400">No files uploaded yet.</p>
-                            </div>
-
-                        @elseif (in_array($key, $socialKeys))
+                        @elseif ($fieldType === 'social')
                             {{-- ── SOCIAL MEDIA INPUT FIELD ── --}}
                             <div x-data="{ platform: getSocialPlatform('{{ $key }}') }" class="space-y-3">
 
@@ -339,35 +311,56 @@
                                     <p class="text-xs text-gray-400 mt-0.5">Tambahkan URL di atas</p>
                                 </div>
 
-                            </div>
+                             {{-- ── INPUT FIELDS (text / textarea / number / date / url) ── --}}
 
-                        @else
-                            {{-- ── TEXT INPUT FIELD (existing behavior) ── --}}
-
-                            {{-- Input + Add Button --}}
-                            <div class="mb-3">
-                                <div class="flex gap-2">
-                                    <div class="flex-1">
-                                        @if ($key == 'date')
-                                            <x-core::input type="date" x-model="tempInputs['{{ $key }}']"
-                                                @keydown.enter="addValue('{{ $key }}')" @click.outside="addValue('{{ $key }}')"
-                                                placeholder="Select date" />
-                                        @else
-                                            <x-core::input x-model="tempInputs['{{ $key }}']"
-                                                @keydown.enter="addValue('{{ $key }}')" @click.outside="addValue('{{ $key }}')"
-                                                placeholder="Enter {{ $key }}" />
-                                        @endif
-                                    </div>
-                                    <button type="button" @click="addValue('{{ $key }}')"
-                                        class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all">
-                                        <x-lucide-plus class="w-4 h-4" />
-                                        Add
-                                    </button>
-                                </div>
-                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                    Press Enter or click Add to add value
-                                </p>
-                            </div>
+                             {{-- Input + Add Button --}}
+                             <div class="mb-3">
+                                 <div class="flex gap-2">
+                                     <div class="flex-1">
+                                         @if ($fieldType === 'date')
+                                             <x-core::input type="date" x-model="tempInputs['{{ $key }}']"
+                                                 @keydown.enter="addValue('{{ $key }}')"
+                                                 placeholder="Select date" />
+                                         @elseif ($fieldType === 'number')
+                                             <x-core::input type="number" x-model="tempInputs['{{ $key }}']"
+                                                 @keydown.enter="addValue('{{ $key }}')"
+                                                 placeholder="Enter number" />
+                                         @elseif ($fieldType === 'url')
+                                             <x-core::input type="url" x-model="tempInputs['{{ $key }}']"
+                                                 @keydown.enter="addValue('{{ $key }}')"
+                                                 placeholder="https://..." />
+                                         @elseif ($fieldType === 'textarea')
+                                             <textarea x-model="tempInputs['{{ $key }}']" rows="3"
+                                                 @keydown.ctrl.enter="addValue('{{ $key }}')"
+                                                 placeholder="Enter {{ $key }}..."
+                                                 class="block w-full px-4 py-2.5 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400 dark:placeholder-gray-500"></textarea>
+                                             <p class="mt-0.5 text-xs text-gray-400">Press Ctrl+Enter to add</p>
+                                         @else
+                                             <x-core::input x-model="tempInputs['{{ $key }}']"
+                                                 @keydown.enter="addValue('{{ $key }}')"
+                                                 placeholder="Enter {{ $key }}" />
+                                         @endif
+                                     </div>
+                                     @if ($fieldType !== 'textarea')
+                                     <button type="button" @click="addValue('{{ $key }}')"
+                                         class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all">
+                                         <x-lucide-plus class="w-4 h-4" />
+                                         Add
+                                     </button>
+                                     @else
+                                     <button type="button" @click="addValue('{{ $key }}')"
+                                         class="self-start inline-flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all">
+                                         <x-lucide-plus class="w-4 h-4" />
+                                         Add
+                                     </button>
+                                     @endif
+                                 </div>
+                                 @if ($fieldType !== 'textarea')
+                                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                     Press Enter or click Add to add value
+                                 </p>
+                                 @endif
+                             </div>
 
                             {{-- Display Values as Tags --}}
                             <div x-show="item['{{ $key }}'] && item['{{ $key }}'].length > 0">
@@ -489,7 +482,7 @@
                 
                 // Map uploaded files to a structured array for Alpine.js tracking
                 uploadedFiles: @js(
-                    collect($fileKeys)->mapWithKeys(function ($key) use ($currentItem, $slug, $orgSlug) {
+                    collect($fileKeys)->mapWithKeys(function ($key) use ($currentItem, $slug, $orgSlug) { /** @var string $orgSlug injected by render() */
                         $urls = $currentItem[$key] ?? [];
                         if (!is_array($urls))
                             $urls = [$urls];
