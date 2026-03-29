@@ -1,37 +1,17 @@
 <div x-data="{
     keys: @js($availableKeys),
-    types: @js($keyTypes),
     newKey: '',
-    newKeyType: 'text',
     sortingEnabled: false,
     sortableInstance: null,
-    typeOptions: [
-        { value: 'text',     label: 'Text',      icon: '✏️' },
-        { value: 'textarea', label: 'Textarea',  icon: '📝' },
-        { value: 'number',   label: 'Number',    icon: '🔢' },
-        { value: 'date',     label: 'Date',      icon: '📅' },
-        { value: 'url',      label: 'URL',       icon: '🔗' },
-        { value: 'file',     label: 'File/Image',icon: '📎' },
-        { value: 'social',   label: 'Social Media', icon: '💬' },
-    ],
-    getTypeLabel(val) {
-        const opt = this.typeOptions.find(o => o.value === val);
-        return opt ? opt.icon + ' ' + opt.label : '✏️ Text';
-    },
     addKey() {
-        const key = this.newKey.trim();
-        if (key !== '' && !this.keys.includes(key)) {
-            this.keys.push(key);
-            this.types[key] = this.newKeyType;
+        if (this.newKey.trim() !== '' && !this.keys.includes(this.newKey.trim())) {
+            this.keys.push(this.newKey.trim());
             this.newKey = '';
-            this.newKeyType = 'text';
         }
     },
     removeKey(index) {
         if (confirm('Are you sure? This will remove this key from all items.')) {
-            const key = this.keys[index];
             this.keys.splice(index, 1);
-            delete this.types[key];
         }
     },
     initSortable() {
@@ -169,13 +149,6 @@
                     <x-core::input x-model="newKey" @keydown.enter.prevent="addKey"
                         placeholder="e.g. product_name, price, category" />
                 </div>
-                {{-- Type Selector --}}
-                <select x-model="newKeyType"
-                    class="px-3 py-2 text-sm border border-gray-300 dark:border-gray-600 rounded-xl bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 focus:outline-none focus:ring-2 focus:ring-purple-400 min-w-[150px]">
-                    <template x-for="opt in typeOptions" :key="opt.value">
-                        <option :value="opt.value" x-text="opt.icon + ' ' + opt.label"></option>
-                    </template>
-                </select>
                 <button type="button" @click="addKey"
                     class="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl shadow-md transition-all">
                     <x-lucide-plus class="w-4 h-4" />
@@ -204,32 +177,16 @@
             </div>
 
             <div id="keys-list"
-                class="space-y-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[100px]">
+                class="flex flex-wrap gap-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[100px]">
                 <template x-for="(key, index) in keys" :key="key">
                     <div :data-id="key"
-                        class="flex items-center gap-3 px-3 py-2 bg-white dark:bg-gray-800 border border-purple-200 dark:border-purple-800 rounded-lg shadow-sm group">
+                        class="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-purple-200 dark:border-purple-800 rounded-lg shadow-sm group">
                         <x-lucide-grip-vertical x-show="sortingEnabled"
-                            class="w-3.5 h-3.5 text-gray-400 group-hover:text-purple-600 cursor-move shrink-0" />
-                        <x-lucide-tag class="w-3.5 h-3.5 text-purple-600 shrink-0" />
-                        <span class="text-sm font-semibold text-gray-800 dark:text-white flex-1" x-text="key"></span>
-
-                        {{-- Inline type selector --}}
-                        <select
-                            x-model="types[key]"
-                            @click.stop
-                            class="text-xs border border-gray-200 dark:border-gray-600 rounded-lg px-2 py-1 bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-300 focus:outline-none focus:ring-1 focus:ring-purple-400">
-                            <template x-for="opt in typeOptions" :key="opt.value">
-                                <option :value="opt.value" x-text="opt.icon + ' ' + opt.label"></option>
-                            </template>
-                        </select>
-
-                        {{-- Type badge (read-only display) --}}
-                        <span class="hidden sm:inline-flex items-center text-xs font-medium px-2 py-0.5 rounded-full bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-400">
-                            <span x-text="getTypeLabel(types[key] || 'text')"></span>
-                        </span>
-
+                            class="w-3.5 h-3.5 text-gray-400 group-hover:text-purple-600 cursor-move" />
+                        <x-lucide-tag class="w-3.5 h-3.5 text-purple-600" />
+                        <span class="text-sm font-medium text-gray-800 dark:text-white" x-text="key"></span>
                         <button type="button" @click="removeKey(index)"
-                            class="p-0.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors ml-1 shrink-0">
+                            class="p-0.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors ml-1">
                             <x-lucide-x class="w-3.5 h-3.5" />
                         </button>
                     </div>
@@ -254,7 +211,7 @@
                 <p class="text-xs text-gray-600 dark:text-gray-400">This will update the section structure</p>
             </div>
         </div>
-        <button type="button" @click="$wire.save(keys, types)"
+        <button type="button" @click="$wire.save(keys)"
             class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl shadow-md transition-all">
             <x-lucide-save class="w-4 h-4" />
             Save Keys

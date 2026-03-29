@@ -16,7 +16,8 @@
         <x-core::breadcrumb :items="$breadcrumbs" :active="$editMode ? 'Edit Item' : 'Create Item'" />
 
         {{-- Main Page Header --}}
-        <div class="relative overflow-hidden p-8 mb-8 text-white rounded-2xl shadow-xl" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);">
+        <div class="relative overflow-hidden p-8 mb-8 text-white rounded-2xl shadow-xl"
+            style="background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);">
             {{-- Decorative Background Elements --}}
             <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
             <div class="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full -ml-24 -mb-24"></div>
@@ -35,7 +36,8 @@
                             </div>
                         </div>
                         <p class="text-white/90 text-lg mb-2">
-                            {{ $editMode ? 'Update' : 'Add new data to' }}: <span class="font-semibold">{{ $name }}</span>
+                            {{ $editMode ? 'Update' : 'Add new data to' }}: <span
+                                class="font-semibold">{{ $name }}</span>
                         </p>
                         <p class="text-white/80 text-sm">
                             Fill in the fields below based on your defined keys
@@ -44,7 +46,8 @@
 
                     {{-- Header Actions --}}
                     <div class="flex items-center gap-3 shrink-0 justify-center">
-                        <a href="{{ route('bale.cms.sections.view-searchable', $slug) }}" wire:navigate class="inline-flex items-center gap-2 px-4 py-2.5 bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30 rounded-lg text-sm font-medium text-white transition-all">
+                        <a href="{{ route('bale.cms.sections.view-searchable', $slug) }}" wire:navigate
+                            class="inline-flex items-center gap-2 px-4 py-2.5 bg-white/20 backdrop-blur-md hover:bg-white/30 border border-white/30 rounded-lg text-sm font-medium text-white transition-all">
                             <x-lucide-arrow-left class="w-4 h-4 hidden lg:block" />
                             Back to Table
                         </a>
@@ -54,7 +57,8 @@
         </div>
 
         {{-- Interactive Help Guide for Users --}}
-        <div class="mb-8 p-5 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl">
+        <div
+            class="mb-8 p-5 bg-linear-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-2xl">
             <div class="flex items-start gap-4">
                 <div class="p-3 bg-blue-600 rounded-xl shadow-lg">
                     <x-lucide-lightbulb class="w-6 h-6 text-white" />
@@ -116,77 +120,118 @@
                 @foreach ($availableKeys as $key)
                     {{-- Skip internal database fields --}}
                     @continue(in_array($key, ['id', 'created_at', 'updated_at']))
-                    
+
                     <div class="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700">
 
-                        @php $fieldType = $keyTypes[$key] ?? 'text'; @endphp
-
-                        {{-- Field Key/Label Header with type badge --}}
+                        {{-- Field Key/Label Header --}}
                         <div class="flex items-center gap-1.5 mb-3">
-                            @if ($fieldType === 'file')
+                            @if (in_array($key, $fileKeys))
                                 <x-lucide-paperclip class="w-4 h-4 text-violet-600" />
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
-                                <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 rounded">
-                                    📎 file upload
+                                <span
+                                    class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 rounded">
+                                    file upload
                                 </span>
-                            @elseif ($fieldType === 'social')
+                            @elseif (in_array($key, $socialKeys))
                                 <x-lucide-share-2 class="w-4 h-4 text-pink-500" />
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
-                                <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400 rounded">
-                                    💬 social media
-                                </span>
-                            @elseif ($fieldType === 'date')
-                                <x-lucide-calendar class="w-4 h-4 text-amber-500" />
-                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
-                                <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded">
-                                    📅 date
-                                </span>
-                            @elseif ($fieldType === 'number')
-                                <x-lucide-hash class="w-4 h-4 text-orange-500" />
-                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
-                                <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-orange-100 text-orange-700 dark:bg-orange-900/30 dark:text-orange-400 rounded">
-                                    🔢 number
-                                </span>
-                            @elseif ($fieldType === 'url')
-                                <x-lucide-link class="w-4 h-4 text-cyan-600" />
-                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
-                                <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-cyan-100 text-cyan-700 dark:bg-cyan-900/30 dark:text-cyan-400 rounded">
-                                    🔗 url
-                                </span>
-                            @elseif ($fieldType === 'textarea')
-                                <x-lucide-align-left class="w-4 h-4 text-indigo-500" />
-                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
-                                <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400 rounded">
-                                    📝 textarea
+                                <span
+                                    class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400 rounded">
+                                    social media
                                 </span>
                             @else
                                 <x-lucide-tag class="w-4 h-4 text-blue-600" />
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
-                                <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded">
-                                    ✏️ text
-                                </span>
                             @endif
                         </div>
 
-                        @if ($fieldType === 'file')
-                            {{-- ── FILE UPLOAD (upload-zone with built-in preview) ── --}}
-                            {{-- existingFiles is passed so previews live inside the component --}}
-                            {{-- @upload-zone:remove triggers immediate server-side deletion --}}
-                            <x-core::upload-zone
-                                wire:model.live="tempUpload"
-                                accept="image/*,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/vnd.ms-excel,application/msword"
-                                maxSize="10240"
-                                multiple
-                                @click="$wire.set('activeUploadKey', '{{ $key }}')"
-                                @drop="$wire.set('activeUploadKey', '{{ $key }}')"
-                                :existingFiles="uploadedFiles['{{ $key }}'] ?? []"
-                                @upload-zone:remove="removeUploadedFile('{{ $key }}', $event.detail.index)"
-                                label="{{ __('Drop files here or click to browse') }}"
-                                hint="{{ __('Images, PDF, Excel, Word up to 10MB') }}"
-                            />
-                            <x-core::input-error for="tempUpload" />
+                        @if (in_array($key, $fileKeys))
+                            {{-- ── FILE UPLOAD FIELD (Enhanced Upload Zone) ── --}}
+                            <div class="mt-2 space-y-3">
+                                @for ($i = 0; $i < ($uploaderCounts[$key] ?? 1); $i++)
+                                    <div>
+                                        <x-core::upload-zone wire:model.live="tempUpload"
+                                            accept="image/*,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                            maxSize="10240" multiple @click="$wire.set('activeUploadKey', '{{ $key }}')"
+                                            @drop="$wire.set('activeUploadKey', '{{ $key }}')"
+                                            label="{{ __('Drop files here or click to browse') }}"
+                                            hint="{{ __('Images, PDF, Excel, Word up to 10MB') }}" />
+                                    </div>
+                                @endfor
+                                <div class="cursor-pointer mt-2">
+                                    <button type="button" wire:click="addUploader('{{ $key }}')"
+                                        class="w-full py-4 cursor-pointer border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-xl text-sm font-medium text-gray-500 dark:text-gray-400 hover:border-violet-500 hover:text-violet-600 dark:hover:text-violet-400 hover:bg-violet-50 dark:hover:bg-violet-900/10 transition-all flex items-center justify-center gap-2 group">
+                                        <div
+                                            class="p-1.5 bg-gray-100 dark:bg-gray-700 rounded-lg group-hover:bg-violet-100 dark:group-hover:bg-violet-900/30 transition-colors">
+                                            <x-lucide-plus class="w-4 h-4" />
+                                        </div>
+                                        {{ __('Tambah Upload') }}
+                                    </button>
+                                </div>
+                                <x-core::input-error for="tempUpload" />
+                            </div>
 
-                        @elseif ($fieldType === 'social')
+                            {{-- Uploaded Files Grid --}}
+                            <div class="mt-3" x-show="uploadedFiles['{{ $key }}'] && uploadedFiles['{{ $key }}'].length > 0">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <x-lucide-check-circle class="w-3.5 h-3.5 text-emerald-600" />
+                                    <span class="text-xs font-medium text-gray-600 dark:text-gray-400">
+                                        Uploaded (<span
+                                            x-text="uploadedFiles['{{ $key }}'] ? uploadedFiles['{{ $key }}'].length : 0"></span>)
+                                    </span>
+                                </div>
+                                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3">
+                                    <template x-for="(file, fIndex) in uploadedFiles['{{ $key }}']" :key="fIndex">
+                                        <div
+                                            class="relative group rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-all">
+
+                                            {{-- Image preview --}}
+                                            <template x-if="isImage(file)">
+                                                <img :src="file.url" :alt="file.name" class="w-full h-24 object-cover" />
+                                            </template>
+
+                                            {{-- Non-image file icon --}}
+                                            <template x-if="!isImage(file)">
+                                                <div class="w-full h-24 flex flex-col items-center justify-center gap-1" :class="{
+                                                                                                        'bg-red-50 dark:bg-red-900/20': fileIcon(file) === 'pdf',
+                                                                                                        'bg-green-50 dark:bg-green-900/20': fileIcon(file) === 'xlsx',
+                                                                                                        'bg-blue-50 dark:bg-blue-900/20': fileIcon(file) === 'docx',
+                                                                                                        'bg-gray-50 dark:bg-gray-900/20': fileIcon(file) === 'file'
+                                                                                                    }">
+                                                    <span class="text-3xl"
+                                                        x-text="fileIcon(file) === 'pdf' ? '📄' : (fileIcon(file) === 'xlsx' ? '📊' : (fileIcon(file) === 'docx' ? '📝' : '📎'))"></span>
+                                                    <span class="text-xs font-bold uppercase text-gray-500"
+                                                        x-text="file.name ? file.name.split('.').pop() : 'file'"></span>
+                                                </div>
+                                            </template>
+
+                                            {{-- File name + remove --}}
+                                            <div class="p-2">
+                                                <p class="text-xs text-gray-600 dark:text-gray-400 truncate" :title="file.name"
+                                                    x-text="file.name"></p>
+                                            </div>
+
+                                            {{-- Remove button (visible on hover) --}}
+                                            <button type="button" @click="removeUploadedFile('{{ $key }}', fIndex)"
+                                                class="absolute top-1 right-1 w-6 h-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-md"
+                                                title="Remove file">
+                                                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3"
+                                                        d="M6 18L18 6M6 6l12 12" />
+                                                </svg>
+                                            </button>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+
+                            {{-- Empty state --}}
+                            <div x-show="!uploadedFiles['{{ $key }}'] || uploadedFiles['{{ $key }}'].length === 0"
+                                class="mt-2 p-3 border border-dashed border-gray-300 dark:border-gray-700 rounded-lg text-center">
+                                <p class="text-xs text-gray-500 dark:text-gray-400">No files uploaded yet.</p>
+                            </div>
+
+                        @elseif (in_array($key, $socialKeys))
                             {{-- ── SOCIAL MEDIA INPUT FIELD ── --}}
                             <div x-data="{ platform: getSocialPlatform('{{ $key }}') }" class="space-y-3">
 
@@ -254,24 +299,30 @@
                                                 <button :id="'soc-dd-{{ $key }}-' + idx" type="button"
                                                     class="hs-dropdown-toggle p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-gray-200 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors opacity-0 group-hover:opacity-100">
                                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                                                     </svg>
                                                 </button>
                                                 <div class="hs-dropdown-menu transition-[opacity,margin] hs-dropdown-open:opacity-100 opacity-0 hidden min-w-[280px] z-50 bg-white dark:bg-gray-800 shadow-xl rounded-xl p-4 border border-gray-100 dark:border-gray-700"
                                                     :aria-labelledby="'soc-dd-{{ $key }}-' + idx">
                                                     <div x-data="{ editedUrl: url }" x-init="$watch('url', v => editedUrl = v)">
-                                                        <label class="block text-xs font-bold mb-1.5 text-gray-700 dark:text-gray-200">
+                                                        <label
+                                                            class="block text-xs font-bold mb-1.5 text-gray-700 dark:text-gray-200">
                                                             Edit URL
                                                         </label>
                                                         <input type="url" x-model="editedUrl" @keydown.stop
                                                             class="block w-full py-2 px-3 text-sm border border-gray-200 dark:border-gray-700 rounded-lg dark:bg-gray-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-pink-400"
                                                             placeholder="https://..." />
-                                                        
-                                                        <div class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
+
+                                                        <div
+                                                            class="flex justify-between items-center mt-3 pt-3 border-t border-gray-100 dark:border-gray-700">
                                                             <button type="button" @click="removeValue('{{ $key }}', idx)"
                                                                 class="inline-flex items-center gap-1 text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 px-2 py-1 rounded-lg transition-colors">
-                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                    viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        stroke-width="2"
+                                                                        d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                                                 </svg>
                                                                 Hapus
                                                             </button>
@@ -279,8 +330,10 @@
                                                                 @click="updateValue('{{ $key }}', idx, editedUrl); $el.closest('.hs-dropdown').classList.remove('open');"
                                                                 :style="'background:' + platform.color"
                                                                 class="inline-flex items-center gap-1 text-sm text-white px-3 py-1.5 rounded-lg transition-opacity hover:opacity-90">
-                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                                                                <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                    viewBox="0 0 24 24">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        stroke-width="2" d="M5 13l4 4L19 7" />
                                                                 </svg>
                                                                 Simpan
                                                             </button>
@@ -311,56 +364,35 @@
                                     <p class="text-xs text-gray-400 mt-0.5">Tambahkan URL di atas</p>
                                 </div>
 
-                             {{-- ── INPUT FIELDS (text / textarea / number / date / url) ── --}}
+                            </div>
 
-                             {{-- Input + Add Button --}}
-                             <div class="mb-3">
-                                 <div class="flex gap-2">
-                                     <div class="flex-1">
-                                         @if ($fieldType === 'date')
-                                             <x-core::input type="date" x-model="tempInputs['{{ $key }}']"
-                                                 @keydown.enter="addValue('{{ $key }}')"
-                                                 placeholder="Select date" />
-                                         @elseif ($fieldType === 'number')
-                                             <x-core::input type="number" x-model="tempInputs['{{ $key }}']"
-                                                 @keydown.enter="addValue('{{ $key }}')"
-                                                 placeholder="Enter number" />
-                                         @elseif ($fieldType === 'url')
-                                             <x-core::input type="url" x-model="tempInputs['{{ $key }}']"
-                                                 @keydown.enter="addValue('{{ $key }}')"
-                                                 placeholder="https://..." />
-                                         @elseif ($fieldType === 'textarea')
-                                             <textarea x-model="tempInputs['{{ $key }}']" rows="3"
-                                                 @keydown.ctrl.enter="addValue('{{ $key }}')"
-                                                 placeholder="Enter {{ $key }}..."
-                                                 class="block w-full px-4 py-2.5 text-sm text-gray-900 dark:text-white bg-white dark:bg-gray-900 border border-gray-300 dark:border-gray-600 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-400 placeholder-gray-400 dark:placeholder-gray-500"></textarea>
-                                             <p class="mt-0.5 text-xs text-gray-400">Press Ctrl+Enter to add</p>
-                                         @else
-                                             <x-core::input x-model="tempInputs['{{ $key }}']"
-                                                 @keydown.enter="addValue('{{ $key }}')"
-                                                 placeholder="Enter {{ $key }}" />
-                                         @endif
-                                     </div>
-                                     @if ($fieldType !== 'textarea')
-                                     <button type="button" @click="addValue('{{ $key }}')"
-                                         class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all">
-                                         <x-lucide-plus class="w-4 h-4" />
-                                         Add
-                                     </button>
-                                     @else
-                                     <button type="button" @click="addValue('{{ $key }}')"
-                                         class="self-start inline-flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all">
-                                         <x-lucide-plus class="w-4 h-4" />
-                                         Add
-                                     </button>
-                                     @endif
-                                 </div>
-                                 @if ($fieldType !== 'textarea')
-                                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
-                                     Press Enter or click Add to add value
-                                 </p>
-                                 @endif
-                             </div>
+                        @else
+                            {{-- ── TEXT INPUT FIELD (existing behavior) ── --}}
+
+                            {{-- Input + Add Button --}}
+                            <div class="mb-3">
+                                <div class="flex gap-2">
+                                    <div class="flex-1">
+                                        @if ($key == 'date')
+                                            <x-core::input type="date" x-model="tempInputs['{{ $key }}']"
+                                                @keydown.enter="addValue('{{ $key }}')" @click.outside="addValue('{{ $key }}')"
+                                                placeholder="Select date" />
+                                        @else
+                                            <x-core::input x-model="tempInputs['{{ $key }}']"
+                                                @keydown.enter="addValue('{{ $key }}')" @click.outside="addValue('{{ $key }}')"
+                                                placeholder="Enter {{ $key }}" />
+                                        @endif
+                                    </div>
+                                    <button type="button" @click="addValue('{{ $key }}')"
+                                        class="inline-flex items-center gap-1.5 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all">
+                                        <x-lucide-plus class="w-4 h-4" />
+                                        Add
+                                    </button>
+                                </div>
+                                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">
+                                    Press Enter or click Add to add value
+                                </p>
+                            </div>
 
                             {{-- Display Values as Tags --}}
                             <div x-show="item['{{ $key }}'] && item['{{ $key }}'].length > 0">
@@ -474,15 +506,15 @@
             // 1) Directly → handles wire:navigate (Alpine already initialized)
             // 2) alpine:init → handles full page reload (before Alpine scans the DOM)
             const _baleCreateItemFactory = () => ({
-                // Initialize component state from backend data
-                item: @js($currentItem),
-                tempInputs: {},
+                    // Initialize component state from backend data
+                    item: @js($currentItem),
+                tempInputs: { },
                 fileKeys: @js($fileKeys),
                 socialKeys: @js($socialKeys),
-                
+
                 // Map uploaded files to a structured array for Alpine.js tracking
                 uploadedFiles: @js(
-                    collect($fileKeys)->mapWithKeys(function ($key) use ($currentItem, $slug, $orgSlug) { /** @var string $orgSlug injected by render() */
+                    collect($fileKeys)->mapWithKeys(function ($key) use ($currentItem, $slug, $orgSlug) {
                         $urls = $currentItem[$key] ?? [];
                         if (!is_array($urls))
                             $urls = [$urls];
@@ -499,16 +531,17 @@
                 // Component initialization
                 init() {
                     // Subscribe to 'file-uploaded' event from Livewire backend
-                    window.addEventListener('file-uploaded', e => {
-                        const { key, url, name, mime, s3Path } = e.detail[0] ?? e.detail;
-                        if (!this.uploadedFiles[key]) this.uploadedFiles[key] = [];
-                        
+                    window.addEventListener( 'file-uploaded', e =>
+                    {
+                        const { key, url, name, mime, s3Path } = e.detail[ 0 ] ?? e.detail;
+                        if ( !this.uploadedFiles[ key ] ) this.uploadedFiles[ key ] = [];
+
                         // Push new file to local state for instant UI update
-                        this.uploadedFiles[key].push({ url, name, mime, s3Path });
-                        
-                        if (!this.item[key]) this.item[key] = [];
-                        this.item[key].push(url);
-                    });
+                        this.uploadedFiles[ key ].push( { url, name, mime, s3Path } );
+
+                        if ( !this.item[ key ] ) this.item[ key ] = [];
+                        this.item[ key ].push( url );
+                    } );
                 },
 
                 // Helper methods to identify field types based on conventions
@@ -518,99 +551,99 @@
                 // Retrieve styling and metadata based on social media platform name
                 getSocialPlatform(key) {
                     const p = window.baleSocialPlatforms;
-                    const k = key.toLowerCase();
-                    
-                    // Direct platform match
-                    if (p[k]) return p[k];
-                    
-                    // Suffix or prefix match (e.g., 'facebook_url' or 'link_instagram')
-                    for (const [n, d] of Object.entries(p)) { if (k.endsWith('_' + n)) return d; }
-                    for (const [n, d] of Object.entries(p)) { if (k.startsWith(n + '_')) return d; }
-                    
-                    // Fallback to default link style
-                    return { 
-                        name: key, 
-                        color: '#6366f1', 
-                        text: 'text-indigo-600', 
-                        border: 'border-indigo-200', 
-                        placeholder: 'https://...', 
-                        icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" /><path d="M10.172 13.828a4 4 0 015.656 0l4 4a4 4 0 01-5.656 5.656l-1.102-1.101" /></svg>' 
+                const k = key.toLowerCase();
+
+                // Direct platform match
+                if (p[k]) return p[k];
+
+                // Suffix or prefix match (e.g., 'facebook_url' or 'link_instagram')
+                for (const [n, d] of Object.entries(p)) { if (k.endsWith('_' + n)) return d; }
+                for (const [n, d] of Object.entries(p)) { if (k.startsWith(n + '_')) return d; }
+
+                // Fallback to default link style
+                return {
+                    name: key,
+                color: '#6366f1',
+                text: 'text-indigo-600',
+                border: 'border-indigo-200',
+                placeholder: 'https://...',
+                icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101" /><path d="M10.172 13.828a4 4 0 015.656 0l4 4a4 4 0 01-5.656 5.656l-1.102-1.101" /></svg>' 
                     };
                 },
 
                 // Handle file deletion from both UI and server (S3)
                 removeUploadedFile(key, index) {
                     if (!confirm('Remove this file? This cannot be undone.')) return;
-                    
-                    const file = this.uploadedFiles[key][index];
-                    
-                    // Remove from local arrays immediately for UI feedback
-                    this.uploadedFiles[key].splice(index, 1);
-                    this.item[key].splice(index, 1);
-                    
-                    // Dispatch delete request to backend if S3 path exists
-                    if (file.s3Path) this.$wire.deleteFile(key, file.url, file.s3Path);
+
+                const file = this.uploadedFiles[key][index];
+
+                // Remove from local arrays immediately for UI feedback
+                this.uploadedFiles[key].splice(index, 1);
+                this.item[key].splice(index, 1);
+
+                // Dispatch delete request to backend if S3 path exists
+                if (file.s3Path) this.$wire.deleteFile(key, file.url, file.s3Path);
                 },
 
                 // Attempt to infer MIME type from file extension
                 detectMime(name) {
                     if (!name) return '';
-                    const ext = name.split('.').pop().toLowerCase();
-                    if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image/' + ext;
-                    if (ext === 'pdf') return 'application/pdf';
-                    if (['xlsx', 'xls', 'csv'].includes(ext)) return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-                    if (['docx', 'doc'].includes(ext)) return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-                    return '';
+                const ext = name.split('.').pop().toLowerCase();
+                if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image/' + ext;
+                if (ext === 'pdf') return 'application/pdf';
+                if (['xlsx', 'xls', 'csv'].includes(ext)) return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
+                if (['docx', 'doc'].includes(ext)) return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+                return '';
                 },
 
                 // Get corresponding icon class for document files
                 fileIcon(file) {
                     const mime = file.mime || this.detectMime(file.name);
-                    if (!mime) return 'file';
-                    if (mime.startsWith('image/')) return null;
-                    if (mime === 'application/pdf') return 'pdf';
-                    if (mime.includes('spreadsheet') || mime.includes('excel') || mime.includes('xlsx') || mime.includes('xls')) return 'xlsx';
-                    if (mime.includes('word') || mime.includes('document') || mime.includes('docx') || mime.includes('doc')) return 'docx';
-                    return 'file';
+                if (!mime) return 'file';
+                if (mime.startsWith('image/')) return null;
+                if (mime === 'application/pdf') return 'pdf';
+                if (mime.includes('spreadsheet') || mime.includes('excel') || mime.includes('xlsx') || mime.includes('xls')) return 'xlsx';
+                if (mime.includes('word') || mime.includes('document') || mime.includes('docx') || mime.includes('doc')) return 'docx';
+                return 'file';
                 },
 
                 // Check if file is displayable as an image
                 isImage(file) {
                     const mime = file.mime || this.detectMime(file.name);
-                    return mime && mime.startsWith('image/');
+                return mime && mime.startsWith('image/');
                 },
 
                 // Array value manipulators (used for Text and Social Media inputs)
                 addValue(key) {
                     const val = this.tempInputs[key] || '';
-                    if (typeof val === 'string' && val.trim() === '') return;
-                    
-                    if (!this.item[key]) this.item[key] = [];
-                    this.item[key].push(val);
-                    this.tempInputs[key] = ''; // Reset input after adding
+                if (typeof val === 'string' && val.trim() === '') return;
+
+                if (!this.item[key]) this.item[key] = [];
+                this.item[key].push(val);
+                this.tempInputs[key] = ''; // Reset input after adding
                 },
                 removeValue(key, index) {
                     if (confirm('Are you sure you want to remove this value?')) this.item[key].splice(index, 1);
                 },
                 updateValue(key, index, newValue) {
-                    this.item[key][index] = newValue;
+                    this.item[ key ][ index ] = newValue;
                 },
             });
 
-            // For wire:navigate – Alpine is already initialized, register directly
-            if (window.Alpine) {
-                Alpine.data('baleCreateItem', _baleCreateItemFactory);
+                // For wire:navigate – Alpine is already initialized, register directly
+                if (window.Alpine) {
+                    Alpine.data( 'baleCreateItem', _baleCreateItemFactory );
             }
 
             // For full page reload – register via alpine:init before Alpine scans the DOM
             document.addEventListener('alpine:init', () => {
-                Alpine.data('baleCreateItem', _baleCreateItemFactory);
+                    Alpine.data( 'baleCreateItem', _baleCreateItemFactory );
             });
             })(); // end IIFE
 
             // Re-initialize Preline UI scripts after Livewire navigation completes
             document.addEventListener('livewire:navigated', () => {
-                window.HSStaticMethods.autoInit();
+                    window.HSStaticMethods.autoInit();
             });
         </script>
     </div>

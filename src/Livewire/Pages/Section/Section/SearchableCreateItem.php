@@ -32,6 +32,7 @@ class SearchableCreateItem extends Component
     public $currentItem = [];
     public $tempInputs = [];
     public $editMode = false;
+    public $uploaderCounts = [];
 
     // File upload
     public $tempUpload;
@@ -81,6 +82,11 @@ class SearchableCreateItem extends Component
             return $this->redirectRoute('bale.cms.sections.edit-keys', $slug, navigate: true);
         }
 
+        // Initialize uploader counts to 1
+        foreach ($this->availableKeys as $key) {
+            $this->uploaderCounts[$key] = 1;
+        }
+
         // If edit mode, load existing item data
         if ($this->editMode) {
             // Find item by id
@@ -117,54 +123,14 @@ class SearchableCreateItem extends Component
     public function render()
     {
         return view('cms::livewire.pages.section.section.searchable-create-item', [
-            'fileKeys'  => $this->getFileKeys(),
+            'fileKeys' => $this->getFileKeys(),
             'socialKeys' => $this->getSocialKeys(),
-            'keyTypes'  => $this->getKeyTypes(),
-            'orgSlug'   => session('bale_active_slug', ''),
+            'orgSlug' => session('bale_active_slug', ''),
         ]);
     }
 
     /**
-     * Returns a key => type map for all available keys.
-     * Reads from content.meta.types first (explicit); falls back to name-pattern detection.
-     * Supported types: text | textarea | number | date | url | file | social
-     */
-    public function getKeyTypes(): array
-    {
-        TenantConnectionService::ensureActive();
-        $connection = TenantConnectionService::connection();
-
-        $section = (new Section)
-            ->setConnection($connection)
-            ->whereSlug($this->slug)
-            ->first();
-
-        $meta  = $section?->content['meta'] ?? [];
-        $saved = $meta['types'] ?? [];
-
-        $fileKeys   = $this->getFileKeys();
-        $socialKeys = $this->getSocialKeys();
-
-        $types = [];
-        foreach ($this->availableKeys as $key) {
-            if (isset($saved[$key])) {
-                $types[$key] = $saved[$key];
-            } elseif (in_array($key, $fileKeys)) {
-                $types[$key] = 'file';
-            } elseif (in_array($key, $socialKeys)) {
-                $types[$key] = 'social';
-            } elseif ($key === 'date' || str_ends_with($key, '_date') || str_ends_with($key, '_at')) {
-                $types[$key] = 'date';
-            } else {
-                $types[$key] = 'text';
-            }
-        }
-
-        return $types;
-    }
-
-    /**
-     * Returns keys that should render a file upload field.
+     * Returns keys that should render a FilePond uploader.
      * Matches common naming patterns for image/file fields.
      */
     public function getFileKeys(): array
@@ -372,6 +338,14 @@ class SearchableCreateItem extends Component
         if (isset($this->currentItem[$key][$valueIndex])) {
             $this->currentItem[$key][$valueIndex] = $newValue;
         }
+    }
+
+    public function addUploader($key)
+    {
+        if (!isset($this->uploaderCounts[$key])) {
+            $this->uploaderCounts[$key] = 1;
+        }
+        $this->uploaderCounts[$key]++;
     }
 
     /**
