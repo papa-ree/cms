@@ -163,7 +163,9 @@ class EditPost extends Component
 
     public function deleteThumbnail()
     {
-        Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->thumbnail);
+        if ($this->thumbnail) {
+            Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->thumbnail);
+        }
 
         TenantConnectionService::ensureActive();
 
@@ -187,6 +189,11 @@ class EditPost extends Component
         // Filepond and Livewire's own config handles basic limits
 
         try {
+            // Delete old thumbnail if it exists
+            if ($this->thumbnail) {
+                Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->thumbnail);
+            }
+
             $thumbnail_name = $this->uploadThumbnail();
 
             if ($thumbnail_name) {

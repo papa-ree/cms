@@ -195,13 +195,15 @@
                         @endif
 
                         {{-- Upload new thumbnail --}}
-                        <x-core::upload-zone
-                            wire:model.live="thumbnail_new"
-                            accept="image/png,image/jpeg,image/jpg"
-                            maxSize="512"
-                            :label="__('Drop image here or click to browse')"
-                            :hint="__('PNG, JPG, JPEG · Max 512KB')"
-                        />
+                        @if (!$thumbnail)
+                            <x-core::upload-zone
+                                wire:model.live="thumbnail_new"
+                                accept="image/png,image/jpeg,image/jpg"
+                                maxSize="512"
+                                :label="__('Drop image here or click to browse')"
+                                :hint="__('PNG, JPG, JPEG · Max 512KB')"
+                            />
+                        @endif
 
                         <x-core::input-error for="thumbnail_new" class="mt-1" />
                     </div>
