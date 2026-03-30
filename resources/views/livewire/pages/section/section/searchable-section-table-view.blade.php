@@ -110,7 +110,7 @@
                                         @if(count($fileUploads) > 0)
                                             <div class="flex flex-wrap gap-1.5">
                                                 @foreach($fileUploads as $upload)
-                                                    @if(($upload['file_type'] ?? '') === 'image')
+                                                    @if(($upload['file_type'] ?? '') === 'image' || in_array(strtolower(pathinfo($upload['url'] ?? '', PATHINFO_EXTENSION)), ['jpg','jpeg','png','gif','svg','webp']))
                                                         <a href="{{ $upload['url'] }}" target="_blank" class="block w-8 h-8 rounded border border-gray-200 dark:border-gray-700 overflow-hidden hover:opacity-80 transition-opacity">
                                                             <img src="{{ $upload['url'] }}" class="w-full h-full object-cover" alt="Image">
                                                         </a>
@@ -202,7 +202,7 @@
                                         @if(count($fileUploads) > 0)
                                             <div class="flex flex-wrap gap-1.5 mt-1">
                                                 @foreach($fileUploads as $upload)
-                                                    @if(($upload['file_type'] ?? '') === 'image')
+                                                    @if(($upload['file_type'] ?? '') === 'image' || in_array(strtolower(pathinfo($upload['url'] ?? '', PATHINFO_EXTENSION)), ['jpg','jpeg','png','gif','svg','webp']))
                                                         <a href="{{ $upload['url'] }}" target="_blank" class="block w-10 h-10 rounded border border-gray-200 dark:border-gray-700 overflow-hidden hover:opacity-80 transition-opacity">
                                                             <img src="{{ $upload['url'] }}" class="w-full h-full object-cover" alt="Image">
                                                         </a>

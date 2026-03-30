@@ -129,7 +129,7 @@ class SectionItemUpload extends Component
 
                     $extension    = $file->getClientOriginalExtension();
                     $originalName = $file->getClientOriginalName();
-                    $mime         = $file->getMimeType();
+                    $mime         = $file->getMimeType() ?: ($file->getClientMimeType() ?: '');
                     $size         = $file->getSize(); // bytes
                     $fileType     = $this->resolveFileType($mime, $extension);
                     $fileName     = $this->slug . '-' . uniqid() . '.' . $extension;
@@ -293,12 +293,15 @@ class SectionItemUpload extends Component
      */
     private function resolveFileType(string $mime, string $ext): string
     {
-        if (str_starts_with($mime, 'image/'))                        return 'image';
-        if ($mime === 'application/pdf' || $ext === 'pdf')           return 'pdf';
+        $ext = strtolower($ext);
+
+        if (str_starts_with($mime, 'image/') || in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'heic'])) return 'image';
+        if ($mime === 'application/pdf' || $ext === 'pdf') return 'pdf';
         if (str_contains($mime, 'spreadsheet') || in_array($ext, ['xlsx', 'xls', 'csv'])) return 'spreadsheet';
-        if (str_contains($mime, 'word') || in_array($ext, ['docx', 'doc']))                return 'document';
-        if (str_starts_with($mime, 'video/'))                        return 'video';
-        if (str_starts_with($mime, 'audio/'))                        return 'audio';
+        if (str_contains($mime, 'word') || in_array($ext, ['docx', 'doc'])) return 'document';
+        if (str_starts_with($mime, 'video/') || in_array($ext, ['mp4', 'mov', 'avi', 'mkv', 'webm'])) return 'video';
+        if (str_starts_with($mime, 'audio/') || in_array($ext, ['mp3', 'wav', 'ogg'])) return 'audio';
+        
         return 'file';
     }
 }

@@ -72,7 +72,7 @@
                                     class="relative group w-20 h-20 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 shadow-sm shrink-0"
                                     wire:key="upload-thumb-{{ $key }}-{{ $fi }}">
 
-                                    @if ($upload['file_type'] === 'image')
+                                    @if ($upload['file_type'] === 'image' || in_array(strtolower(pathinfo($upload['original_name'], PATHINFO_EXTENSION)), ['jpg','jpeg','png','gif','svg','webp']))
                                         {{-- Image thumbnail --}}
                                         <img src="{{ $upload['url'] }}" alt="{{ $upload['original_name'] }}"
                                             class="w-full h-full object-cover" />
