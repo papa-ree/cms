@@ -99,23 +99,27 @@
                                         </div>
                                     @endif
 
-                                    {{-- Hover overlay: file info + delete --}}
-                                    <div
-                                        class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity p-1">
-                                        <p class="text-[9px] text-white text-center leading-tight truncate w-full"
-                                            title="{{ $upload['original_name'] }}">
-                                            {{ Str::limit($upload['original_name'], 14) }}
-                                        </p>
-                                        <p class="text-[9px] text-white/70">
-                                            {{ number_format($upload['size'] / 1024, 1) }} KB
-                                        </p>
-                                        <button type="button"
-                                            wire:click="deleteUpload('{{ $key }}', {{ $fi }})"
-                                            wire:confirm="Hapus file ini? Tindakan tidak dapat dibatalkan."
-                                            class="flex items-center gap-1 px-2 py-0.5 bg-red-500 hover:bg-red-600 text-white text-[10px] font-semibold rounded-md transition-colors">
-                                            <x-lucide-trash-2 class="w-2.5 h-2.5" />
-                                            Hapus
-                                        </button>
+                                    {{-- Hover overlay: link & delete --}}
+                                    <div class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col">
+                                        {{-- Clickable area (top half) --}}
+                                        <a href="{{ $upload['url'] }}" target="_blank" 
+                                           class="flex-1 flex flex-col items-center justify-center p-1 hover:bg-white/10 transition-colors"
+                                           title="Buka {{ $upload['original_name'] }}">
+                                            <x-lucide-external-link class="w-3.5 h-3.5 text-white mb-0.5" />
+                                            <p class="text-[9px] text-white text-center leading-tight truncate w-full">
+                                                {{ Str::limit($upload['original_name'], 12) }}
+                                            </p>
+                                        </a>
+                                        {{-- Delete action (bottom) --}}
+                                        <div class="p-1 flex justify-center border-t border-white/10">
+                                            <button type="button"
+                                                wire:click.stop="deleteUpload('{{ $key }}', {{ $fi }})"
+                                                wire:confirm="Hapus file ini? Tindakan tidak dapat dibatalkan."
+                                                class="flex items-center gap-1 justify-center px-1.5 py-0.5 bg-red-500 hover:bg-red-600 text-white text-[9px] font-semibold rounded w-full transition-colors">
+                                                <x-lucide-trash-2 class="w-2.5 h-2.5" />
+                                                Hapus
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
