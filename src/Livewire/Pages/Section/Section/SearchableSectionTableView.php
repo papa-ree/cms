@@ -38,7 +38,7 @@ class SearchableSectionTableView extends Component
         $items = $content['items'] ?? [];
         $meta = $content['meta'] ?? [];
 
-        $sysKeys = ['id', 'created_at', 'updated_at'];
+        $sysKeys = ['id', 'created_at', 'updated_at', 'uploads'];
         $orderedKeys = $meta['order'] ?? [];
         $orderedKeys = array_values(array_diff($orderedKeys, $sysKeys));
 
@@ -84,8 +84,17 @@ class SearchableSectionTableView extends Component
         // Search across all key values
         return array_filter($items, function ($item) {
             foreach ($item as $key => $values) {
+                if ($key === 'uploads') continue;
+
                 // Handle both array and string values
-                $searchableText = is_array($values) ? implode(' ', $values) : $values;
+                if (is_array($values)) {
+                    // Check if it's an array of arrays (like uploads, although we skip it above)
+                    // or an array of strings (social links, tags, etc.)
+                    $searchableValues = array_filter($values, fn($v) => is_string($v) || is_numeric($v));
+                    $searchableText = implode(' ', $searchableValues);
+                } else {
+                    $searchableText = (string) $values;
+                }
 
                 if (stripos($searchableText, $this->searchQuery) !== false) {
                     return true;

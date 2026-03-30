@@ -59,7 +59,7 @@ class SearchableCreateItem extends Component
         $content = $section->content ?? [];
         $items = $content['items'] ?? [];
 
-        $sysKeys = ['id', 'created_at', 'updated_at'];
+        $sysKeys = ['id', 'created_at', 'updated_at', 'uploads'];
         $orderedKeys = $content['meta']['order'] ?? [];
         $orderedKeys = array_values(array_diff($orderedKeys, $sysKeys));
 
