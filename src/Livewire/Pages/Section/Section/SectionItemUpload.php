@@ -40,11 +40,8 @@ class SectionItemUpload extends Component
     /** @var array<string> */
     public array $fileKeys = [];
 
-    /** Livewire temporary upload holder (reset after each upload cycle) */
+    /** Livewire temporary upload holder (associative array by key) */
     public $tempUpload = [];
-
-    /** Which file-key is currently active (set by Alpine before triggering upload) */
-    public string $activeUploadKey = '';
 
     /** null | 'saving' | 'saved' */
     public ?string $saveStatus = null;
@@ -94,7 +91,7 @@ class SectionItemUpload extends Component
                     $raw = $item['uploads'] ?? [];
                     // Group by key
                     foreach ($raw as $entry) {
-                        $key = $entry['key'] ?? 'files';
+                        $key = !empty($entry['key']) ? $entry['key'] : ($this->fileKeys[0] ?? 'files');
                         $uploads[$key][] = $entry;
                     }
                     break;
@@ -122,49 +119,53 @@ class SectionItemUpload extends Component
         $this->saveStatus = 'saving';
 
         try {
-            $files = is_array($this->tempUpload) ? $this->tempUpload : [$this->tempUpload];
+            foreach ($this->tempUpload as $uploadKey => $fileData) {
+                if (empty($fileData)) continue;
 
-            foreach ($files as $file) {
-                if (!is_object($file)) continue;
+                $files = is_array($fileData) ? $fileData : [$fileData];
 
-                $extension    = $file->getClientOriginalExtension();
-                $originalName = $file->getClientOriginalName();
-                $mime         = $file->getMimeType();
-                $size         = $file->getSize(); // bytes
-                $fileType     = $this->resolveFileType($mime, $extension);
-                $fileName     = $this->slug . '-' . uniqid() . '.' . $extension;
-                $orgSlug      = session('bale_active_slug', '');
-                $s3Path       = $orgSlug . '/landing-page/items/' . $this->slug . '/' . $fileName;
+                foreach ($files as $file) {
+                    if (!is_object($file)) continue;
 
-                Storage::disk('s3')->put($s3Path, $file->get());
+                    $extension    = $file->getClientOriginalExtension();
+                    $originalName = $file->getClientOriginalName();
+                    $mime         = $file->getMimeType();
+                    $size         = $file->getSize(); // bytes
+                    $fileType     = $this->resolveFileType($mime, $extension);
+                    $fileName     = $this->slug . '-' . uniqid() . '.' . $extension;
+                    $orgSlug      = session('bale_active_slug', '');
+                    $s3Path       = $orgSlug . '/landing-page/items/' . $this->slug . '/' . $fileName;
 
-                $cdnUrl = Cdn::url('landing-page/items/' . $this->slug . '/' . $fileName);
+                    Storage::disk('s3')->put($s3Path, $file->get());
 
-                $entry = [
-                    'item_id'       => $this->itemId,
-                    'url'           => $cdnUrl,
-                    'name'          => $fileName,
-                    'original_name' => $originalName,
-                    'size'          => $size,
-                    'mime_type'     => $mime,
-                    'file_type'     => $fileType,
-                    'path'          => $s3Path,
-                    'key'           => $this->activeUploadKey,
-                    'uploaded_at'   => now()->toDateTimeString(),
-                ];
+                    $cdnUrl = Cdn::url('landing-page/items/' . $this->slug . '/' . $fileName);
 
-                $this->persistUpload($entry);
+                    $entry = [
+                        'item_id'       => $this->itemId,
+                        'url'           => $cdnUrl,
+                        'name'          => $fileName,
+                        'original_name' => $originalName,
+                        'size'          => $size,
+                        'mime_type'     => $mime,
+                        'file_type'     => $fileType,
+                        'path'          => $s3Path,
+                        'key'           => $uploadKey,
+                        'uploaded_at'   => now()->toDateTimeString(),
+                    ];
 
-                $this->dispatch('upload-saved', [
-                    'key'           => $this->activeUploadKey,
-                    'url'           => $cdnUrl,
-                    'name'          => $fileName,
-                    'original_name' => $originalName,
-                    'mime'          => $mime,
-                    'size'          => $size,
-                    'file_type'     => $fileType,
-                    's3Path'        => $s3Path,
-                ]);
+                    $this->persistUpload($entry);
+
+                    $this->dispatch('upload-saved', [
+                        'key'           => $uploadKey,
+                        'url'           => $cdnUrl,
+                        'name'          => $fileName,
+                        'original_name' => $originalName,
+                        'mime'          => $mime,
+                        'size'          => $size,
+                        'file_type'     => $fileType,
+                        's3Path'        => $s3Path,
+                    ]);
+                }
             }
 
             $this->saveStatus = 'saved';

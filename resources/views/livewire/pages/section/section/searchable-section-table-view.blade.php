@@ -103,8 +103,26 @@
                                 </td>
                                 @foreach($availableKeys as $key)
                                     @continue(in_array($key, ['id', 'created_at', 'updated_at']))
+                                    @php
+                                        $fileUploads = collect($item['uploads'] ?? [])->where('key', $key)->all();
+                                    @endphp
                                     <td class="px-6 py-4 text-sm text-gray-700 dark:text-gray-300">
-                                        @if(isset($item[$key]))
+                                        @if(count($fileUploads) > 0)
+                                            <div class="flex flex-wrap gap-1.5">
+                                                @foreach($fileUploads as $upload)
+                                                    @if(($upload['file_type'] ?? '') === 'image')
+                                                        <a href="{{ $upload['url'] }}" target="_blank" class="block w-8 h-8 rounded border border-gray-200 dark:border-gray-700 overflow-hidden hover:opacity-80 transition-opacity">
+                                                            <img src="{{ $upload['url'] }}" class="w-full h-full object-cover" alt="Image">
+                                                        </a>
+                                                    @else
+                                                        <a href="{{ $upload['url'] }}" target="_blank" class="inline-flex items-center px-2 py-1 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-xs font-medium rounded-md hover:bg-violet-200 dark:hover:bg-violet-800/50 transition-colors" title="{{ $upload['original_name'] ?? 'File' }}">
+                                                            <x-lucide-paperclip class="w-3 h-3 mr-1" />
+                                                            {{ \Illuminate\Support\Str::limit($upload['original_name'] ?? 'File', 12) }}
+                                                        </a>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        @elseif(isset($item[$key]))
                                             @if(is_array($item[$key]))
                                                 @if(count($item[$key]) > 0)
                                                     <div class="flex flex-wrap gap-1">
@@ -173,12 +191,30 @@
                             @foreach($availableKeys as $key)
                                 @continue(in_array($key, ['id', 'created_at', 'updated_at']))
                                 <div>
+                                    @php
+                                        $fileUploads = collect($item['uploads'] ?? [])->where('key', $key)->all();
+                                    @endphp
                                     <div class="flex items-center gap-1.5 mb-1">
                                         <x-lucide-tag class="w-3 h-3 text-purple-600" />
                                         <span class="text-xs font-medium text-gray-600 dark:text-gray-400">{{ $key }}</span>
                                     </div>
                                     <div class="text-sm text-gray-900 dark:text-white">
-                                        @if(isset($item[$key]))
+                                        @if(count($fileUploads) > 0)
+                                            <div class="flex flex-wrap gap-1.5 mt-1">
+                                                @foreach($fileUploads as $upload)
+                                                    @if(($upload['file_type'] ?? '') === 'image')
+                                                        <a href="{{ $upload['url'] }}" target="_blank" class="block w-10 h-10 rounded border border-gray-200 dark:border-gray-700 overflow-hidden hover:opacity-80 transition-opacity">
+                                                            <img src="{{ $upload['url'] }}" class="w-full h-full object-cover" alt="Image">
+                                                        </a>
+                                                    @else
+                                                        <a href="{{ $upload['url'] }}" target="_blank" class="inline-flex items-center px-2.5 py-1.5 bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 text-xs font-medium rounded-md hover:bg-violet-200 dark:hover:bg-violet-800/50 transition-colors" title="{{ $upload['original_name'] ?? 'File' }}">
+                                                            <x-lucide-paperclip class="w-3 h-3 mr-1" />
+                                                            {{ \Illuminate\Support\Str::limit($upload['original_name'] ?? 'File', 20) }}
+                                                        </a>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        @elseif(isset($item[$key]))
                                             @if(is_array($item[$key]))
                                                 @if(count($item[$key]) > 0)
                                                     <div class="flex flex-wrap gap-1">

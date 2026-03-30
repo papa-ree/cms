@@ -150,16 +150,14 @@
 
                     {{-- Upload Zone --}}
                     <x-core::upload-zone
-                        wire:model.live="tempUpload"
+                        wire:model.live="tempUpload.{{ $key }}"
                         accept="image/*,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document,video/*,audio/*"
                         maxSize="10240"
                         multiple
-                        @click="$wire.set('activeUploadKey', '{{ $key }}')"
-                        @drop="$wire.set('activeUploadKey', '{{ $key }}')"
                         label="{{ __('Drop files here or click to browse') }}"
                         hint="{{ __('Images, PDF, Excel, Word, Video, Audio — max 10MB') }}"
                     />
-                    <x-core::input-error for="tempUpload" />
+                    <x-core::input-error for="tempUpload.{{ $key }}" />
                 </div>
             @endforeach
         </div>
