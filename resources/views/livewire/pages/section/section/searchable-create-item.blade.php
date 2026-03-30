@@ -390,94 +390,14 @@
             </button>
         </div>
 
-        {{-- ── Upload Section (auto-save) ── --}}
-        @if (count($fileKeys) > 0)
-        <div class="mt-6 bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden">
-            {{-- Section header with auto-save indicator --}}
-            <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 dark:border-gray-700">
-                <div class="flex items-center gap-2.5">
-                    <div class="p-2 bg-violet-100 dark:bg-violet-900/30 rounded-lg">
-                        <x-lucide-paperclip class="w-4 h-4 text-violet-600" />
-                    </div>
-                    <div>
-                        <h3 class="font-bold text-sm text-gray-900 dark:text-white">File Uploads</h3>
-                        <p class="text-xs text-gray-500">Otomatis tersimpan saat diupload</p>
-                    </div>
-                </div>
-                {{-- Auto-save status indicator --}}
-                <div>
-                    @if ($saveStatus === 'saving')
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-xs font-medium animate-pulse">
-                            <x-lucide-loader-circle class="w-3 h-3 animate-spin" /> Menyimpan...
-                        </span>
-                    @elseif ($saveStatus === 'saved')
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400 text-xs font-medium">
-                            <x-lucide-check-circle class="w-3 h-3" /> Tersimpan
-                        </span>
-                    @else
-                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gray-100 dark:bg-gray-700 text-gray-500 text-xs font-medium">
-                            <x-lucide-cloud class="w-3 h-3" /> Auto-save
-                        </span>
-                    @endif
-                </div>
-            </div>
-
-            <div class="p-6 space-y-6">
-                @foreach ($fileKeys as $key)
-                <div>
-                    {{-- Field label --}}
-                    <div class="flex items-center gap-1.5 mb-3">
-                        <x-lucide-paperclip class="w-4 h-4 text-violet-600" />
-                        <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
-                        <span class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-violet-100 text-violet-700 dark:bg-violet-900/30 dark:text-violet-400 rounded">file upload</span>
-                    </div>
-
-                    {{-- Already-uploaded thumbnails --}}
-                    <div x-show="uploadedFiles['{{ $key }}'] && uploadedFiles['{{ $key }}'].length > 0" class="mb-3">
-                        <div class="flex flex-wrap gap-2">
-                            <template x-for="(file, fIndex) in uploadedFiles['{{ $key }}']" :key="fIndex">
-                                <div class="relative group w-16 h-16 rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 shadow-sm flex-shrink-0">
-
-                                    {{-- Image thumbnail --}}
-                                    <template x-if="isImage(file)">
-                                        <img :src="file.url" :alt="file.name" class="w-full h-full object-cover" />
-                                    </template>
-
-                                    {{-- Document icon --}}
-                                    <template x-if="!isImage(file)">
-                                        <div class="w-full h-full flex flex-col items-center justify-center gap-0.5">
-                                            <span class="text-xl leading-none"
-                                                x-text="fileIcon(file) === 'pdf' ? '📄' : (fileIcon(file) === 'xlsx' ? '📊' : (fileIcon(file) === 'docx' ? '📝' : '📎'))"></span>
-                                            <span class="text-[8px] font-bold uppercase text-gray-400"
-                                                x-text="file.name ? file.name.split('.').pop() : 'file'"></span>
-                                        </div>
-                                    </template>
-
-                                    {{-- Delete on hover --}}
-                                    <button type="button"
-                                        @click="removeUploadedFile('{{ $key }}', fIndex)"
-                                        title="Hapus file"
-                                        class="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <x-lucide-x class="w-4 h-4 text-white" />
-                                    </button>
-                                </div>
-                            </template>
-                        </div>
-                    </div>
-
-                    {{-- Upload Zone --}}
-                    <x-core::upload-zone wire:model.live="tempUpload"
-                        accept="image/*,application/pdf,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
-                        maxSize="10240" multiple
-                        @click="$wire.set('activeUploadKey', '{{ $key }}')"
-                        @drop="$wire.set('activeUploadKey', '{{ $key }}')"
-                        label="{{ __('Drop files here or click to browse') }}"
-                        hint="{{ __('Images, PDF, Excel, Word up to 10MB') }}" />
-                    <x-core::input-error for="tempUpload" />
-                </div>
-                @endforeach
-            </div>
-        </div>
+        {{-- ── Upload Section (shown after item is saved and has file keys) ── --}}
+        @if ($showUploadSection && count($fileKeys) > 0)
+            <livewire:cms.pages.section.section.section-item-upload
+                :slug="$slug"
+                :itemId="$itemId"
+                :fileKeys="$fileKeys"
+                :key="'upload-section-'.$itemId"
+            />
         @endif
 
         {{-- Social platform map (kept in plain
@@ -507,47 +427,9 @@
             const _baleCreateItemFactory = () => ({
                     // Initialize component state from backend data
                     item: @js($currentItem),
-                tempInputs: { },
+                tempInputs: {},
                 fileKeys: @js($fileKeys),
                 socialKeys: @js($socialKeys),
-
-                // Map uploaded files to a structured array for Alpine.js tracking
-                uploadedFiles: @js(
-                    collect($fileKeys)->mapWithKeys(function ($key) use ($currentItem, $slug) {
-                        $urls = $currentItem[$key] ?? [];
-                        if (!is_array($urls))
-                            $urls = [$urls];
-                        
-                        $orgSlug = session('bale_active_slug', '');
-                        return [
-                            $key => array_map(function ($u) use ($slug, $orgSlug) {
-                                $name = basename($u);
-                                $s3Path = $orgSlug . '/landing-page/items/' . $slug . '/' . $name;
-                                return ['url' => $u, 'name' => $name, 'mime' => '', 's3Path' => $s3Path];
-                            }, $urls)
-                        ];
-                    })->all()
-                ),
-
-                // Component initialization
-                init() {
-                    // Subscribe to 'file-uploaded' event from Livewire backend
-                    window.addEventListener( 'file-uploaded', e =>
-                    {
-                        const { key, url, name, mime, s3Path } = e.detail[ 0 ] ?? e.detail;
-                        if ( !this.uploadedFiles[ key ] ) this.uploadedFiles[ key ] = [];
-
-                        // Push new file to local state for instant UI update
-                        this.uploadedFiles[ key ].push( { url, name, mime, s3Path } );
-
-                        if ( !this.item[ key ] ) this.item[ key ] = [];
-                        this.item[ key ].push( url );
-                    } );
-                },
-
-                // Helper methods to identify field types based on conventions
-                isFileKey(key) { return this.fileKeys.includes(key); },
-                isSocialKey(key) { return this.socialKeys.includes(key); },
 
                 // Retrieve styling and metadata based on social media platform name
                 getSocialPlatform(key) {
@@ -572,48 +454,6 @@
                     };
                 },
 
-                // Handle file deletion from both UI and server (S3)
-                removeUploadedFile(key, index) {
-                    if (!confirm('Remove this file? This cannot be undone.')) return;
-
-                const file = this.uploadedFiles[key][index];
-
-                // Remove from local arrays immediately for UI feedback
-                this.uploadedFiles[key].splice(index, 1);
-                this.item[key].splice(index, 1);
-
-                // Dispatch delete request to backend if S3 path exists
-                if (file.s3Path) this.$wire.deleteFile(key, file.url, file.s3Path);
-                },
-
-                // Attempt to infer MIME type from file extension
-                detectMime(name) {
-                    if (!name) return '';
-                const ext = name.split('.').pop().toLowerCase();
-                if (['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'].includes(ext)) return 'image/' + ext;
-                if (ext === 'pdf') return 'application/pdf';
-                if (['xlsx', 'xls', 'csv'].includes(ext)) return 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet';
-                if (['docx', 'doc'].includes(ext)) return 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
-                return '';
-                },
-
-                // Get corresponding icon class for document files
-                fileIcon(file) {
-                    const mime = file.mime || this.detectMime(file.name);
-                if (!mime) return 'file';
-                if (mime.startsWith('image/')) return null;
-                if (mime === 'application/pdf') return 'pdf';
-                if (mime.includes('spreadsheet') || mime.includes('excel') || mime.includes('xlsx') || mime.includes('xls')) return 'xlsx';
-                if (mime.includes('word') || mime.includes('document') || mime.includes('docx') || mime.includes('doc')) return 'docx';
-                return 'file';
-                },
-
-                // Check if file is displayable as an image
-                isImage(file) {
-                    const mime = file.mime || this.detectMime(file.name);
-                return mime && mime.startsWith('image/');
-                },
-
                 // Array value manipulators (used for Text and Social Media inputs)
                 addValue(key) {
                     const val = this.tempInputs[key] || '';
@@ -636,15 +476,6 @@
                 },
 
                 init() {
-                    // Subscribe to 'file-uploaded' event from Livewire backend
-                    window.addEventListener('file-uploaded', e => {
-                        const { key, url, name, mime, s3Path } = e.detail[0] ?? e.detail;
-                        if (!this.uploadedFiles[key]) this.uploadedFiles[key] = [];
-                        this.uploadedFiles[key].push({ url, name, mime, s3Path });
-                        if (!this.item[key]) this.item[key] = [];
-                        this.item[key].push(url);
-                    });
-
                     // Listen for cross-scope save dispatch
                     window.addEventListener('bale-save-item', () => this.saveItem());
                 },
