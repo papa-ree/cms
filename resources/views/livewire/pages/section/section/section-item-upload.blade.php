@@ -69,7 +69,7 @@
                         <div class="flex flex-wrap gap-3 mb-4">
                             @foreach ($keyUploads as $fi => $upload)
                                 <div
-                                    class="relative group w-20 h-20 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 shadow-sm shrink-0"
+                                    class="relative group w-30 h-30 rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-900 shadow-sm shrink-0"
                                     wire:key="upload-thumb-{{ $key }}-{{ $fi }}">
 
                                     @if ($upload['file_type'] === 'image' || in_array(strtolower(pathinfo($upload['original_name'], PATHINFO_EXTENSION)), ['jpg','jpeg','png','gif','svg','webp']))
@@ -109,13 +109,18 @@
                                         <p class="text-[9px] text-white/70">
                                             {{ number_format($upload['size'] / 1024, 1) }} KB
                                         </p>
-                                        <button type="button"
-                                            wire:click="deleteUpload('{{ $key }}', {{ $fi }})"
-                                            wire:confirm="Hapus file ini? Tindakan tidak dapat dibatalkan."
-                                            class="flex items-center gap-1 px-2 py-0.5 bg-red-500 hover:bg-red-600 text-white text-[10px] font-semibold rounded-md transition-colors">
-                                            <x-lucide-trash-2 class="w-2.5 h-2.5" />
-                                            Hapus
-                                        </button>
+                                        <div class="flex items-center gap-1">
+                                            <a href="{{ $upload['url'] }}" target="_blank" class="flex items-center gap-1 px-2 py-0.5 bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] font-semibold rounded-md transition-colors">
+                                                <x-lucide-eye class="w-2.5 h-2.5" />
+                                            </a>
+                                            <button type="button"
+                                                wire:click="deleteUpload('{{ $key }}', {{ $fi }})"
+                                                wire:confirm="Hapus file ini? Tindakan tidak dapat dibatalkan."
+                                                class="flex items-center gap-1 px-2 py-0.5 bg-red-500 hover:bg-red-600 text-white text-[10px] font-semibold rounded-md transition-colors">
+                                                <x-lucide-trash-2 class="w-2.5 h-2.5" />
+                                                Hapus
+                                            </button>
+                                        </div>
                                     </div>
                                 </div>
                             @endforeach
