@@ -53,7 +53,7 @@
     </div>
 
     {{-- Topbar --}}
-    <livewire:cms.shared-components.praban-post-editor-topbar />
+    <livewire:cms.shared-components.cms-post-editor-topbar />
 
     {{-- Main Content Area --}}
     <div class="w-full px-3 py-4 pb-20 md:pb-4 md:px-4 md:py-6">

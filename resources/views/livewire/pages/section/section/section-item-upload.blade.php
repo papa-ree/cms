@@ -110,7 +110,7 @@
                                             {{ number_format($upload['size'] / 1024, 1) }} KB
                                         </p>
                                         <div class="flex items-center gap-1">
-                                            <a href="{{ $upload['url'] }}" target="_blank" class="flex items-center gap-1 px-2 py-0.5 bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] font-semibold rounded-md transition-colors">
+                                            <a href="{{ $upload['url'] }}" target="_blank" class="flex items-center gap-1 p-2 bg-indigo-500 hover:bg-indigo-600 text-white text-[10px] font-semibold rounded-md transition-colors">
                                                 <x-lucide-eye class="w-2.5 h-2.5" />
                                             </a>
                                             <button type="button"

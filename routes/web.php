@@ -24,7 +24,6 @@ use Bale\Cms\Livewire\Pages\Section\Section\SearchableSectionForm;
 use Bale\Cms\Livewire\Pages\Section\Section\SearchableSectionTableView;
 use Bale\Cms\Livewire\Pages\Section\Section\SearchableEditKey;
 use Bale\Cms\Livewire\Pages\Section\Section\SearchableCreateItem;
-use Bale\Cms\Livewire\SharedComponents\ExitCms;
 use Bale\Cms\Middleware\EnsureBaleSelected;
 use Bale\Cms\Middleware\SwitchBaleConnection;
 
@@ -45,8 +44,6 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             Route::get('posts.create', CreateNewPost::class)->name('create');
             Route::get('posts.edit.{slug}', EditPost::class)->name('edit');
         });
-
-        Route::get('exit-cms', ExitCms::class)->name('exit-cms');
 
         Route::post('/editorjs/upload', function (Request $request) {
             $validator = Validator::make($request->all(), [

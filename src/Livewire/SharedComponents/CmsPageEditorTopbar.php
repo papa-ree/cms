@@ -6,10 +6,10 @@ use Livewire\Component;
 use Livewire\Attributes\{Layout};
 
 #[Layout('cms::layouts.app')]
-class PrabanPageEditorTopbar extends Component
+class CmsPageEditorTopbar extends Component
 {
     public function render()
     {
-        return view('cms::livewire.shared-components.praban-page-editor-topbar');
+        return view('cms::livewire.shared-components.cms-page-editor-topbar');
     }
 }
