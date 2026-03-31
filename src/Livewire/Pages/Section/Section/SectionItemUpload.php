@@ -35,7 +35,7 @@ class SectionItemUpload extends Component
     public string $slug = '';
 
     #[Locked]
-    public string $itemId = '';
+    public ?string $itemId = null;
 
     /** @var array<string> */
     public array $fileKeys = [];
@@ -48,7 +48,7 @@ class SectionItemUpload extends Component
 
     // ─── Mount ───────────────────────────────────────────────────────────────
 
-    public function mount(string $slug, string $itemId, array $fileKeys = []): void
+    public function mount(string $slug, ?string $itemId = null, array $fileKeys = []): void
     {
         $this->slug     = $slug;
         $this->itemId   = $itemId;

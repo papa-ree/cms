@@ -38,7 +38,15 @@ class SearchableSectionTableView extends Component
         $items = $content['items'] ?? [];
         $meta = $content['meta'] ?? [];
 
-        $sysKeys = ['id', 'created_at', 'updated_at', 'uploads'];
+        $sysKeys = ['id', 'created_at', 'updated_at', 'uploads', 'attachments'];
+        
+        // Add social media keys if present in meta
+        if (isset($meta['social_platforms'])) {
+            foreach ($meta['social_platforms'] as $platform) {
+                $sysKeys[] = 'sm_' . $platform;
+            }
+        }
+
         $orderedKeys = $meta['order'] ?? [];
         $orderedKeys = array_values(array_diff($orderedKeys, $sysKeys));
 
@@ -84,7 +92,7 @@ class SearchableSectionTableView extends Component
         // Search across all key values
         return array_filter($items, function ($item) {
             foreach ($item as $key => $values) {
-                if ($key === 'uploads') continue;
+                if ($key === 'uploads' || str_starts_with($key, 'sm_')) continue;
 
                 // Handle both array and string values
                 if (is_array($values)) {

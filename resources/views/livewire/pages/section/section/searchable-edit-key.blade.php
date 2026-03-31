@@ -1,12 +1,23 @@
 <div x-data="{
-    keys: @js($availableKeys),
+    keys: @entangle('availableKeys'),
     newKey: '',
     sortingEnabled: false,
     sortableInstance: null,
+    
+    // Feature Toggles (entangled with Livewire properties)
+    enableUpload: @entangle('enableUpload'),
+    enableSocial: @entangle('enableSocial'),
+    activeSocialPlatforms: @entangle('activeSocialPlatforms'),
+    platformsList: @js($this::SOCIAL_PLATFORMS),
+
     addKey() {
-        if (this.newKey.trim() !== '' && !this.keys.includes(this.newKey.trim())) {
-            this.keys.push(this.newKey.trim());
+        const k = this.newKey.trim();
+        const reserved = ['id', 'created_at', 'updated_at', 'uploads', 'attachments'];
+        if (k !== '' && !this.keys.includes(k) && !reserved.includes(k.toLowerCase()) && !k.toLowerCase().startsWith('sm_')) {
+            this.keys.push(k);
             this.newKey = '';
+        } else if (reserved.includes(k.toLowerCase()) || k.toLowerCase().startsWith('sm_')) {
+            this.$dispatch('toast', { message: 'Key tersebut dilarang karena merupakan sistem key!', type: 'error' });
         }
     },
     removeKey(index) {
@@ -32,8 +43,6 @@
             this.$watch('sortingEnabled', value => {
                 this.sortableInstance.option('disabled', !value);
             });
-        } else if (!window.Sortable) {
-            console.error('SortableJS not found. Please ensure it is loaded.');
         }
     }
 }" x-init="initSortable()">
@@ -91,112 +100,181 @@
     <div
         class="mb-8 p-5 bg-linear-to-r from-purple-50 to-pink-50 dark:from-purple-900/20 dark:to-pink-900/20 border border-purple-200 dark:border-purple-800 rounded-2xl">
         <div class="flex items-start gap-4">
-            <div class="p-3 bg-purple-600 rounded-xl shadow-lg">
-                <x-lucide-info class="w-6 h-6 text-white" />
+            <div class="p-3 bg-purple-600 rounded-xl shadow-lg text-white">
+                <x-lucide-lightbulb class="w-6 h-6" />
             </div>
             <div class="flex-1">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">About Field Keys</h3>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">{{ __('Section Configuration System') }}</h3>
                 <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                    Keys define the structure of your searchable items. Each item will have fields based on these keys.
+                    {!! __('This page is used to define the <strong>Architecture</strong> of the section. Changes here will affect all items within this section.') !!}
                 </p>
                 <div class="grid gap-2 md:grid-cols-2">
                     <div class="flex items-start gap-2">
                         <x-lucide-check class="w-4 h-4 text-purple-600 mt-0.5" />
-                        <span class="text-sm text-gray-600 dark:text-gray-400">Add keys before creating items</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">{{ __('Global Features: Enable Upload Zone or Social Media for all items.') }}</span>
                     </div>
                     <div class="flex items-start gap-2">
                         <x-lucide-check class="w-4 h-4 text-purple-600 mt-0.5" />
-                        <span class="text-sm text-gray-600 dark:text-gray-400">Removing keys will clear related
-                            data</span>
+                        <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">{{ __('Field Keys: Add data keys you want to manage and search.') }}</span>
                     </div>
                     <div class="flex items-start gap-2">
-                        <x-lucide-check class="w-4 h-4 text-purple-600 mt-0.5" />
-                        <span class="text-sm text-gray-600 dark:text-gray-400">
-                            Use key named images, files, attachments, documents, photos, gallery
-                            for file upload field type
-                        </span>
+                        <x-lucide-shield-check class="w-4 h-4 text-purple-600 mt-0.5" />
+                        <span class="text-sm text-gray-600 dark:text-gray-400">{!! __('Reserved Keys (attachments, sm_*) are automatically managed by global features.') !!}</span>
                     </div>
                     <div class="flex items-start gap-2">
-                        <x-lucide-check class="w-4 h-4 text-purple-600 mt-0.5" />
-                        <span class="text-sm text-gray-600 dark:text-gray-400">
-                            Use suffix for file upload field type
-                            example: <span class="font-semibold">_image, _file, _foto, _doc, _pdf, _photo,
-                                _attachment, _gambar</span>
-                        </span>
+                        <x-lucide-alert-triangle class="w-4 h-4 text-amber-500 mt-0.5" />
+                        <span class="text-sm text-gray-600 dark:text-gray-400 italic font-medium text-amber-600">{{ __('IMPORTANT: Deleting a key will permanently delete related data on all items!') }}</span>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    {{-- Key Management Card --}}
-    <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
-        <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
-            <div class="p-2.5 bg-linear-to-br from-purple-500 to-purple-600 rounded-lg shadow-md">
-                <x-lucide-tags class="w-5 h-5 text-white" />
-            </div>
-            <div>
-                <h3 class="font-bold text-lg text-gray-900 dark:text-white">Field Keys Management</h3>
-                <p class="text-sm text-gray-500 dark:text-gray-400">Add or remove field keys</p>
-            </div>
-        </div>
-
-        {{-- Add New Key --}}
-        <div class="mb-6">
-            <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Add New Field Key</label>
-            <div class="flex gap-2">
-                <div class="flex-1">
-                    <x-core::input x-model="newKey" @keydown.enter.prevent="addKey"
-                        placeholder="e.g. product_name, price, category" />
-                </div>
-                <button type="button" @click="addKey"
-                    class="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl shadow-md transition-all">
-                    <x-lucide-plus class="w-4 h-4" />
-                    Add Key
-                </button>
-            </div>
-            <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Press Enter or click Add Key to create</p>
-        </div>
-
-        {{-- Keys List --}}
-        <div>
-            <div class="flex items-center justify-between mb-3">
-                <div class="flex items-center gap-2">
-                    <x-lucide-list class="w-4 h-4 text-gray-600 dark:text-gray-400" />
-                    <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
-                        Active Keys (<span x-text="keys.length"></span>)
-                    </span>
-                </div>
-
-                {{-- Sortable Toggle --}}
-                {{-- <div class="flex items-center gap-2">
-                    <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Enable Reordering</span>
-                    <input type="checkbox" x-model="sortingEnabled" id="sortable-toggle"
-                        class="relative w-13 h-7 bg-gray-100 checked:bg-none checked:bg-purple-600 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 ring-1 ring-transparent focus:border-purple-600 focus:ring-purple-600 appearance-none before:inline-block before:w-6 before:h-6 before:bg-white before:translate-x-0 checked:before:translate-x-full before:shadow before:rounded-full before:transform before:ring-0 before:transition before:ease-in-out before:duration-200 dark:bg-gray-700 dark:before:bg-gray-400 dark:checked:before:bg-purple-200 dark:focus:before:ring-gray-600">
-                </div> --}}
-            </div>
-
-            <div id="keys-list"
-                class="flex flex-wrap gap-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[100px]">
-                <template x-for="(key, index) in keys" :key="key">
-                    <div :data-id="key"
-                        class="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-purple-200 dark:border-purple-800 rounded-lg shadow-sm group">
-                        <x-lucide-grip-vertical x-show="sortingEnabled"
-                            class="w-3.5 h-3.5 text-gray-400 group-hover:text-purple-600 cursor-move" />
-                        <x-lucide-tag class="w-3.5 h-3.5 text-purple-600" />
-                        <span class="text-sm font-medium text-gray-800 dark:text-white" x-text="key"></span>
-                        <button type="button" @click="removeKey(index)"
-                            class="p-0.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors ml-1">
-                            <x-lucide-x class="w-3.5 h-3.5" />
-                        </button>
+    <div class="grid gap-8 lg:grid-cols-3">
+        {{-- Section Features Toggles --}}
+        <div class="space-y-6">
+            <div
+                class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
+                <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                    <div class="p-2.5 bg-linear-to-br from-blue-500 to-indigo-600 rounded-lg shadow-md">
+                        <x-lucide-settings class="w-5 h-5 text-white" />
                     </div>
-                </template>
+                    <div>
+                        <h3 class="font-bold text-lg text-gray-900 dark:text-white">Section Features</h3>
+                        <p class="text-sm text-gray-500 dark:text-gray-400">Global section settings</p>
+                    </div>
+                </div>
+
+                <div class="space-y-5">
+                    {{-- Upload Zone Toggle --}}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-violet-600 rounded-lg">
+                                <x-lucide-upload-cloud class="w-4 h-4 text-white" />
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-900 dark:text-white">Upload Zone</p>
+                                <p class="text-[10px] text-gray-500">Enable file attachments</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" x-model="enableUpload" class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-violet-300 dark:peer-focus:ring-violet-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-violet-600">
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="h-px bg-gray-100 dark:bg-gray-800 w-full"></div>
+
+                    {{-- Social Media Toggle --}}
+                    <div class="space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div class="flex items-center gap-3">
+                                <div class="p-2 bg-pink-600 rounded-lg">
+                                    <x-lucide-share-2 class="w-4 h-4 text-white" />
+                                </div>
+                                <div>
+                                    <p class="text-sm font-bold text-gray-900 dark:text-white">Social Media</p>
+                                    <p class="text-[10px] text-gray-500">Enable social profile links</p>
+                                </div>
+                            </div>
+                            <label class="relative inline-flex items-center cursor-pointer">
+                                <input type="checkbox" x-model="enableSocial" class="sr-only peer">
+                                <div
+                                    class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-pink-300 dark:peer-focus:ring-violet-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-pink-600">
+                                </div>
+                            </label>
+                        </div>
+
+                        <div x-show="enableSocial" x-cloak x-collapse class="space-y-2">
+                            <p class="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Select Platforms</p>
+                            <div class="flex flex-wrap gap-1.5">
+                                <template x-for="p in platformsList" :key="p">
+                                    <label class="cursor-pointer">
+                                        <input type="checkbox" :value="p" x-model="activeSocialPlatforms"
+                                            class="sr-only peer">
+                                        <div class="px-2 py-1 rounded-md border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-900/50 text-[10px] font-medium text-gray-500 peer-checked:bg-pink-500 peer-checked:border-pink-500 peer-checked:text-white transition-all capitalize"
+                                            x-text="p"></div>
+                                    </label>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {{-- Key Management Card --}}
+        <div
+            class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700">
+            <div class="flex items-center gap-3 mb-6 pb-4 border-b border-gray-200 dark:border-gray-700">
+                <div class="p-2.5 bg-linear-to-br from-purple-500 to-purple-600 rounded-lg shadow-md">
+                    <x-lucide-tags class="w-5 h-5 text-white" />
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg text-gray-900 dark:text-white">Field Keys Management</h3>
+                    <p class="text-sm text-gray-500 dark:text-gray-400">Add or remove field keys</p>
+                </div>
             </div>
 
-            <div x-show="keys.length === 0"
-                class="mt-2 p-8 bg-gray-50 dark:bg-gray-900/50 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-center">
-                <x-lucide-inbox class="w-10 h-10 text-gray-400 mx-auto mb-2" />
-                <p class="text-sm text-gray-600 dark:text-gray-400">No keys yet. Add your first key above.</p>
+            {{-- Add New Key --}}
+            <div class="mb-6">
+                <label class="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 block">Add New Field Key</label>
+                <div class="flex gap-2">
+                    <div class="flex-1">
+                        <x-core::input x-model="newKey" @keydown.enter.prevent="addKey"
+                            placeholder="e.g. product_name, price, category" />
+                    </div>
+                    <button type="button" @click="addKey"
+                        class="inline-flex items-center gap-2 px-4 py-2.5 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl shadow-md transition-all">
+                        <x-lucide-plus class="w-4 h-4" />
+                        Add Key
+                    </button>
+                </div>
+                <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">Press Enter or click Add Key to create</p>
+            </div>
+
+            {{-- Keys List --}}
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <div class="flex items-center gap-2">
+                        <x-lucide-list class="w-4 h-4 text-gray-600 dark:text-gray-400" />
+                        <span class="text-sm font-medium text-gray-700 dark:text-gray-300">
+                            Active Keys (<span x-text="keys.length"></span>)
+                        </span>
+                    </div>
+
+                    {{-- Sortable Toggle --}}
+                    {{-- <div class="flex items-center gap-2">
+                        <span class="text-xs font-medium text-gray-500 dark:text-gray-400">Enable Reordering</span>
+                        <input type="checkbox" x-model="sortingEnabled" id="sortable-toggle"
+                            class="relative w-13 h-7 bg-gray-100 checked:bg-none checked:bg-purple-600 border-2 border-transparent rounded-full cursor-pointer transition-colors ease-in-out duration-200 ring-1 ring-transparent focus:border-purple-600 focus:ring-purple-600 appearance-none before:inline-block before:w-6 before:h-6 before:bg-white before:translate-x-0 checked:before:translate-x-full before:shadow before:rounded-full before:transform before:ring-0 before:transition before:ease-in-out before:duration-200 dark:bg-gray-700 dark:before:bg-gray-400 dark:checked:before:bg-purple-200 dark:focus:before:ring-gray-600">
+                    </div> --}}
+                </div>
+
+                <div id="keys-list"
+                    class="flex flex-wrap gap-2 p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700 min-h-[100px]">
+                    <template x-for="(key, index) in keys" :key="key">
+                        <div :data-id="key"
+                            class="inline-flex items-center gap-2 px-3 py-1.5 bg-white dark:bg-gray-800 border border-purple-200 dark:border-purple-800 rounded-lg shadow-sm group">
+                            <x-lucide-grip-vertical x-show="sortingEnabled"
+                                class="w-3.5 h-3.5 text-gray-400 group-hover:text-purple-600 cursor-move" />
+                            <x-lucide-tag class="w-3.5 h-3.5 text-purple-600" />
+                            <span class="text-sm font-medium text-gray-800 dark:text-white" x-text="key"></span>
+                            <button type="button" @click="removeKey(index)"
+                                class="p-0.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors ml-1">
+                                <x-lucide-x class="w-3.5 h-3.5" />
+                            </button>
+                        </div>
+                    </template>
+                </div>
+
+                <div x-show="keys.length === 0"
+                    class="mt-2 p-8 bg-gray-50 dark:bg-gray-900/50 border-2 border-dashed border-gray-300 dark:border-gray-700 rounded-xl text-center">
+                    <x-lucide-inbox class="w-10 h-10 text-gray-400 mx-auto mb-2" />
+                    <p class="text-sm text-gray-600 dark:text-gray-400">No keys yet. Add your first key above.</p>
+                </div>
             </div>
         </div>
     </div>
@@ -211,10 +289,10 @@
                 <p class="text-xs text-gray-600 dark:text-gray-400">This will update the section structure</p>
             </div>
         </div>
-        <button type="button" @click="$wire.save(keys)"
+        <button type="button" @click="$wire.save()"
             class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl shadow-md transition-all">
             <x-lucide-save class="w-4 h-4" />
-            Save Keys
+            Save Configuration
         </button>
     </div>
 

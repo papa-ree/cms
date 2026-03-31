@@ -12,6 +12,12 @@ use Livewire\Attributes\{Layout, Locked, Title};
 #[Title('Bale | Manage Item')]
 class SearchableCreateItem extends Component
 {
+    public const SOCIAL_PLATFORMS = [
+        'facebook', 'instagram', 'youtube', 'whatsapp', 'tiktok',
+        'twitter', 'x', 'linkedin', 'telegram', 'pinterest',
+        'snapchat', 'threads', 'line', 'wechat'
+    ];
+
 
     #[Locked]
     public $id;
@@ -29,6 +35,13 @@ class SearchableCreateItem extends Component
     public $currentItem = [];
     public $tempInputs = [];
     public $editMode = false;
+
+    /** Toggle to show/hide the Upload Zone for this section */
+    public bool $enableUpload = false;
+
+    /** Toggle to show/hide the Social Media fields for this section */
+    public bool $enableSocial = false;
+    public array $activeSocialPlatforms = [];
 
     /** Becomes true after item is first saved in create mode, revealing the upload section */
     public bool $showUploadSection = false;
@@ -59,7 +72,16 @@ class SearchableCreateItem extends Component
         $content = $section->content ?? [];
         $items = $content['items'] ?? [];
 
-        $sysKeys = ['id', 'created_at', 'updated_at', 'uploads'];
+        $sysKeys = ['id', 'created_at', 'updated_at', 'uploads', 'attachments'];
+        $this->enableUpload = $content['meta']['enable_upload'] ?? false;
+        $this->enableSocial = $content['meta']['enable_social'] ?? false;
+        $this->activeSocialPlatforms = $content['meta']['social_platforms'] ?? [];
+
+        // Add social media keys to sysKeys to avoid double rendering
+        foreach ($this->activeSocialPlatforms as $platform) {
+            $sysKeys[] = 'sm_' . $platform;
+        }
+
         $orderedKeys = $content['meta']['order'] ?? [];
         $orderedKeys = array_values(array_diff($orderedKeys, $sysKeys));
 
@@ -117,63 +139,24 @@ class SearchableCreateItem extends Component
     }
 
     /**
-     * Returns keys that should render a file uploader.
+     * Managed by the simplified "Universal Upload Zone" toggle.
+     * Always uses the 'attachments' key if enabled.
      */
     public function getFileKeys(): array
     {
-        $patterns = ['images', 'files', 'attachments', 'documents', 'photos', 'gallery', 'image', 'file', 'photo', 'pdf', 'document', 'attachment', 'gambar'];
-        $suffixes = ['_image', '_images', '_file', '_files', '_foto', '_fotos', '_doc', '_docs', '_pdf', '_photo', '_photos', '_attachment', '_gambar'];
-
-        return array_values(array_filter($this->availableKeys, function ($key) use ($patterns, $suffixes) {
-            if (in_array($key, $patterns))
-                return true;
-            foreach ($suffixes as $suffix) {
-                if (str_ends_with($key, $suffix))
-                    return true;
-            }
-            return false;
-        }));
+        return $this->enableUpload ? ['attachments'] : [];
     }
 
     /**
-     * Returns keys that should render a Social Media URL input.
+     * Managed by the "Social Media" toggle and platform selection.
      */
     public function getSocialKeys(): array
     {
-        $platforms = [
-            'facebook', 'instagram', 'youtube', 'whatsapp', 'tiktok',
-            'twitter', 'x', 'linkedin', 'telegram', 'pinterest',
-            'snapchat', 'threads', 'line', 'wechat',
-        ];
-
-        $suffixes = [];
-        foreach ($platforms as $p) {
-            $suffixes[] = '_' . $p;
+        if (!$this->enableSocial) {
+            return [];
         }
-        $suffixes[] = '_sosmed';
-        $suffixes[] = '_social';
-
-        $prefixes = ['social_', 'sosmed_'];
-
-        return array_values(array_filter($this->availableKeys, function ($key) use ($platforms, $suffixes, $prefixes) {
-            if (in_array($key, $this->getFileKeys())) {
-                return false;
-            }
-            if (in_array($key, $platforms)) {
-                return true;
-            }
-            foreach ($suffixes as $suffix) {
-                if (str_ends_with($key, $suffix)) {
-                    return true;
-                }
-            }
-            foreach ($prefixes as $prefix) {
-                if (str_starts_with($key, $prefix)) {
-                    return true;
-                }
-            }
-            return false;
-        }));
+        
+        return array_map(fn($p) => 'sm_' . $p, $this->activeSocialPlatforms);
     }
 
     public function addValue($key)

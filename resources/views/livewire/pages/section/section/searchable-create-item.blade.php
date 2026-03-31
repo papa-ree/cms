@@ -64,36 +64,34 @@
                     <x-lucide-lightbulb class="w-6 h-6 text-white" />
                 </div>
                 <div class="flex-1">
-                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">How to Use</h3>
+                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">{{ __('How to Use') }}</h3>
                     <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
-                        Setiap field dapat memiliki beberapa nilai. Field teks: ketik dan klik Tambah. Field file: drag
-                        &amp; drop atau klik untuk upload. Field social media: masukkan URL profil platform.
+                        {{ __('Each field can have multiple values. Text field: type and click Add. File field: drag & drop or click to upload. Social media field: enter platform profile URL.') }}
                     </p>
                     <div class="grid gap-2 md:grid-cols-2">
                         <div class="flex items-start gap-2">
                             <x-lucide-check class="w-4 h-4 text-blue-600 mt-0.5" />
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Tekan Enter atau klik Tambah untuk
-                                nilai
-                                teks</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">
+                                {{ __('Press Enter or click Add for text values') }}
+                            </span>
                         </div>
                         <div class="flex items-start gap-2">
                             <x-lucide-check class="w-4 h-4 text-blue-600 mt-0.5" />
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Drag &amp; drop atau klik untuk
-                                upload
-                                file</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">
+                                {{ __('Drag & drop or click to upload files') }}
+                            </span>
                         </div>
                         <div class="flex items-start gap-2">
                             <x-lucide-check class="w-4 h-4 text-blue-600 mt-0.5" />
-                            <span class="text-sm text-gray-600 dark:text-gray-400">Key bernama <code
-                                    class="text-xs bg-pink-100 text-pink-700 px-1 rounded">facebook</code>, <code
-                                    class="text-xs bg-pink-100 text-pink-700 px-1 rounded">instagram</code>, dll.
-                                otomatis
-                                tampil sebagai Social Media input</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">
+                                {{ __('Keys named facebook, instagram, etc. automatically appear as Social Media inputs') }}
+                            </span>
                         </div>
                         <div class="flex items-start gap-2">
                             <x-lucide-check class="w-4 h-4 text-blue-600 mt-0.5" />
-                            <span class="text-sm text-gray-600 dark:text-gray-400">File: max 10MB. Format: gambar, PDF,
-                                XLSX, DOCX</span>
+                            <span class="text-sm text-gray-600 dark:text-gray-400">
+                                {{ __('File: max 10MB. Format: images, PDF, XLSX, DOCX') }}
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -116,7 +114,13 @@
             </div>
 
             {{-- Dynamic Non-Upload Fields --}}
-            <div class="space-y-5">
+            <div x-data="{ 
+                    activeSocialPlatforms: @entangle('activeSocialPlatforms'),
+                    enableSocial: @entangle('enableSocial'),
+                    enableUpload: @entangle('enableUpload'),
+                    platformsList: @js($this::SOCIAL_PLATFORMS)
+                }" class="space-y-5">
+
                 @foreach ($availableKeys as $key)
                     @continue(in_array($key, ['id', 'created_at', 'updated_at']))
                     @continue(in_array($key, $fileKeys)) {{-- Upload fields rendered below --}}
@@ -366,7 +370,88 @@
 
                     </div>
                 @endforeach
+
+                {{-- Dynamic Social Media Fields (Alpine-managed visibility) --}}
+                <div x-show="enableSocial" x-cloak class="space-y-5 animate-in fade-in duration-300">
+                    <template x-for="p in platformsList" :key="'field-'+p">
+                        <div x-show="activeSocialPlatforms.includes(p)" 
+                             x-collapse
+                             class="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700">
+                            {{-- Field Key/Label Header --}}
+                            <div class="flex items-center gap-1.5 mb-3">
+                                <x-lucide-share-2 class="w-4 h-4 text-pink-500" />
+                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300" x-text="p.charAt(0).toUpperCase() + p.slice(1)"></label>
+                                <span
+                                    class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400 rounded">
+                                    social media
+                                </span>
+                            </div>
+
+                            {{-- ── SOCIAL MEDIA INPUT FIELD ── --}}
+                            <div x-init="$nextTick(() => { platform = getSocialPlatform('sm_' + p); })" x-data="{ platform: {} }" class="space-y-3">
+                                <div class="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl border transition-all duration-200"
+                                    :class="platform.border + ' shadow-sm'">
+                                    
+                                    {{-- Platform Icon & Label --}}
+                                    <div class="flex items-center gap-3 p-3 border-b" :class="platform.border">
+                                        <div class="w-6 h-6 flex items-center justify-center" :class="platform.text" x-html="platform.icon"></div>
+                                        <span class="text-xs font-bold uppercase tracking-wider" :class="platform.text" x-text="platform.name"></span>
+                                    </div>
+
+                                    <div class="p-2 space-y-2">
+                                        <template x-for="(val, vIdx) in (item['sm_' + p] || [])" :key="vIdx">
+                                            <div class="flex items-center gap-2">
+                                                <div class="relative flex-1">
+                                                    <input type="url" 
+                                                        :value="val"
+                                                        @input.debounce.300ms="item['sm_' + p][vIdx] = $event.target.value"
+                                                        :placeholder="platform.placeholder"
+                                                        class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-opacity-20 transition-all outline-none"
+                                                        :class="platform.border ? platform.border.replace('border-', 'focus:ring-') : ''">
+                                                </div>
+                                                <button type="button" @click="item['sm_' + p].splice(vIdx, 1)"
+                                                    class="p-2.5 text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors">
+                                                    <x-lucide-trash-2 class="w-4 h-4" />
+                                                </button>
+                                            </div>
+                                        </template>
+
+                                        {{-- Empty State for Field --}}
+                                        <template x-if="!(item['sm_' + p] || []).length">
+                                            <div class="px-4 py-8 text-center bg-gray-50/50 dark:bg-gray-900/30 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700">
+                                                <div class="mb-4 opacity-20 flex justify-center" :class="platform.text" x-html="platform.icon ? platform.icon.replace('<svg ', '<svg class=\'w-12 h-12\' ') : ''"></div>
+                                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">No <span x-text="platform.name"></span> links</p>
+                                                <p class="text-[10px] text-gray-400 mt-1">Configure your social profile URL below</p>
+                                            </div>
+                                        </template>
+
+                                        {{-- Add Link Button --}}
+                                        <button type="button" 
+                                            @click="if(!item['sm_' + p]) item['sm_' + p] = []; item['sm_' + p].push('')"
+                                            class="w-full mt-2 py-2.5 border-2 border-dashed rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2"
+                                            :class="platform.border + ' ' + platform.text + ' opacity-60 hover:opacity-100 bg-white/50 dark:bg-gray-800/50'">
+                                            <x-lucide-plus class="w-3.5 h-3.5" />
+                                            Add <span x-text="platform.name"></span> URL
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
             </div>
+        </div>
+
+        {{-- ── Upload Section (Universal Upload Zone) ── --}}
+        <div class="mt-8">
+            @if ($enableUpload)
+                <livewire:cms.pages.section.section.section-item-upload
+                    :slug="$slug"
+                    :itemId="$itemId"
+                    :fileKeys="$fileKeys"
+                    :key="'upload-section-'.$itemId"
+                />
+            @endif
         </div>
 
         {{-- ── Save Bar (non-upload fields) ── --}}
@@ -389,16 +474,6 @@
                 {{ $editMode ? 'Update Item' : 'Create Item' }}
             </button>
         </div>
-
-        {{-- ── Upload Section (shown after item is saved and has file keys) ── --}}
-        @if ($showUploadSection && count($fileKeys) > 0)
-            <livewire:cms.pages.section.section.section-item-upload
-                :slug="$slug"
-                :itemId="$itemId"
-                :fileKeys="$fileKeys"
-                :key="'upload-section-'.$itemId"
-            />
-        @endif
 
         {{-- Social platform map (kept in plain
         <script> so SVG quotes never break x-data)--}}
@@ -427,6 +502,7 @@
             const _baleCreateItemFactory = () => ({
                     // Initialize component state from backend data
                     item: @js($currentItem),
+                    platformsList: @js($this::SOCIAL_PLATFORMS),
                 tempInputs: {},
                 fileKeys: @js($fileKeys),
                 socialKeys: @js($socialKeys),

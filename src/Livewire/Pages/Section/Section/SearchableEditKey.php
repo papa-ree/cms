@@ -12,6 +12,12 @@ use Livewire\Attributes\{Layout, Locked, Title};
 #[Title('Bale | Edit Section Keys')]
 class SearchableEditKey extends Component
 {
+    public const SOCIAL_PLATFORMS = [
+        'facebook', 'instagram', 'youtube', 'whatsapp', 'tiktok',
+        'twitter', 'x', 'linkedin', 'telegram', 'pinterest',
+        'snapchat', 'threads', 'line', 'wechat'
+    ];
+
     #[Locked]
     public $id;
 
@@ -24,6 +30,13 @@ class SearchableEditKey extends Component
     public $availableKeys = [];
     public $newKey = '';
     public $meta = [];
+
+    /** Toggle to show/hide the Upload Zone for this section */
+    public bool $enableUpload = false;
+
+    /** Toggle to show/hide the Social Media fields for this section */
+    public bool $enableSocial = false;
+    public array $activeSocialPlatforms = [];
 
     public function mount($slug)
     {
@@ -60,6 +73,11 @@ class SearchableEditKey extends Component
 
         // Pastikan tidak ada system keys di availableKeys
         $this->availableKeys = array_values(array_diff($this->availableKeys, $sysKeys));
+
+        // Load section-wide toggles from meta
+        $this->enableUpload = $this->meta['enable_upload'] ?? false;
+        $this->enableSocial = $this->meta['enable_social'] ?? false;
+        $this->activeSocialPlatforms = $this->meta['social_platforms'] ?? [];
     }
 
     public function updateOrder($orderedKeys)
@@ -77,7 +95,7 @@ class SearchableEditKey extends Component
         // Validate key is not empty and doesn't already exist
         $this->newKey = trim($this->newKey);
 
-        if (!$this->newKey || in_array($this->newKey, $this->availableKeys) || in_array($this->newKey, ['id', 'created_at', 'updated_at', 'uploads'])) {
+        if (!$this->newKey || in_array($this->newKey, $this->availableKeys) || in_array($this->newKey, ['id', 'created_at', 'updated_at', 'uploads', 'attachments'])) {
             return;
         }
 
@@ -93,13 +111,8 @@ class SearchableEditKey extends Component
         }
     }
 
-    public function save($keys = [])
+    public function save()
     {
-        // Update available keys from argument if provided (allow empty array if intended)
-        if (is_array($keys)) {
-            $this->availableKeys = $keys;
-        }
-
         // Validate at least one key exists
         if (count($this->availableKeys) === 0) {
             $this->dispatch('toast', message: 'Please add at least one key!', type: 'error');
@@ -129,7 +142,7 @@ class SearchableEditKey extends Component
                     $newItem = [];
 
                     // Preserve system keys + backfill jika belum ada
-                    foreach (['id', 'created_at', 'updated_at', 'uploads'] as $sysKey) {
+                    foreach (['id', 'created_at', 'updated_at', 'uploads', 'attachments'] as $sysKey) {
                         if (isset($item[$sysKey])) {
                             $newItem[$sysKey] = $item[$sysKey];
                         }
@@ -159,6 +172,10 @@ class SearchableEditKey extends Component
                 $content['meta'] = [];
             }
             $content['meta']['order'] = $this->availableKeys;
+            $content['meta']['enable_upload'] = $this->enableUpload;
+            $content['meta']['enable_social'] = $this->enableSocial;
+            $content['meta']['social_platforms'] = $this->activeSocialPlatforms;
+
             $content['items'] = $items;
 
             $section->update(['content' => $content]);
