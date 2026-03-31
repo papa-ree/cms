@@ -8,10 +8,10 @@
                     <div class="flex items-start justify-between mb-4">
                         {{-- Type Icon with Gradient --}}
                         <div class="p-3 rounded-xl shadow-md {{ 
-                                                                                                                    $section->type === 'hero' ? 'bg-linear-to-br from-indigo-500 to-indigo-600' :
+                                                                                                                            $section->type === 'hero' ? 'bg-linear-to-br from-indigo-500 to-indigo-600' :
                     ($section->type === 'post' ? 'bg-linear-to-br from-emerald-500 to-emerald-600' :
                         'bg-linear-to-br from-purple-500 to-purple-600') 
-                                                                                                                }}">
+                                                                                                                        }}">
                             @if($section->type === 'hero')
                                 <x-lucide-sparkles class="w-6 h-6 text-white" />
                             @elseif($section->type === 'post')
@@ -26,7 +26,7 @@
                     $section->type === 'hero' ? 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/50 dark:text-indigo-300' :
                     ($section->type === 'post' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/50 dark:text-emerald-300' :
                         'bg-purple-100 text-purple-700 dark:bg-purple-900/50 dark:text-purple-300')
-                                                                                                                }}">
+                                                                                                                        }}">
                             {{ ucfirst($section->type) }}
                         </span>
                     </div>
@@ -47,7 +47,7 @@
                     <div class="flex items-center justify-between pt-4 border-t border-gray-200 dark:border-gray-700">
                         <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
                             <x-lucide-calendar class="w-4 h-4" />
-                            <span>{{ $section->created_at->format('d M Y') }}</span>
+                            <span>{{ $section->created_at }}</span>
                         </div>
 
                         <div class="flex items-center gap-2">

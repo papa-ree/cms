@@ -104,7 +104,7 @@ new #[Layout('cms::layouts.app')]
                         {{ $role->description ?? '-' }}
                     </td>
                     <td class="px-6 py-4 text-sm text-gray-500">
-                        {{ $role->created_at->format('d M Y') }}
+                        {{ $role->created_at }}
                     </td>
                     @canany(['bale-role.update', 'bale-role.delete'])
                         <td class="px-6 py-4 whitespace-nowrap">

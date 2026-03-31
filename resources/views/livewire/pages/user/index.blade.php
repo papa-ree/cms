@@ -115,7 +115,7 @@ new #[Layout('cms::layouts.app')]
                                     {{-- Joined (Hidden LG) --}}
                                     <dt class="sr-only lg:hidden">{{ __('Joined') }}</dt>
                                     <dd class="text-[10px] text-gray-400 lg:hidden mt-1 italic">
-                                        {{ __('Joined') }} {{ $user->created_at->format('d M Y') }}
+                                        {{ __('Joined') }} {{ $user->created_at }}
                                     </dd>
                                 </dl>
                             </div>
@@ -137,7 +137,7 @@ new #[Layout('cms::layouts.app')]
                         {{ $user->username }}
                     </td>
                     <td class="hidden px-6 py-4 text-sm text-gray-500 lg:table-cell">
-                        {{ $user->created_at->format('d M Y') }}
+                        {{ $user->created_at}}
                     </td>
                 </tr>
             @empty

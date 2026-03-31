@@ -96,7 +96,7 @@ new #[Layout('cms::layouts.app')]
                                 <dt class="sr-only lg:hidden">{{ __('Created At') }}</dt>
                                 <dd class="text-gray-500 truncate lg:hidden mt-1">
                                     <span class="block text-[10px] text-gray-500">{{ __('created at') }}
-                                        {{ $category->created_at->format('d M Y') }}</span>
+                                        {{ $category->created_at }}</span>
                                 </dd>
                             </dl>
                         </div>
@@ -107,7 +107,7 @@ new #[Layout('cms::layouts.app')]
                         </span>
                     </td>
                     <td class="hidden px-6 py-4 text-sm text-gray-500 lg:table-cell">
-                        {{ $category->created_at->format('d M Y') }}
+                        {{ $category->created_at }}
                     </td>
                     @canany(['bale-category.update', 'bale-category.delete'])
                         <td class="px-6 py-4 whitespace-nowrap">
