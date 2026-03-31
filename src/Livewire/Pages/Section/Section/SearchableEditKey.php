@@ -77,7 +77,7 @@ class SearchableEditKey extends Component
         // Validate key is not empty and doesn't already exist
         $this->newKey = trim($this->newKey);
 
-        if (!$this->newKey || in_array($this->newKey, $this->availableKeys) || in_array($this->newKey, ['id', 'created_at', 'updated_at'])) {
+        if (!$this->newKey || in_array($this->newKey, $this->availableKeys) || in_array($this->newKey, ['id', 'created_at', 'updated_at', 'uploads'])) {
             return;
         }
 
@@ -129,7 +129,7 @@ class SearchableEditKey extends Component
                     $newItem = [];
 
                     // Preserve system keys + backfill jika belum ada
-                    foreach (['id', 'created_at', 'updated_at'] as $sysKey) {
+                    foreach (['id', 'created_at', 'updated_at', 'uploads'] as $sysKey) {
                         if (isset($item[$sysKey])) {
                             $newItem[$sysKey] = $item[$sysKey];
                         }
