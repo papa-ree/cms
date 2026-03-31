@@ -153,6 +153,8 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             Route::livewire('users', 'cms-pages::user.index')->name('index');
         });
 
+        Route::livewire('exit-cms', 'cms-shared-components::exit-cms')->name('exit-cms');
+
         // add other CMS routes here...
     });
 });

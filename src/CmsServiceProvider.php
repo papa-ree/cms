@@ -80,6 +80,10 @@ class CmsServiceProvider extends ServiceProvider
             'cms-pages',
             __DIR__ . '/../resources/views/livewire/pages'
         );
+        Livewire::addNamespace(
+            'cms-shared-components',
+            __DIR__ . '/../resources/views/livewire/shared-components'
+        );
     }
 
     /**

@@ -10,7 +10,7 @@ use Bale\Cms\Models\Page;
 use Bale\Cms\Services\TenantConnectionService;
 
 #[Layout('cms::layouts.page-editor')]
-#[Title('Bale | Edit Page')]
+#[Title('Bale | ' . 'Edit Page')]
 class EditPage extends Component
 {
     #[Locked]
@@ -37,7 +37,7 @@ class EditPage extends Component
             $this->updated_at = $page->updated_at;
         } else {
             session()->flash('error', [
-                'title' => 'Page Not Found!',
+                'title' => __('Page Not Found!'),
             ]);
             $this->redirectRoute('bale.cms.pages.index', navigate: true);
         }
@@ -85,10 +85,10 @@ class EditPage extends Component
             DB::commit();
 
             // Dispatch events for UI feedback
-            $this->dispatch('toast', message: 'Page berhasil disimpan!', type: 'success');
+            $this->dispatch('toast', message: __('Page successfully saved!'), type: 'success');
             $this->dispatch('save-complete');
 
-            session()->flash('success', 'Page Updated!');
+            session()->flash('success', __('Page Updated!'));
 
             $this->redirectRoute('bale.cms.pages.index', navigate: true);
 
@@ -97,7 +97,7 @@ class EditPage extends Component
 
             // Dispatch failure events
             $this->dispatch('save-complete');
-            $this->dispatch('toast', message: 'Gagal menyimpan page: ' . $th->getMessage(), type: 'error');
+            $this->dispatch('toast', message: __('Failed to save page: ') . $th->getMessage(), type: 'error');
 
             info('Page update failed: ' . $th->getMessage());
         }
@@ -127,7 +127,7 @@ class EditPage extends Component
                     'content' => $this->content,
                 ]);
 
-                $this->dispatch('toast', message: 'Auto-saved successfully!', type: 'success');
+                $this->dispatch('toast', message: __('Auto-saved successfully!'), type: 'success');
                 $this->updated_at = now();
             }
         } catch (\Throwable $th) {

@@ -56,13 +56,18 @@
                                     {{ $page->title }}
                                 </a>
                                 <dl class="font-normal lg:hidden">
+                                    {{-- Type (Hidden until LG) --}}
                                     <dt class="sr-only">{{ __('Type') }}</dt>
                                     <dd class="text-gray-700 truncate">
-                                        <span class="block text-xs text-gray-600 dark:text-gray-200 uppercase tracking-wider">{{ $page->type }}</span>
+                                        <span
+                                            class="inline-flex items-center px-1.5 py-0.5 rounded-sm bg-gray-100 dark:bg-gray-700 text-[10px] font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">{{ $page->type ?? __('static') }}</span>
                                     </dd>
-                                    <dt class="sr-only sm:hidden">{{ __('Created At') }}</dt>
-                                    <dd class="text-gray-500 truncate sm:hidden">
-                                        <span class="block text-xs text-gray-500">{{ __('created at') }} {{ $page->created_at }}</span>
+
+                                    {{-- Created At (Hidden until LG) --}}
+                                    <dt class="sr-only lg:hidden">{{ __('Created At') }}</dt>
+                                    <dd class="text-gray-500 truncate lg:hidden">
+                                        <span class="block text-[11px] text-gray-500">{{ __('created at') }}
+                                            {{ $page->created_at }}</span>
                                     </dd>
                                 </dl>
                             </div>

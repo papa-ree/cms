@@ -25,7 +25,7 @@ new #[Layout('cms::layouts.app')]
         TenantConnectionService::ensureActive();
     }
 
-    public function sortBy($field)
+    public function sort($field)
     {
         if ($this->sortField === $field) {
             $this->sortDirection = $this->sortDirection === 'asc' ? 'desc' : 'asc';
@@ -70,8 +70,8 @@ new #[Layout('cms::layouts.app')]
         <x-slot name="thead">
             <tr>
                 <x-core::table-th :label="__('Name')" sortBy="name" :sortField="$sortField" :sortDirection="$sortDirection" />
-                <x-core::table-th :label="__('Slug')" sortBy="slug" :sortField="$sortField" :sortDirection="$sortDirection" />
-                <x-core::table-th :label="__('Created At')" sortBy="created_at" :sortField="$sortField" :sortDirection="$sortDirection" />
+                <x-core::table-th class="hidden sm:table-cell" :label="__('Slug')" sortBy="slug" :sortField="$sortField" :sortDirection="$sortDirection" />
+                <x-core::table-th class="hidden lg:table-cell" :label="__('Created At')" sortBy="created_at" :sortField="$sortField" :sortDirection="$sortDirection" />
                 @canany(['bale-category.update', 'bale-category.delete'])
                     <x-core::table-th :label="__('Action')" />
                 @endcanany
@@ -81,14 +81,32 @@ new #[Layout('cms::layouts.app')]
             @forelse($this->categories as $category)
                 <tr class="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors" wire:key="row-{{ $category->id }}">
                     <td class="px-6 py-4 text-sm font-semibold text-gray-900 dark:text-white">
-                        {{ $category->name }}
+                        <div class="grow">
+                            {{ $category->name }}
+                            <dl class="font-normal lg:hidden">
+                                {{-- Slug (Hidden SM) --}}
+                                <dt class="sr-only sm:hidden">{{ __('Slug') }}</dt>
+                                <dd class="text-xs text-gray-500 sm:hidden mt-0.5">
+                                    <span class="px-1.5 py-0.5 rounded-sm bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 font-mono text-[10px]">
+                                        {{ $category->slug }}
+                                    </span>
+                                </dd>
+
+                                {{-- Created At (Hidden LG) --}}
+                                <dt class="sr-only lg:hidden">{{ __('Created At') }}</dt>
+                                <dd class="text-gray-500 truncate lg:hidden mt-1">
+                                    <span class="block text-[10px] text-gray-500">{{ __('created at') }}
+                                        {{ $category->created_at->format('d M Y') }}</span>
+                                </dd>
+                            </dl>
+                        </div>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-500">
+                    <td class="hidden px-6 py-4 text-sm text-gray-500 sm:table-cell">
                         <span class="px-2 py-1 text-xs font-mono text-blue-600 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 rounded-md">
                             {{ $category->slug }}
                         </span>
                     </td>
-                    <td class="px-6 py-4 text-sm text-gray-500">
+                    <td class="hidden px-6 py-4 text-sm text-gray-500 lg:table-cell">
                         {{ $category->created_at->format('d M Y') }}
                     </td>
                     @canany(['bale-category.update', 'bale-category.delete'])
