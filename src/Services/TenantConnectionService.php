@@ -48,4 +48,40 @@ class TenantConnectionService
 
         return $conn;
     }
+
+    /**
+     * Lightweight resolver for DataTable — re-initializes the connection
+     * from session without re-checking BaleUser access (already verified
+     * by SwitchBaleConnection middleware on initial page load).
+     *
+     * Usage: connectionResolver="Bale\Cms\Services\TenantConnectionService::resolveForQuery"
+     */
+    public static function resolveForQuery(): string
+    {
+        $baleUuid = session('bale_active_uuid');
+
+        if (! $baleUuid) {
+            throw new \RuntimeException('No active tenant session.');
+        }
+
+        $active   = TenantManager::getActiveConnection();
+        $expected = TenantManager::connectionName($baleUuid);
+
+        // Only re-initialize if connection is stale (i.e. new PHP process / XHR)
+        if ($active !== $expected) {
+            TenantManager::initializeFromBaleUuid($baleUuid);
+        }
+
+        return TenantManager::getActiveConnection();
+    }
+
+    /**
+     * Full check: verify BaleUser access then ensure connection.
+     * Use for sensitive operations. For read queries prefer resolveForQuery().
+     */
+    public static function ensureAndGetConnection(): string
+    {
+        static::ensureActive();
+        return static::connection();
+    }
 }

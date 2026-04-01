@@ -15,45 +15,38 @@
         {{-- Center: Hidden --}}
         <div class="hidden md:block"></div>
 
-        {{-- Right: Status & Save Button --}}
+        {{-- Right: Status Only --}}
         <div class="flex items-center gap-2 sm:gap-4">
-            {{-- Status Indicator (Always visible) --}}
+            {{-- Status Indicator (Dynamic) --}}
             <div
-                class="flex items-center gap-2 px-3 py-1.5 bg-blue-100 dark:bg-blue-900/30 border border-blue-300 dark:border-blue-700 rounded-full">
-                <div class="w-2 h-2 bg-blue-600 rounded-full animate-pulse"></div>
-                <span class="text-xs font-medium text-blue-700 dark:text-blue-400">{{ __('Editing') }}</span>
-            </div>
+                class="flex items-center gap-2 px-3 py-1.5 rounded-full border transition-all duration-300
+                {{ $saveStatus === 'saving' ? 'bg-blue-100 border-blue-300 dark:bg-blue-900/30 dark:border-blue-700' : '' }}
+                {{ $saveStatus === 'saved' ? 'bg-emerald-100 border-emerald-300 dark:bg-emerald-900/30 dark:border-emerald-700' : '' }}
+                {{ $saveStatus === 'error' ? 'bg-rose-100 border-rose-300 dark:bg-rose-900/30 dark:border-rose-700' : '' }}
+                {{ $saveStatus === 'editing' ? 'bg-gray-100 border-gray-300 dark:bg-gray-800 dark:border-gray-700' : '' }}
+                ">
+                
+                {{-- Dot Indicator --}}
+                <div class="w-2 h-2 rounded-full 
+                    {{ $saveStatus === 'saving' ? 'bg-blue-600 animate-pulse' : '' }}
+                    {{ $saveStatus === 'saved' ? 'bg-emerald-600' : '' }}
+                    {{ $saveStatus === 'error' ? 'bg-rose-600' : '' }}
+                    {{ $saveStatus === 'editing' ? 'bg-gray-400' : '' }}
+                "></div>
 
-            {{-- Desktop Save Button --}}
-            <div class="hidden md:block" x-data="{ isSaving: false }" x-on:submit.window="isSaving = true"
-                x-on:save-complete.window="isSaving = false">
-                <x-core::button type="submit" form="formPost" :label="__('Save Post')"
-                    class="font-bold shadow-indigo-500/20" x-bind:disabled="isSaving">
-                    <x-slot name="icon">
-                        <x-lucide-save class="w-4 h-4" />
-                    </x-slot>
-                </x-core::button>
+                <span class="text-xs font-medium 
+                    {{ $saveStatus === 'saving' ? 'text-blue-700 dark:text-blue-400' : '' }}
+                    {{ $saveStatus === 'saved' ? 'text-emerald-700 dark:text-emerald-400' : '' }}
+                    {{ $saveStatus === 'error' ? 'text-rose-700 dark:text-rose-400' : '' }}
+                    {{ $saveStatus === 'editing' ? 'text-gray-600 dark:text-gray-400' : '' }}
+                ">
+                    @if($saveStatus === 'saving') {{ __('Saving...') }}
+                    @elseif($saveStatus === 'saved') {{ __('Saved') }}
+                    @elseif($saveStatus === 'error') {{ __('Error') }}
+                    @else {{ __('Editing') }}
+                    @endif
+                </span>
             </div>
         </div>
     </nav>
-
-    {{-- Mobile Bottom Bar with Tools --}}
-    <div class="md:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 shadow-[0_-10px_20px_rgba(0,0,0,0.05)]"
-        x-data="{ isSaving: false }" x-on:submit.window="isSaving = true" x-on:save-complete.window="isSaving = false">
-        <div class="flex items-center justify-end gap-3 px-4 py-3">
-            {{-- Tools for Mobile --}}
-            {{-- <div
-                class="flex items-center gap-1 p-1 bg-gray-100 dark:bg-gray-900/50 rounded-lg border border-gray-200 dark:border-gray-700">
-                <x-core::dark-mode-toggle />
-                <livewire:core.shared-components.locale-dropdown />
-            </div> --}}
-
-            <x-core::button type="submit" form="formPost" :label="__('Save Post')"
-                class="font-bold shadow-indigo-500/20" x-bind:disabled="isSaving">
-                <x-slot name="icon">
-                    <x-lucide-save class="w-4 h-4" />
-                </x-slot>
-            </x-core::button>
-        </div>
-    </div>
 </header>

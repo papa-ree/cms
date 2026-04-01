@@ -21,6 +21,7 @@ class EditPage extends Component
     public $updated_at;
     public $locked;
     public $show_setting = false;
+    public $saveStatus = 'editing'; // editing, saving, saved, error
 
     public function mount($slug)
     {
@@ -67,57 +68,29 @@ class EditPage extends Component
     {
         $this->authorize('bale-page.update');
         $this->validate();
-        DB::beginTransaction();
-
-        try {
-            TenantConnectionService::ensureActive();
-            $connection = TenantConnectionService::connection();
-
-            (new Page)
-                ->setConnection($connection)
-                ->find($this->id)
-                ->update([
-                    'title' => $this->title,
-                    'slug' => $this->slug,
-                    'content' => $this->content,
-                ]);
-
-            DB::commit();
-
-            // Dispatch events for UI feedback
-            $this->dispatch('toast', message: __('Page successfully saved!'), type: 'success');
-            $this->dispatch('save-complete');
-
-            session()->flash('success', __('Page Updated!'));
-
-            $this->redirectRoute('bale.cms.pages.index', navigate: true);
-
-        } catch (\Throwable $th) {
-            DB::rollBack();
-
-            // Dispatch failure events
-            $this->dispatch('save-complete');
-            $this->dispatch('toast', message: __('Failed to save page: ') . $th->getMessage(), type: 'error');
-
-            info('Page update failed: ' . $th->getMessage());
-        }
+        $this->autoSave();
+        $this->redirectRoute('bale.cms.pages.index', navigate: true);
     }
 
     public function updated($propertyName)
     {
-        if ($propertyName === 'content') {
+        $autoSaveFields = ['title', 'slug', 'content'];
+
+        if (in_array($propertyName, $autoSaveFields)) {
             $this->autoSave();
         }
     }
 
     public function autoSave()
     {
+        $this->saveStatus = 'saving';
+        $this->dispatch('status-updated', status: 'saving');
+
         try {
             TenantConnectionService::ensureActive();
             $connection = TenantConnectionService::connection();
 
-            $page = (new Page)
-                ->setConnection($connection)
+            $page = Page::on($connection)
                 ->find($this->id);
 
             if ($page) {
@@ -127,10 +100,14 @@ class EditPage extends Component
                     'content' => $this->content,
                 ]);
 
-                $this->dispatch('toast', message: __('Auto-saved successfully!'), type: 'success');
+                $this->saveStatus = 'saved';
+                $this->dispatch('status-updated', status: 'saved');
+
                 $this->updated_at = now();
             }
         } catch (\Throwable $th) {
+            $this->saveStatus = 'error';
+            $this->dispatch('status-updated', status: 'error');
             info('Auto-save failed: ' . $th->getMessage());
         }
     }

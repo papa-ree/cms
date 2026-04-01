@@ -57,7 +57,7 @@
     <livewire:cms.shared-components.cms-page-editor-topbar />
 
     {{-- Main Content Area --}}
-    <div class="w-full px-3 py-4 pb-20 md:pb-4 md:px-4 md:py-6">
+    <div class="w-full px-3 py-4 md:px-4 md:py-6">
         <main>
             {{ $slot }}
         </main>

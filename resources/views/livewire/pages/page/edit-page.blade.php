@@ -44,7 +44,52 @@
         .dark .ce-paragraph[data-placeholder]:empty::before {
             color: #64748b;
         }
+
+        @keyframes progress-shrink {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
     </style>
+
+    {{-- Auto-Save Splash Notification --}}
+    <div x-data="{ showAutoSaveSplash: true }" 
+         x-init="setTimeout(() => showAutoSaveSplash = false, 5000)"
+         x-show="showAutoSaveSplash"
+         x-transition:enter="transition ease-out duration-500"
+         x-transition:enter-start="opacity-0 transform translate-x-12"
+         x-transition:enter-end="opacity-100 transform translate-x-0"
+         x-transition:leave="transition ease-in duration-300"
+         x-transition:leave-start="opacity-100 transform scale-100"
+         x-transition:leave-end="opacity-0 transform scale-95"
+         class="fixed bottom-6 right-6 z-60 w-full max-w-sm"
+         style="display: none">
+        <div class="relative overflow-hidden bg-white/90 dark:bg-gray-800/90 backdrop-blur-xl border border-emerald-200 dark:border-emerald-800/50 rounded-2xl shadow-2xl p-5 group ring-1 ring-black/5 dark:ring-white/5">
+            {{-- Close Button --}}
+            <button @click="showAutoSaveSplash = false" class="absolute top-3 right-3 p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-700/50 rounded-lg transition-all">
+                <x-lucide-x class="w-4 h-4" />
+            </button>
+
+            <div class="flex items-start gap-4">
+                <div class="p-3 bg-linear-to-br from-emerald-500 to-teal-600 text-white rounded-xl shadow-lg shadow-emerald-500/20">
+                    <x-lucide-zap class="w-6 h-6 animate-pulse" />
+                </div>
+                <div class="flex-1 pr-4">
+                    <h4 class="font-bold text-gray-900 dark:text-white mb-1 flex items-center gap-2">
+                        {{ __('Auto-Save Aktif!') }}
+                        <span class="px-1.5 py-0.5 bg-emerald-100 dark:bg-emerald-900/40 text-[10px] text-emerald-700 dark:text-emerald-400 uppercase tracking-wider font-extrabold rounded-md">{{ __('New') }}</span>
+                    </h4>
+                    <p class="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
+                        {{ __('Setiap perubahan Anda kini disimpan secara otomatis. Tidak perlu lagi menekan tombol simpan manual.') }}
+                    </p>
+                </div>
+            </div>
+
+            {{-- Countdown Progress Bar --}}
+            <div class="absolute bottom-0 left-0 h-1 bg-emerald-500/20 w-full">
+                <div class="h-full bg-emerald-500 shadow-[0_0_10px_rgba(16,185,129,0.5)] animate-[progress-shrink_5s_linear_forwards]"></div>
+            </div>
+        </div>
+    </div>
 
     <div class="max-w-7xl mx-auto">
         {{-- Help Guide --}}
@@ -63,24 +108,18 @@
                         <div class="flex items-start gap-2">
                             <x-lucide-check class="w-4 h-4 text-emerald-600 mt-0.5" />
                             <span
-                                class="text-sm text-gray-600 dark:text-gray-400">{{ __('Title & slug are auto-synced') }}</span>
-                        </div>
-                        <div class="flex items-start gap-2">
-                            <x-lucide-check class="w-4 h-4 text-emerald-600 mt-0.5" />
-                            <span
-                                class="text-sm text-gray-600 dark:text-gray-400">{{ __('Content auto-saves on change') }}</span>
+                                class="text-sm text-gray-600 dark:text-gray-400">{{ __('Everything saves automatically') }}</span>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
 
-        <form wire:submit="update" id="formPage" x-data="{ 
+        <div id="formPage" x-data="{ 
                 pageTitle: $wire.entangle('title'), 
                 pageSlug: $wire.entangle('slug').live, 
-                showSetting: $wire.entangle('show_setting'),
-                isSaving: false 
-            }" @submit="isSaving = true" x-on:save-complete.window="isSaving = false">
+                showSetting: $wire.entangle('show_setting')
+            }">
 
             <div class="grid grid-cols-1 lg:grid-cols-7 gap-6">
                 {{-- LEFT SIDEBAR: Page Metadata (Sticky) --}}
@@ -106,7 +145,7 @@
                                     class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Page Title') }}
                                     *</label>
                             </div>
-                            <x-core::input wire:model='title' placeholder="{{ __('Enter page title...') }}"
+                            <x-core::input wire:model.blur='title' placeholder="{{ __('Enter page title...') }}"
                                 x-model="pageTitle" />
                             <x-core::input-error for="title" />
                             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Main title for your page') }}
@@ -145,7 +184,7 @@
                                         </span>
                                     </div>
                                 </div>
-                                <x-core::input wire:model='slug' name="slug" x-slug="pageTitle" x-model="pageSlug"
+                                <x-core::input wire:model.blur='slug' name="slug" x-slug="pageTitle" x-model="pageSlug"
                                     placeholder="{{ __('auto-generated-from-title') }}" />
                                 <x-core::input-error for="slug" />
                                 <p class="text-xs text-emerald-700 dark:text-emerald-400">
@@ -179,7 +218,7 @@
                                 class="flex items-center gap-2 px-3 py-1.5 bg-green-100 dark:bg-green-900/30 border border-green-300 dark:border-green-700 rounded-full">
                                 <div class="w-2 h-2 bg-green-600 rounded-full animate-pulse"></div>
                                 <span
-                                    class="text-xs font-medium text-green-700 dark:text-green-400">{{ __('Auto-save ON') }}</span>
+                                    class="text-xs font-medium text-green-700 dark:text-green-400">{{ __('Dynamic Saving') }}</span>
                             </div>
                         </div>
 
@@ -232,7 +271,7 @@
                     </div>
                 </div>
             </div>
-        </form>
+        </div>
     </div>
 
     @script

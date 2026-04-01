@@ -36,6 +36,7 @@ class EditPost extends Component
     public $category_name;
     public $category_slug;
     public $show_upload_zone = true;
+    public $saveStatus = 'editing'; // editing, saving, saved, error
 
     public function mount($slug)
     {
@@ -97,49 +98,8 @@ class EditPost extends Component
 
     public function update()
     {
-        $this->authorize('bale-post.update');
-        $this->validate();
-
-        DB::beginTransaction();
-
-        try {
-            TenantConnectionService::ensureActive();
-            $connection = TenantConnectionService::connection();
-
-            $dataToUpdate = [
-                'title' => $this->title,
-                'slug' => $this->slug,
-                'content' => $this->content,
-                'category_slug' => $this->category_slug,
-            ];
-
-            // Thumbnail is now handled immediately via updatedThumbnailNew()
-
-            // Single atomic update using ID
-            (new Post)
-                ->setConnection($connection)
-                ->find($this->id)
-                ->update($dataToUpdate);
-
-            DB::commit();
-
-            // Dispatch events for UI feedback
-            $this->dispatch('toast', message: __('Post saved successfully!'), type: 'success');
-            $this->dispatch('save-complete');
-
-            // session()->flash('success', 'Post Updated!');
-
-            $this->redirectRoute('bale.cms.posts.index', navigate: true);
-
-        } catch (\Throwable $th) {
-            DB::rollBack();
-
-            // Dispatch failure events
-            $this->dispatch('save-complete');
-            $this->dispatch('toast', message: __('Failed to save post: ') . $th->getMessage(), type: 'error');
-
-            info('Post update failed: ' . $th->getMessage());
-        }
+        // Manual save trigger (if still called by some shortcut)
+        $this->autoSave();
     }
 
     private function uploadThumbnail()
@@ -163,22 +123,33 @@ class EditPost extends Component
 
     public function deleteThumbnail()
     {
+        $this->saveStatus = 'saving';
+
         if ($this->thumbnail) {
             Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->thumbnail);
         }
 
         TenantConnectionService::ensureActive();
+        $connection = TenantConnectionService::connection();
 
-        $post = Post::where('slug', $this->slug)->firstOrFail();
+        $post = Post::on($connection)->where('slug', $this->slug)->firstOrFail();
         $post->update(['thumbnail' => null]);
         $this->thumbnail = null;
         $this->show_upload_zone = true;
+
+        $this->saveStatus = 'saved';
+        $this->dispatch('status-updated', status: 'saved');
+
+        // Reset to editing status after 2 seconds
+        $this->dispatch('post-status-reset');
     }
 
     public function updated($propertyName)
     {
-        // Auto-save when content changes
-        if ($propertyName === 'content') {
+        // Fields that trigger auto-save
+        $autoSaveFields = ['title', 'slug', 'content', 'category_slug'];
+
+        if (in_array($propertyName, $autoSaveFields)) {
             $this->autoSave();
         }
     }
@@ -201,8 +172,7 @@ class EditPost extends Component
                 $connection = TenantConnectionService::connection();
 
                 // Update database immediately
-                (new Post)
-                    ->setConnection($connection)
+                Post::on($connection)
                     ->find($this->id)
                     ->update(['thumbnail' => $thumbnail_name]);
 
@@ -211,22 +181,26 @@ class EditPost extends Component
                 $this->show_upload_zone = false;
                 $this->thumbnail_new = null;
 
-                $this->dispatch('toast', message: __('Thumbnail updated successfully!'), type: 'success');
+                $this->saveStatus = 'saved';
+                $this->dispatch('status-updated', status: 'saved');
             }
         } catch (\Throwable $th) {
-            $this->dispatch('toast', message: __('Failed to upload thumbnail: ') . $th->getMessage(), type: 'error');
+            $this->saveStatus = 'error';
+            $this->dispatch('status-updated', status: 'error');
             info('Immediate thumbnail upload failed: ' . $th->getMessage());
         }
     }
 
     public function autoSave()
     {
+        $this->saveStatus = 'saving';
+        $this->dispatch('status-updated', status: 'saving');
+
         try {
             TenantConnectionService::ensureActive();
             $connection = TenantConnectionService::connection();
 
-            $post = (new Post)
-                ->setConnection($connection)
+            $post = Post::on($connection)
                 ->find($this->id);
 
             if ($post) {
@@ -237,9 +211,12 @@ class EditPost extends Component
                     'category_slug' => $this->category_slug,
                 ]);
 
-                $this->dispatch('toast', message: __('Auto-saved successfully!'), type: 'success');
+                $this->saveStatus = 'saved';
+                $this->dispatch('status-updated', status: 'saved');
             }
         } catch (\Throwable $th) {
+            $this->saveStatus = 'error';
+            $this->dispatch('status-updated', status: 'error');
             info('Auto-save failed: ' . $th->getMessage());
         }
     }
