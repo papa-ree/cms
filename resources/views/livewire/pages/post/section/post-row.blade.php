@@ -20,7 +20,7 @@
 
             {{-- Text --}}
             <div class="min-w-0 flex-1">
-                <a href="{{ route('bale.cms.posts.edit', $record->slug) }}" wire:navigate.hover
+                <a href="{{ route('bale.cms.posts.edit', $record->slug) }}"
                     class="block text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors truncate">
                     {{ Str::of($record->title)->words(6, '...') }}
                 </a>
@@ -100,7 +100,7 @@
             <livewire:core.shared-components.item-actions
                 :editUrl="route('bale.cms.posts.edit', $record->slug)"
                 :deleteId="$record->id"
-                :navigate="true"
+                :navigate="false"
                 confirmMessage="{{ __('Yakin ingin menghapus post ini?') }}"
                 wire:key="item-actions-{{ $record->id }}" />
         @endcanany

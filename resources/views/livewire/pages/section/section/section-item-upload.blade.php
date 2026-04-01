@@ -119,7 +119,7 @@
 
                                         {{-- Hover overlay: file info + delete --}}
                                         <div
-                                            class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity p-1">
+                                            class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-1.5 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity p-1">
                                             <p class="text-[9px] text-white text-center leading-tight truncate w-full"
                                                 title="{{ $upload['original_name'] }}">
                                                 {{ Str::limit($upload['original_name'], 14) }}

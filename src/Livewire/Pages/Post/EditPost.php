@@ -110,10 +110,10 @@ class EditPost extends Component
             $thumbnail_name = session('bale_active_slug') . '-' . uniqid() . '.' . $extension;
 
             // Define final path in S3
-            $path = session('bale_active_slug') . '/thumbnails/' . $thumbnail_name;
+            $finalPath = session('bale_active_slug') . '/thumbnails/' . $thumbnail_name;
 
-            // Upload to S3 using Storage facade
-            Storage::disk('s3')->put($path, $this->thumbnail_new->get());
+            // Upload to S3 using Storage facade with get() to read contents from temp
+            Storage::disk('s3')->put($finalPath, $this->thumbnail_new->get());
 
             return $thumbnail_name;
         }
