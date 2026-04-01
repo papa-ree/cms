@@ -109,11 +109,12 @@ class EditPost extends Component
             $extension = $this->thumbnail_new->getClientOriginalExtension();
             $thumbnail_name = session('bale_active_slug') . '-' . uniqid() . '.' . $extension;
 
-            // Define final path in S3
-            $finalPath = session('bale_active_slug') . '/thumbnails/' . $thumbnail_name;
+            $prefix = trim(\Bale\Core\Support\Cdn::prefix(), '/');
+            $orgSlug = session('bale_active_slug');
+            $finalPath = ($prefix ? $prefix . '/' : '') . $orgSlug . '/thumbnails/' . $thumbnail_name;
 
-            // Upload to S3 using Storage facade with get() to read contents from temp
-            Storage::disk('s3')->put($finalPath, $this->thumbnail_new->get());
+            // Upload to S3 using Storage facade
+            Storage::disk('s3')->put($finalPath, file_get_contents($this->thumbnail_new));
 
             return $thumbnail_name;
         }
@@ -126,7 +127,10 @@ class EditPost extends Component
         $this->saveStatus = 'saving';
 
         if ($this->thumbnail) {
-            Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->thumbnail);
+            $prefix = trim(\Bale\Core\Support\Cdn::prefix(), '/');
+            $orgSlug = session('bale_active_slug');
+            $path = ($prefix ? $prefix . '/' : '') . $orgSlug . '/thumbnails/' . $this->thumbnail;
+            Storage::disk('s3')->delete($path);
         }
 
         TenantConnectionService::ensureActive();
@@ -162,7 +166,10 @@ class EditPost extends Component
         try {
             // Delete old thumbnail if it exists
             if ($this->thumbnail) {
-                Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->thumbnail);
+                $prefix = trim(\Bale\Core\Support\Cdn::prefix(), '/');
+                $orgSlug = session('bale_active_slug');
+                $path = ($prefix ? $prefix . '/' : '') . $orgSlug . '/thumbnails/' . $this->thumbnail;
+                Storage::disk('s3')->delete($path);
             }
 
             $thumbnail_name = $this->uploadThumbnail();

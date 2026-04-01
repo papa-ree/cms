@@ -47,10 +47,15 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
 
         Route::post('/editorjs/upload', function (Request $request) {
             $validator = Validator::make($request->all(), [
-                'image' => 'required|image|max:512', // 512KB
+                'image' => 'required|image|max:2048', // 2MB
             ]);
 
             if ($validator->fails()) {
+                \Illuminate\Support\Facades\Log::warning('EditorJS Upload Validation Failed', [
+                    'errors' => $validator->errors()->toArray(),
+                    'user_id' => auth()->id()
+                ]);
+
                 return response()->json([
                     'success' => 0,
                     'message' => $validator->errors()->first('image'),
@@ -58,16 +63,18 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             }
 
             try {
-                // Upload file to S3 in images folder
                 $file = $request->file('image');
                 $filename = uniqid() . '.' . $file->extension();
-                $path = session('bale_active_slug') . '/images/' . $filename;
+                $prefix = trim(\Bale\Core\Support\Cdn::prefix(), '/');
+                $orgSlug = session('bale_active_slug');
 
-                Storage::disk('s3')->put($path, $file->get());
+                // Final S3 path matching Cdn::url structure
+                $path = ($prefix ? $prefix . '/' : '') . $orgSlug . '/images/' . $filename;
+
+                Storage::disk('s3')->put($path, file_get_contents($file));
 
                 // Generate CDN URL
-                // Format: https://cdn_url/cdn_prefix/organization_slug/images/filename
-                $url = Cdn::url('images/' . $filename);
+                $url = \Bale\Core\Support\Cdn::url('images/' . $filename);
 
                 return response()->json([
                     'success' => 1,
@@ -76,6 +83,12 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
                     ],
                 ]);
             } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('EditorJS Upload Error: ' . $e->getMessage(), [
+                    'exception' => $e,
+                    'user_id' => auth()->id(),
+                    'bale_active_slug' => session('bale_active_slug')
+                ]);
+
                 return response()->json([
                     'success' => 0,
                     'message' => 'Upload failed: ' . $e->getMessage(),
@@ -89,12 +102,15 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             try {
                 $contents = file_get_contents($url);
                 $filename = uniqid() . '.jpg';
-                $path = session('bale_active_slug') . '/images/' . $filename;
+                $prefix = trim(\Bale\Core\Support\Cdn::prefix(), '/');
+                $orgSlug = session('bale_active_slug');
+
+                $path = ($prefix ? $prefix . '/' : '') . $orgSlug . '/images/' . $filename;
 
                 Storage::disk('s3')->put($path, $contents);
 
                 // Generate CDN URL
-                $cdnUrl = Cdn::url('images/' . $filename);
+                $cdnUrl = \Bale\Core\Support\Cdn::url('images/' . $filename);
 
                 return response()->json([
                     'success' => 1,
@@ -103,6 +119,13 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
                     ],
                 ]);
             } catch (\Throwable $e) {
+                \Illuminate\Support\Facades\Log::error('EditorJS FetchUrl Error: ' . $e->getMessage(), [
+                    'exception' => $e,
+                    'url' => $url,
+                    'user_id' => auth()->id(),
+                    'bale_active_slug' => session('bale_active_slug')
+                ]);
+
                 return response()->json([
                     'success' => 0,
                     'message' => 'Fetch failed: ' . $e->getMessage(),
@@ -154,6 +177,20 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
         });
 
         Route::livewire('exit-cms', 'cms-shared-components::exit-cms')->name('exit-cms');
+
+        Route::post('/editorjs/log', function (Request $request) {
+            $message = $request->input('message', 'Unknown JS error');
+            $context = $request->input('context', []);
+            $level = $request->input('level', 'error');
+
+            if ($level === 'warning') {
+                \Illuminate\Support\Facades\Log::warning('EditorJS Frontend Log: ' . $message, $context);
+            } else {
+                \Illuminate\Support\Facades\Log::error('EditorJS Frontend Log: ' . $message, $context);
+            }
+
+            return response()->json(['success' => true]);
+        })->name('editorjs.log');
 
         // add other CMS routes here...
     });

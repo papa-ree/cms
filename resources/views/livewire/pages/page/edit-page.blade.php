@@ -201,7 +201,7 @@
                         class="bg-white dark:bg-gray-800 rounded-2xl shadow-md border border-gray-100 dark:border-gray-700 overflow-hidden">
                         {{-- Editor Header --}}
                         <div
-                            class="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-gradient-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10 border-b border-gray-200 dark:border-gray-700">
+                            class="flex items-center justify-between px-4 md:px-6 py-3 md:py-4 bg-linear-to-r from-emerald-50 to-teal-50 dark:from-emerald-900/10 dark:to-teal-900/10 border-b border-gray-200 dark:border-gray-700">
                             <div class="flex items-center gap-2 md:gap-3">
                                 <div
                                     class="p-2 md:p-2.5 bg-linear-to-br from-emerald-500 to-emerald-600 rounded-lg shadow-md">
@@ -298,15 +298,75 @@
                     image: {
                         class: ImageTool,
                         config: {
-                            additionalRequestHeaders: {
-                                "X-CSRF-TOKEN": token
-                            },
-                            endpoints: {
-                                byFile: '/cms/editorjs/upload',
-                                byUrl: '/cms/editorjs/fetchUrl',
-                            },
                             field: 'image',
                             types: 'image/*',
+                            uploader: {
+                                async uploadByFile(file) {
+                                    try {
+                                        let formData = new FormData();
+                                        formData.append("image", file);
+                                        const response = await fetch('/cms/editorjs/upload', {
+                                            method: 'POST',
+                                            headers: { 'X-CSRF-TOKEN': token },
+                                            body: formData
+                                        });
+                                        const result = await response.json();
+                                        if (result.success === 0) {
+                                            fetch('/cms/editorjs/log', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
+                                                body: JSON.stringify({ message: result.message, context: { 
+                                                    file_name: file.name, 
+                                                    file_size: file.size,
+                                                    location: 'EditPage:uploadByFile'
+                                                } })
+                                            });
+                                        }
+                                        return result;
+                                    } catch (error) {
+                                        fetch('/cms/editorjs/log', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
+                                            body: JSON.stringify({ message: 'Exception: ' + error.message, context: { 
+                                                location: 'EditPage:uploadByFile',
+                                                error_stack: error.stack 
+                                            } })
+                                        });
+                                        return { success: 0, message: 'Upload failed: ' + error.message };
+                                    }
+                                },
+                                async uploadByUrl(url) {
+                                    try {
+                                        const response = await fetch('/cms/editorjs/fetchUrl', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
+                                            body: JSON.stringify({ url: url })
+                                        });
+                                        const result = await response.json();
+                                        if (result.success === 0) {
+                                            fetch('/cms/editorjs/log', {
+                                                method: 'POST',
+                                                headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
+                                                body: JSON.stringify({ message: 'FetchUrl failed: ' + result.message, context: { 
+                                                    url: url,
+                                                    location: 'EditPage:uploadByUrl'
+                                                } })
+                                            });
+                                        }
+                                        return result;
+                                    } catch (error) {
+                                        fetch('/cms/editorjs/log', {
+                                            method: 'POST',
+                                            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': token },
+                                            body: JSON.stringify({ message: 'FetchUrl Exception: ' + error.message, context: { 
+                                                url: url,
+                                                location: 'EditPage:uploadByUrl'
+                                            } })
+                                        });
+                                        return { success: 0, message: 'FetchUrl failed: ' + error.message };
+                                    }
+                                }
+                            },
                             captionPlaceholder: "{{ __('Add image caption...') }}",
                         },
                     },
