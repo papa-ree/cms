@@ -117,9 +117,9 @@
                                             </div>
                                         @endif
 
-                                        {{-- Hover overlay: file info + delete --}}
+                                        {{-- Desktop Hover overlay: file info + delete --}}
                                         <div
-                                            class="absolute inset-0 bg-black/60 flex flex-col items-center justify-center gap-1.5 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity p-1">
+                                            class="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity p-1 hidden lg:flex flex-col items-center justify-center gap-1.5">
                                             <p class="text-[9px] text-white text-center leading-tight truncate w-full"
                                                 title="{{ $upload['original_name'] }}">
                                                 {{ Str::limit($upload['original_name'], 14) }}
@@ -139,6 +139,19 @@
                                                     Hapus
                                                 </button>
                                             </div>
+                                        </div>
+
+                                        {{-- Mobile Action Buttons --}}
+                                        <div class="absolute top-1.5 right-1.5 flex gap-1 lg:hidden z-10 transition-all">
+                                            <a href="{{ $upload['url'] }}" target="_blank" class="p-1 bgColor-indigo-500 bg-indigo-500 text-white rounded shadow-sm">
+                                                <x-lucide-eye class="w-3 h-3" />
+                                            </a>
+                                            <button type="button"
+                                                wire:click="deleteUpload('{{ $key }}', {{ $fi }})"
+                                                wire:confirm="Hapus file ini? Tindakan tidak dapat dibatalkan."
+                                                class="p-1 bg-red-500 text-white rounded shadow-sm">
+                                                <x-lucide-trash-2 class="w-3 h-3" />
+                                            </button>
                                         </div>
                                     </div>
                                 @endforeach

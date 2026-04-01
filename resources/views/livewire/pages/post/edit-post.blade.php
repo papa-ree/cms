@@ -224,10 +224,18 @@
                                         src="{{ \Bale\Core\Support\Cdn::url('thumbnails/' . $thumbnail) }}"
                                         alt="{{ $title }}">
                                     <div
-                                        class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
+                                        class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity hidden lg:block">
                                         <button wire:click='deleteThumbnail' type="button"
                                             class="absolute top-3 right-3 p-2 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-lg transition-colors">
                                             <x-lucide-trash-2 class="w-4 h-4" />
+                                        </button>
+                                    </div>
+
+                                    {{-- Mobile overlay button --}}
+                                    <div class="absolute top-2 right-2 lg:hidden z-10 transition-all">
+                                        <button wire:click='deleteThumbnail' type="button"
+                                            class="p-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg shadow-lg transition-colors">
+                                            <x-lucide-trash-2 class="w-3.5 h-3.5" />
                                         </button>
                                     </div>
                                     <div

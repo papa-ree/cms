@@ -376,13 +376,19 @@
                                             onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 width=%22200%22 height=%22200%22%3E%3Crect fill=%22%23ddd%22 width=%22200%22 height=%22200%22/%3E%3Ctext fill=%22%23999%22 x=%2250%25%22 y=%2250%25%22 dominant-baseline=%22middle%22 text-anchor=%22middle%22%3EImage%3C/text%3E%3C/svg%3E'">
 
                                         <div
-                                            class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent lg:opacity-0 lg:group-hover:opacity-100 transition-opacity flex items-end justify-center pb-3">
+                                            class="absolute inset-0 bg-linear-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity hidden lg:flex items-end justify-center pb-3">
                                             <button type="button" @click="confirmDelete(index)"
                                                 class="px-3 py-1.5 bg-white text-red-600 rounded-lg shadow-lg hover:bg-red-50 transition-colors text-sm font-medium flex items-center gap-1.5">
                                                 <x-lucide-trash-2 class="w-3.5 h-3.5" />
                                                 {{ __('Remove') }}
                                             </button>
                                         </div>
+
+                                        {{-- Mobile Action --}}
+                                        <button type="button" @click="confirmDelete(index)"
+                                            class="lg:none absolute top-2 right-2 p-1.5 bg-red-500 text-white rounded-lg shadow-lg lg:hidden z-10 transition-colors active:bg-red-600">
+                                            <x-lucide-trash-2 class="w-3.5 h-3.5" />
+                                        </button>
                                     </div>
                                 </template>
                             </div>
