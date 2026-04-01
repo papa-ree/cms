@@ -109,12 +109,11 @@ class EditPost extends Component
             $extension = $this->thumbnail_new->getClientOriginalExtension();
             $thumbnail_name = session('bale_active_slug') . '-' . uniqid() . '.' . $extension;
 
-            $prefix = trim(\Bale\Core\Support\Cdn::prefix(), '/');
-            $orgSlug = session('bale_active_slug');
-            $finalPath = ($prefix ? $prefix . '/' : '') . $orgSlug . '/thumbnails/' . $thumbnail_name;
+            // Define final path in S3
+            $path = session('bale_active_slug') . '/thumbnails/' . $thumbnail_name;
 
             // Upload to S3 using Storage facade
-            Storage::disk('s3')->put($finalPath, file_get_contents($this->thumbnail_new));
+            Storage::disk('s3')->put($path, $this->thumbnail_new->get());
 
             return $thumbnail_name;
         }
@@ -127,10 +126,7 @@ class EditPost extends Component
         $this->saveStatus = 'saving';
 
         if ($this->thumbnail) {
-            $prefix = trim(\Bale\Core\Support\Cdn::prefix(), '/');
-            $orgSlug = session('bale_active_slug');
-            $path = ($prefix ? $prefix . '/' : '') . $orgSlug . '/thumbnails/' . $this->thumbnail;
-            Storage::disk('s3')->delete($path);
+            Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->thumbnail);
         }
 
         TenantConnectionService::ensureActive();
@@ -166,10 +162,7 @@ class EditPost extends Component
         try {
             // Delete old thumbnail if it exists
             if ($this->thumbnail) {
-                $prefix = trim(\Bale\Core\Support\Cdn::prefix(), '/');
-                $orgSlug = session('bale_active_slug');
-                $path = ($prefix ? $prefix . '/' : '') . $orgSlug . '/thumbnails/' . $this->thumbnail;
-                Storage::disk('s3')->delete($path);
+                Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->thumbnail);
             }
 
             $thumbnail_name = $this->uploadThumbnail();

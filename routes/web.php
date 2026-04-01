@@ -64,14 +64,12 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
 
             try {
                 $file = $request->file('image');
-                $filename = uniqid() . '.' . $file->extension();
-                $prefix = trim(\Bale\Core\Support\Cdn::prefix(), '/');
-                $orgSlug = session('bale_active_slug');
+                $extension = $file->getClientOriginalExtension();
+                $filename = session('bale_active_slug') . '-' . uniqid() . '.' . $extension;
 
-                // Final S3 path matching Cdn::url structure
-                $path = ($prefix ? $prefix . '/' : '') . $orgSlug . '/images/' . $filename;
+                $path = session('bale_active_slug') . '/images/' . $filename;
 
-                Storage::disk('s3')->put($path, file_get_contents($file));
+                Storage::disk('s3')->put($path, $file->get());
 
                 // Generate CDN URL
                 $url = \Bale\Core\Support\Cdn::url('images/' . $filename);
@@ -101,11 +99,9 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
 
             try {
                 $contents = file_get_contents($url);
-                $filename = uniqid() . '.jpg';
-                $prefix = trim(\Bale\Core\Support\Cdn::prefix(), '/');
-                $orgSlug = session('bale_active_slug');
+                $filename = session('bale_active_slug') . '-' . uniqid() . '.jpg';
 
-                $path = ($prefix ? $prefix . '/' : '') . $orgSlug . '/images/' . $filename;
+                $path = session('bale_active_slug') . '/images/' . $filename;
 
                 Storage::disk('s3')->put($path, $contents);
 
