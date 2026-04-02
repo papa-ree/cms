@@ -1,106 +1,50 @@
 <div>
-    <x-core::table :links="$this->availablePages" header :activeFilters="array_filter(['Type' => $filterType])">
-
+    <livewire:core-shared-components::data-table
+        model="Bale\Cms\Models\Page"
+        rowView="cms::livewire.pages.page.section.page-row"
+        connectionResolver="Bale\Cms\Services\TenantConnectionService::resolveForQuery"
+        :columns="[
+            [
+                'key'      => 'title',
+                'label'    => __('Page Title'),
+                'sortable' => true,
+            ],
+            [
+                'key'      => 'type',
+                'label'    => __('Type'),
+                'sortable' => true,
+                'hidden'   => 'lg',
+            ],
+            [
+                'key'      => 'created_at',
+                'label'    => __('Created At'),
+                'sortable' => true,
+                'hidden'   => 'lg',
+            ],
+            [
+                'key'      => 'actions',
+                'label'    => '',
+                'sortable' => false,
+            ],
+        ]"
+        :searchable="['title', 'slug']"
+        sortField="created_at"
+        sortDirection="desc"
+        :perPage="20"
+    >
         <x-slot name="filters">
-            <div class="space-y-4">
-                <select wire:model.live="filterType"
-                    class="block w-full py-2 px-3 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 sm:text-sm dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-300">
-                    <option value="">{{ __('All Types') }}</option>
-                    <option value="dynamic">{{ __('Dynamic') }}</option>
-                    <option value="static">{{ __('Static') }}</option>
-                </select>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">{{ __('Filter by Type') }}</label>
+                    <select wire:model.live="activeFilters.type"
+                        class="block w-full py-2 px-3 border border-gray-200 bg-white rounded-xl shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-100 focus:border-indigo-400 sm:text-sm dark:bg-neutral-800 dark:border-neutral-700 dark:text-neutral-300">
+                        <option value="">{{ __('All Types') }}</option>
+                        <option value="dynamic">{{ __('Dynamic') }}</option>
+                        <option value="static">{{ __('Static') }}</option>
+                    </select>
+                </div>
             </div>
         </x-slot>
-
-        <x-slot name="thead">
-            <tr>
-                <x-core::table-th
-                    label="{{ __('Page Title') }}"
-                    sortBy="title"
-                    :sortField="$sortField"
-                    :sortDirection="$sortDirection"
-                />
-                <x-core::table-th
-                    class="hidden lg:table-cell"
-                    label="{{ __('Type') }}"
-                    sortBy="type"
-                    :sortField="$sortField"
-                    :sortDirection="$sortDirection"
-                />
-                <x-core::table-th
-                    class="hidden lg:table-cell"
-                    label="{{ __('Created At') }}"
-                    sortBy="created_at"
-                    :sortField="$sortField"
-                    :sortDirection="$sortDirection"
-                />
-                @canany(['bale-page.update', 'bale-page.delete'])
-                    <x-core::table-th
-                        label="{{ __('Action') }}"
-                        align="right"
-                    />
-                @endcanany
-            </tr>
-        </x-slot>
-
-        <x-slot name="tbody">
-            @foreach ($this->availablePages as $page)
-                <tr wire:key='page-{{ $page->slug }}'
-                    class="transition-colors duration-300 hover:bg-slate-50 dark:hover:bg-slate-800">
-                    {{-- Title --}}
-                    <td class="w-full py-4 pl-4 pr-3 text-sm font-medium text-gray-900 max-w-0 sm:w-auto sm:max-w-none">
-                        <div class="block py-3 pe-6">
-                            <div class="grow">
-                                <a href="{{ route('bale.cms.pages.edit', $page->slug) }}"
-                                    class="block text-sm text-gray-800 transition ease-in-out dark:text-gray-200 hover:text-emerald-600 dark:hover:text-emerald-400">
-                                    {{ $page->title }}
-                                </a>
-                                <dl class="font-normal lg:hidden">
-                                    {{-- Type (Hidden until LG) --}}
-                                    <dt class="sr-only">{{ __('Type') }}</dt>
-                                    <dd class="text-gray-700 truncate">
-                                        <span
-                                            class="inline-flex items-center px-1.5 py-0.5 rounded-sm bg-gray-100 dark:bg-gray-700 text-[10px] font-medium uppercase tracking-wider text-gray-600 dark:text-gray-300">{{ $page->type ?? __('static') }}</span>
-                                    </dd>
-
-                                    {{-- Created At (Hidden until LG) --}}
-                                    <dt class="sr-only lg:hidden">{{ __('Created At') }}</dt>
-                                    <dd class="text-gray-500 truncate lg:hidden">
-                                        <span class="block text-[11px] text-gray-500">{{ __('created at') }}
-                                            {{ $page->created_at }}</span>
-                                    </dd>
-                                </dl>
-                            </div>
-                        </div>
-                    </td>
-
-                    {{-- Type --}}
-                    <td class="hidden px-3 py-4 text-sm text-gray-500 lg:table-cell">
-                        <span class="px-2 py-1 text-xs font-medium rounded-md bg-gray-100 text-gray-800 dark:bg-neutral-700 dark:text-neutral-300 uppercase tracking-wider">
-                            {{ $page->type }}
-                        </span>
-                    </td>
-
-                    {{-- Created At --}}
-                    <td class="hidden px-3 py-4 text-sm text-gray-500 lg:table-cell">
-                        <span class="block text-sm text-gray-500">{{ $page->created_at }}</span>
-                    </td>
-
-                    @canany(['bale-page.update', 'bale-page.delete'])
-                        <td class="size-px whitespace-nowrap text-right">
-                            <div class="px-6 py-1.5 inline-block">
-                                <livewire:core.shared-components.item-actions
-                                    :editUrl="route('bale.cms.pages.edit', $page->slug)"
-                                    :deleteId="$page->id"
-                                    wire:key="item-actions-{{ $page->id }}"
-                                    confirmMessage="{{ __('Yakin ingin menghapus halaman ini?') }}"
-                                />
-                            </div>
-                        </td>
-                    @endcanany
-                </tr>
-            @endforeach
-        </x-slot>
-
-    </x-core::table>
+    </livewire:core-shared-components::data-table>
 </div>
+
