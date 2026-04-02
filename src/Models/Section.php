@@ -21,7 +21,9 @@ class Section extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'content' => 'array', // otomatis konversi JSON ↔ array
+        'content' => 'array',
+        'created_at' => 'datetime:d M Y',
+        'updated_at' => 'datetime:d M Y',
     ];
 
     /**

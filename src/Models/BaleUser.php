@@ -15,6 +15,11 @@ class BaleUser extends Model
         'id'
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime:d M Y',
+        'updated_at' => 'datetime:d M Y',
+    ];
+
     public function bale()
     {
         return $this->belongsTo(BaleList::class, 'bale_id');

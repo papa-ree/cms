@@ -21,13 +21,8 @@ class Page extends Model
     protected $guarded = ['id'];
 
     protected $casts = [
-        'content' => 'array', // otomatis konversi JSON ↔ array
+        'content' => 'array',
+        'created_at' => 'datetime:d M Y',
+        'updated_at' => 'datetime:d M Y',
     ];
-
-    protected function createdAt(): Attribute
-    {
-        return Attribute::make(
-            get: fn(string $value) => Carbon::parse($value)->diffForHumans(),
-        );
-    }
 }

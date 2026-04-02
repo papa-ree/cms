@@ -94,7 +94,7 @@ new #[Layout('cms::layouts.app')]
                         </span>
                     </td>
                     <td class="px-6 py-4 text-sm text-gray-500">
-                        {{ $permission->created_at->format('d M Y H:i') }}
+                        {{ $permission->created_at }}
                     </td>
                 </tr>
             @empty

@@ -12,6 +12,11 @@ class Category extends Model
 
     protected $guarded = ['id'];
 
+    protected $casts = [
+        'created_at' => 'datetime:d M Y',
+        'updated_at' => 'datetime:d M Y',
+    ];
+
     /**
      * Relasi ke Post melalui category_slug
      */

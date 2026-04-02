@@ -16,6 +16,7 @@ class User extends Authenticatable
     protected $guarded = ['id'];
 
     protected $casts = [
-        'created_at' => 'date',
+        'created_at' => 'datetime:d M Y',
+        'updated_at' => 'datetime:d M Y',
     ];
 }

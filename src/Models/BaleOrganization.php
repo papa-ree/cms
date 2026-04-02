@@ -17,6 +17,11 @@ class BaleOrganization extends Model
         'created_by',
     ];
 
+    protected $casts = [
+        'created_at' => 'datetime:d M Y',
+        'updated_at' => 'datetime:d M Y',
+    ];
+
     /**
      * Relasi ke Bale.
      * Satu organisasi memiliki banyak Bale.

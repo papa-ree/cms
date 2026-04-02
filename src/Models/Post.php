@@ -27,6 +27,8 @@ class Post extends Model
 
     protected $casts = [
         'content' => 'array', // otomatis konversi JSON ↔ array
+        'created_at' => 'datetime:d M Y',
+        'updated_at' => 'datetime:d M Y',
     ];
 
     /**
@@ -43,13 +45,6 @@ class Post extends Model
     public function userAuthor()
     {
         return $this->belongsTo(User::class, 'author', 'uuid');
-    }
-
-    protected function createdAt(): Attribute
-    {
-        return Attribute::make(
-            get: fn(string $value) => Carbon::parse($value)->diffForHumans(),
-        );
     }
 
     protected function publishedAt(): Attribute

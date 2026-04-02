@@ -14,4 +14,9 @@ class Permission extends SpatiePermission
         // Otomatis gunakan koneksi tenant yang sedang aktif
         $this->setConnection(TenantConnectionService::connection());
     }
+
+    protected $casts = [
+        'created_at' => 'datetime:d M Y',
+        'updated_at' => 'datetime:d M Y',
+    ];
 }

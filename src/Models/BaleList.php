@@ -20,6 +20,8 @@ class BaleList extends Model
     protected $casts = [
         'database_password' => 'encrypted',
         'database_username' => 'encrypted',
+        'created_at' => 'datetime:d M Y',
+        'updated_at' => 'datetime:d M Y',
     ];
 
     /**
