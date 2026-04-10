@@ -263,6 +263,10 @@
                                         <x-lucide-list class="w-3.5 h-3.5" />
                                         <span>{{ __('Lists') }}</span>
                                     </div>
+                                    <div class="flex items-center gap-1.5">
+                                        <x-lucide-table class="w-3.5 h-3.5" />
+                                        <span>{{ __('Tables') }}</span>
+                                    </div>
                                 </div>
                                 <span class="text-gray-500">{{ __('Last edited:') }}
                                     {{ \Carbon\Carbon::parse($updated_at)->diffForHumans() }}</span>
@@ -308,6 +312,14 @@
                             field: 'image',
                             types: 'image/*',
                             captionPlaceholder: "{{ __('Add image caption...') }}",
+                        },
+                    },
+                    table: {
+                        class: Table,
+                        inlineToolbar: true,
+                        config: {
+                            rows: 2,
+                            cols: 3,
                         },
                     },
                 },
