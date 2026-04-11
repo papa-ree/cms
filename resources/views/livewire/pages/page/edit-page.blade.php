@@ -118,7 +118,8 @@
         <div id="formPage" x-data="{ 
                 pageTitle: $wire.entangle('title'), 
                 pageSlug: $wire.entangle('slug').live, 
-                showSetting: $wire.entangle('show_setting')
+                showSetting: $wire.entangle('show_setting'),
+                showSeo: $wire.entangle('showSeo')
             }">
 
             <div class="grid grid-cols-1 lg:grid-cols-7 gap-6">
@@ -190,6 +191,120 @@
                                 <p class="text-xs text-emerald-700 dark:text-emerald-400">
                                     {{ __('Auto-generated from title. Customize if needed.') }}
                                 </p>
+                            </div>
+                        </div>
+
+                        {{-- SEO Configuration Toggle --}}
+                        <button
+                            class="flex items-center gap-2 w-full p-3 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900/50 dark:hover:bg-gray-900 rounded-lg transition-colors"
+                            type="button" @click="showSeo=!showSeo"
+                            :class="showSeo ? 'ring-2 ring-purple-500 dark:ring-purple-400' : ''">
+                            <x-lucide-search class="w-4 h-4 text-gray-400" />
+                            <span class="flex-1 text-left text-sm font-medium"
+                                :class="showSeo ? 'text-purple-600 dark:text-purple-400' : 'text-gray-700 dark:text-gray-300'">
+                                {{ __('SEO Configuration') }}
+                            </span>
+                            <x-lucide-chevron-down class="w-4 h-4 transition-transform" />
+                        </button>
+
+                        {{-- SEO Configuration (Collapsed) --}}
+                        <div x-show="showSeo" x-collapse>
+                            <div class="p-4 bg-purple-50 dark:bg-purple-900/10 border border-purple-200 dark:border-purple-800 rounded-xl space-y-5">
+                                {{-- Meta Title --}}
+                                <div>
+                                    <label class="block text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider mb-2">{{ __('Meta Title') }}</label>
+                                    <x-core::input wire:model.blur="seo_title" placeholder="{{ __('Fallback to page title') }}" />
+                                    <p class="mt-1 text-[10px] text-gray-500">{{ __('Search engine title. Recommended < 60 chars.') }}</p>
+                                </div>
+
+                                {{-- Meta Description --}}
+                                <div x-data="{ count: $wire.entangle('seo_description').live ? $wire.entangle('seo_description').live.length : 0 }">
+                                    <div class="flex justify-between mb-2">
+                                        <label class="block text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider">{{ __('Meta Description') }}</label>
+                                        <span class="text-[10px] font-mono" :class="count > 160 ? 'text-red-500' : 'text-gray-400'"><span x-text="count"></span>/160</span>
+                                    </div>
+                                    <textarea wire:model.blur="seo_description" x-on:input="count = $event.target.value.length"
+                                        class="w-full text-sm bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-purple-500 focus:border-purple-500 transition-all"
+                                        rows="3" placeholder="{{ __('Brief summary for search results...') }}"></textarea>
+                                </div>
+
+                                {{-- Meta Keywords --}}
+                                <div>
+                                    <label class="block text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider mb-2">{{ __('Keywords') }}</label>
+                                    <x-core::input wire:model.blur="seo_keywords" placeholder="{{ __('e.g. tech, news, bale') }}" />
+                                </div>
+
+                                {{-- OG Image --}}
+                                <div>
+                                    <label class="block text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider mb-2">{{ __('Social Share Image (OG)') }}</label>
+                                    
+                                    @if ($og_image)
+                                        <div class="relative group rounded-lg overflow-hidden border border-gray-200 dark:border-gray-700 mb-2">
+                                            <img src="{{ \Bale\Core\Support\Cdn::url('thumbnails/' . $og_image) }}" class="w-full h-24 object-cover">
+                                            <button wire:click="deleteOgImage" type="button" class="absolute top-1 right-1 p-1 bg-red-500 text-white rounded shadow-sm opacity-0 group-hover:opacity-100 transition-opacity">
+                                                <x-lucide-trash-2 class="w-3.5 h-3.5" />
+                                            </button>
+                                        </div>
+                                    @endif
+
+                                    <x-core::upload-zone wire:model.live="og_image_new" accept="image/*" maxSize="1024" :label="__('Custom social image')" />
+                                    <p class="mt-1 text-[10px] text-gray-500">{{ __('Optional custom image for social sharing.') }}</p>
+                                </div>
+
+                                {{-- Twitter Card --}}
+                                <div>
+                                    <label class="block text-xs font-bold text-purple-700 dark:text-purple-400 uppercase tracking-wider mb-2">{{ __('Twitter Card type') }}</label>
+                                    <select wire:model.live="twitter_card" class="w-full text-sm bg-white dark:bg-gray-800 border-gray-200 dark:border-gray-700 rounded-xl focus:ring-purple-500 focus:border-purple-500">
+                                        <option value="summary">{{ __('Summary') }}</option>
+                                        <option value="summary_large_image">{{ __('Summary Large Image') }}</option>
+                                    </select>
+                                </div>
+
+                                {{-- Index Controls --}}
+                                <div class="space-y-3 pt-2">
+                                    <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                                        <div class="flex items-center gap-2">
+                                            <x-lucide-eye-off class="w-4 h-4 text-gray-400" />
+                                            <span class="text-xs font-medium">{{ __('No Index') }}</span>
+                                        </div>
+                                        <label class="relative inline-block w-10 h-5 cursor-pointer">
+                                            <input type="checkbox" wire:model.live="no_index" class="peer sr-only">
+                                            <span class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full transition-colors peer-checked:bg-purple-600"></span>
+                                            <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5 shadow-sm"></span>
+                                        </label>
+                                    </div>
+
+                                    <div class="flex items-center justify-between p-3 bg-white dark:bg-gray-800/50 rounded-xl border border-gray-100 dark:border-gray-700">
+                                        <div class="flex items-center gap-2">
+                                            <x-lucide-link-2-off class="w-4 h-4 text-gray-400" />
+                                            <span class="text-xs font-medium">{{ __('No Follow') }}</span>
+                                        </div>
+                                        <label class="relative inline-block w-10 h-5 cursor-pointer">
+                                            <input type="checkbox" wire:model.live="no_follow" class="peer sr-only">
+                                            <span class="absolute inset-0 bg-gray-200 dark:bg-gray-700 rounded-full transition-colors peer-checked:bg-purple-600"></span>
+                                            <span class="absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-5 shadow-sm"></span>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                {{-- Canonical & Structured Data --}}
+                                <div x-data="{ openAdvanced: false }">
+                                    <button type="button" @click="openAdvanced = !openAdvanced" class="text-[10px] text-purple-600 dark:text-purple-400 font-bold uppercase tracking-widest flex items-center gap-1 hover:underline">
+                                        <x-lucide-plus class="w-3 h-3" /> {{ __('Advanced SEO') }}
+                                    </button>
+                                    <div x-show="openAdvanced" x-collapse class="mt-4 space-y-4 pt-2 border-t border-purple-200/50">
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{{ __('Canonical URL') }}</label>
+                                            <x-core::input wire:model.blur="canonical_url" placeholder="https://example.com/original-page" />
+                                        </div>
+                                        <div>
+                                            <label class="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">{{ __('Structured Data (JSON-LD)') }}</label>
+                                            <textarea wire:model.blur="structured_data"
+                                                class="w-full text-[10px] font-mono bg-gray-900 text-emerald-400 border-gray-700 rounded-lg focus:ring-purple-500 focus:border-purple-500"
+                                                rows="5" placeholder='{ "@@context": "https://schema.org", ... }'></textarea>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>

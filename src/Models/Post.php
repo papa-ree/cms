@@ -8,11 +8,13 @@ use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Bale\Cms\Traits\UsesTenantConnection;
+use Bale\Cms\Traits\HasSeoMeta;
 
 class Post extends Model
 {
     use UsesTenantConnection;
     use HasUuids;
+    use HasSeoMeta;
 
     /**
      * Tentukan nama tabel.
