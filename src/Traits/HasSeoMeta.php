@@ -3,6 +3,7 @@
 namespace Bale\Cms\Traits;
 
 use Bale\Cms\Models\SeoMeta;
+use Bale\Core\Support\Cdn;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
 use Illuminate\Support\Str;
 
@@ -63,8 +64,8 @@ trait HasSeoMeta
         }
 
         // Try to generate from content
-        if (method_exists($this, 'excerpt')) {
-            return $this->excerpt(160);
+        if (method_exists($this, 'getExcerpt')) {
+            return $this->getExcerpt(160);
         }
 
         if (isset($this->content)) {
@@ -109,7 +110,11 @@ trait HasSeoMeta
     public function getOgImage(): ?string
     {
         if ($this->seoMeta?->og_image) {
-            return $this->seoMeta->og_image;
+            $ogImage = $this->seoMeta->og_image;
+            if (str_starts_with($ogImage, 'http')) {
+                return $ogImage;
+            }
+            return Cdn::url('thumbnails/' . $ogImage);
         }
 
         // Fallback to thumbnail if exists
@@ -120,7 +125,7 @@ trait HasSeoMeta
             }
 
             // Fallback to CDN for thumbnails
-            return \Bale\Emperan\Support\Cdn::url('thumbnails/' . $this->thumbnail);
+            return Cdn::url('thumbnails/' . $this->thumbnail);
         }
 
         return null;
