@@ -10,8 +10,8 @@
                 'sortable' => true,
             ],
             [
-                'key'      => 'type',
-                'label'    => __('Type'),
+                'key'      => 'slug',
+                'label'    => __('Slug'),
                 'sortable' => true,
                 'hidden'   => 'lg',
             ],

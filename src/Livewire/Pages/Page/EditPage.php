@@ -120,6 +120,11 @@ class EditPage extends Component
         $this->dispatch('post-status-reset');
     }
 
+    public function updatedTitle($value)
+    {
+        $this->slug = \Illuminate\Support\Str::slug($value);
+    }
+
     public function updated($propertyName)
     {
         $autoSaveFields = [
