@@ -3,6 +3,7 @@
 namespace Bale\Cms\Livewire\Pages\Page;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
 use Livewire\Attributes\{Layout, Locked, Title};
@@ -122,15 +123,23 @@ class EditPage extends Component
 
     public function updatedTitle($value)
     {
-        $this->slug = \Illuminate\Support\Str::slug($value);
+        $this->slug = Str::slug($value);
     }
 
     public function updated($propertyName)
     {
         $autoSaveFields = [
-            'title', 'slug', 'content',
-            'seo_title', 'seo_description', 'seo_keywords', 'twitter_card',
-            'no_index', 'no_follow', 'canonical_url', 'structured_data'
+            'title',
+            'slug',
+            'content',
+            'seo_title',
+            'seo_description',
+            'seo_keywords',
+            'twitter_card',
+            'no_index',
+            'no_follow',
+            'canonical_url',
+            'structured_data'
         ];
 
         if (in_array($propertyName, $autoSaveFields)) {

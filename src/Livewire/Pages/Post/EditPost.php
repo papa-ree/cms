@@ -4,6 +4,7 @@ namespace Bale\Cms\Livewire\Pages\Post;
 
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Livewire\Component;
 use Livewire\Attributes\{Layout, Locked, Title};
 use Livewire\WithFileUploads;
@@ -192,13 +193,27 @@ class EditPost extends Component
         $this->dispatch('post-status-reset');
     }
 
+    public function updatedTitle($value)
+    {
+        $this->slug = Str::slug($value);
+    }
+
     public function updated($propertyName)
     {
         // Fields that trigger auto-save
         $autoSaveFields = [
-            'title', 'slug', 'content', 'category_slug',
-            'seo_title', 'seo_description', 'seo_keywords', 'twitter_card',
-            'no_index', 'no_follow', 'canonical_url', 'structured_data'
+            'title',
+            'slug',
+            'content',
+            'category_slug',
+            'seo_title',
+            'seo_description',
+            'seo_keywords',
+            'twitter_card',
+            'no_index',
+            'no_follow',
+            'canonical_url',
+            'structured_data'
         ];
 
         if (in_array($propertyName, $autoSaveFields)) {
