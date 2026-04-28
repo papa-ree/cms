@@ -62,10 +62,10 @@ class EditPost extends Component
 
         if (!is_null($post)) {
             $this->id = $post->id;
-            $this->title = $post->title;
-            $this->slug = $post->slug;
+            $this->title = $post->title ?? '';
+            $this->slug = $post->slug ?? '';
             $this->updated_at = $post->updated_at;
-            $this->content = json_decode(json_encode($post->content), true);
+            $this->content = json_decode(json_encode($post->content), true) ?? [];
             $this->thumbnail = $post->thumbnail;
             $this->published = $post->published;
             $this->show_upload_zone = $post->thumbnail ? false : true;
@@ -75,14 +75,14 @@ class EditPost extends Component
             // Load SEO Meta
             $seo = $post->seoMeta;
             if ($seo) {
-                $this->seo_title = $seo->title;
-                $this->seo_description = $seo->description;
-                $this->seo_keywords = $seo->keywords;
+                $this->seo_title = $seo->title ?? '';
+                $this->seo_description = $seo->description ?? '';
+                $this->seo_keywords = $seo->keywords ?? '';
                 $this->og_image = $seo->og_image;
                 $this->twitter_card = $seo->twitter_card ?? 'summary_large_image';
                 $this->no_index = (bool) $seo->no_index;
                 $this->no_follow = (bool) $seo->no_follow;
-                $this->canonical_url = $seo->canonical_url;
+                $this->canonical_url = $seo->canonical_url ?? '';
                 $this->structured_data = $seo->structured_data ? json_encode($seo->structured_data, JSON_PRETTY_PRINT) : null;
             }
         }
@@ -173,6 +173,7 @@ class EditPost extends Component
 
     public function deleteOgImage()
     {
+        $this->authorize('bale-seo.update');
         $this->saveStatus = 'saving';
 
         if ($this->og_image) {
@@ -193,13 +194,13 @@ class EditPost extends Component
         $this->dispatch('post-status-reset');
     }
 
-    public function updatedTitle($value)
-    {
-        $this->slug = Str::slug($value);
-    }
-
     public function updated($propertyName)
     {
+        if ($propertyName === 'title') {
+            $this->slug = Str::slug($this->title);
+        }
+
+        // Fields that trigger auto-save
         // Fields that trigger auto-save
         $autoSaveFields = [
             'title',
@@ -260,6 +261,7 @@ class EditPost extends Component
 
     public function updatedOgImageNew()
     {
+        $this->authorize('bale-seo.update');
         try {
             if ($this->og_image) {
                 Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->og_image);
@@ -313,22 +315,24 @@ class EditPost extends Component
                     'category_slug' => $this->category_slug,
                 ]);
 
-                // Handle structured data JSON
-                $structuredData = null;
-                if ($this->structured_data) {
-                    $structuredData = json_decode($this->structured_data, true);
-                }
+                if (auth()->user()->can('bale-seo.update')) {
+                    // Handle structured data JSON
+                    $structuredData = null;
+                    if ($this->structured_data) {
+                        $structuredData = json_decode($this->structured_data, true);
+                    }
 
-                $post->updateSeoMeta([
-                    'title' => $this->seo_title,
-                    'description' => $this->seo_description,
-                    'keywords' => $this->seo_keywords,
-                    'twitter_card' => $this->twitter_card,
-                    'no_index' => $this->no_index,
-                    'no_follow' => $this->no_follow,
-                    'canonical_url' => $this->canonical_url,
-                    'structured_data' => $structuredData,
-                ]);
+                    $post->updateSeoMeta([
+                        'title' => $this->seo_title,
+                        'description' => $this->seo_description,
+                        'keywords' => $this->seo_keywords,
+                        'twitter_card' => $this->twitter_card,
+                        'no_index' => $this->no_index,
+                        'no_follow' => $this->no_follow,
+                        'canonical_url' => $this->canonical_url,
+                        'structured_data' => $structuredData,
+                    ]);
+                }
 
                 $this->saveStatus = 'saved';
                 $this->dispatch('status-updated', status: 'saved');

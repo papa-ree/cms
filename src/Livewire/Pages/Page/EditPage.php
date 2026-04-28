@@ -46,22 +46,22 @@ class EditPage extends Component
 
         if (!is_null($page)) {
             $this->id = $page->id;
-            $this->title = $page->title;
-            $this->slug = $page->slug;
-            $this->content = $page->content;
+            $this->title = $page->title ?? '';
+            $this->slug = $page->slug ?? '';
+            $this->content = $page->content ?? [];
             $this->updated_at = $page->updated_at;
 
             // Load SEO Meta
             $seo = $page->seoMeta;
             if ($seo) {
-                $this->seo_title = $seo->title;
-                $this->seo_description = $seo->description;
-                $this->seo_keywords = $seo->keywords;
+                $this->seo_title = $seo->title ?? '';
+                $this->seo_description = $seo->description ?? '';
+                $this->seo_keywords = $seo->keywords ?? '';
                 $this->og_image = $seo->og_image;
                 $this->twitter_card = $seo->twitter_card ?? 'summary_large_image';
                 $this->no_index = (bool) $seo->no_index;
                 $this->no_follow = (bool) $seo->no_follow;
-                $this->canonical_url = $seo->canonical_url;
+                $this->canonical_url = $seo->canonical_url ?? '';
                 $this->structured_data = $seo->structured_data ? json_encode($seo->structured_data, JSON_PRETTY_PRINT) : null;
             }
         } else {
@@ -102,6 +102,7 @@ class EditPage extends Component
 
     public function deleteOgImage()
     {
+        $this->authorize('bale-seo.update');
         $this->saveStatus = 'saving';
         if ($this->og_image) {
             \Illuminate\Support\Facades\Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->og_image);
@@ -121,13 +122,12 @@ class EditPage extends Component
         $this->dispatch('post-status-reset');
     }
 
-    public function updatedTitle($value)
-    {
-        $this->slug = Str::slug($value);
-    }
-
     public function updated($propertyName)
     {
+        if ($propertyName === 'title') {
+            $this->slug = Str::slug($this->title);
+        }
+
         $autoSaveFields = [
             'title',
             'slug',
@@ -149,6 +149,7 @@ class EditPage extends Component
 
     public function updatedOgImageNew()
     {
+        $this->authorize('bale-seo.update');
         try {
             if ($this->og_image) {
                 \Illuminate\Support\Facades\Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->og_image);
@@ -200,22 +201,24 @@ class EditPage extends Component
                     'content' => $this->content,
                 ]);
 
-                // Handle structured data JSON
-                $structuredData = null;
-                if ($this->structured_data) {
-                    $structuredData = json_decode($this->structured_data, true);
-                }
+                if (auth()->user()->can('bale-seo.update')) {
+                    // Handle structured data JSON
+                    $structuredData = null;
+                    if ($this->structured_data) {
+                        $structuredData = json_decode($this->structured_data, true);
+                    }
 
-                $page->updateSeoMeta([
-                    'title' => $this->seo_title,
-                    'description' => $this->seo_description,
-                    'keywords' => $this->seo_keywords,
-                    'twitter_card' => $this->twitter_card,
-                    'no_index' => $this->no_index,
-                    'no_follow' => $this->no_follow,
-                    'canonical_url' => $this->canonical_url,
-                    'structured_data' => $structuredData,
-                ]);
+                    $page->updateSeoMeta([
+                        'title' => $this->seo_title,
+                        'description' => $this->seo_description,
+                        'keywords' => $this->seo_keywords,
+                        'twitter_card' => $this->twitter_card,
+                        'no_index' => $this->no_index,
+                        'no_follow' => $this->no_follow,
+                        'canonical_url' => $this->canonical_url,
+                        'structured_data' => $structuredData,
+                    ]);
+                }
 
                 $this->saveStatus = 'saved';
                 $this->dispatch('status-updated', status: 'saved');

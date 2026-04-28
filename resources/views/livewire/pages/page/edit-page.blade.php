@@ -335,6 +335,7 @@
                         </div>
 
                         {{-- SEO Configuration Toggle --}}
+                        @can('bale-seo.update')
                         <button
                             class="flex items-center gap-2 w-full p-3 bg-gray-50 hover:bg-gray-100 dark:bg-gray-900/50 dark:hover:bg-gray-900 rounded-lg transition-colors"
                             type="button" @click="showSeo=!showSeo"
@@ -447,6 +448,8 @@
                                 </div>
                             </div>
                         </div>
+                        @endcan
+
                     </div>
                 </div>
 
