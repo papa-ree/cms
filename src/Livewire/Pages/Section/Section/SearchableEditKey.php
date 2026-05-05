@@ -38,6 +38,12 @@ class SearchableEditKey extends Component
     public bool $enableSocial = false;
     public array $activeSocialPlatforms = [];
 
+    /** List of keys that should use EditorJS */
+    public array $editorjsKeys = [];
+
+    /** List of keys that should use Date Picker */
+    public array $dateKeys = [];
+
     public function mount($slug)
     {
         $this->slug = $slug;
@@ -78,11 +84,8 @@ class SearchableEditKey extends Component
         $this->enableUpload = $this->meta['enable_upload'] ?? false;
         $this->enableSocial = $this->meta['enable_social'] ?? false;
         $this->activeSocialPlatforms = $this->meta['social_platforms'] ?? [];
-    }
-
-    public function updateOrder($orderedKeys)
-    {
-        $this->availableKeys = $orderedKeys;
+        $this->editorjsKeys = $this->meta['editorjs_keys'] ?? [];
+        $this->dateKeys = $this->meta['date_keys'] ?? [];
     }
 
     public function render()
@@ -90,29 +93,17 @@ class SearchableEditKey extends Component
         return view('cms::livewire.pages.section.section.searchable-edit-key');
     }
 
-    public function addKey()
+    public function save($config = [])
     {
-        // Validate key is not empty and doesn't already exist
-        $this->newKey = trim($this->newKey);
-
-        if (!$this->newKey || in_array($this->newKey, $this->availableKeys) || in_array($this->newKey, ['id', 'created_at', 'updated_at', 'uploads', 'attachments'])) {
-            return;
+        if (!empty($config)) {
+            $this->availableKeys = $config['keys'] ?? $this->availableKeys;
+            $this->enableUpload = $config['enableUpload'] ?? $this->enableUpload;
+            $this->enableSocial = $config['enableSocial'] ?? $this->enableSocial;
+            $this->activeSocialPlatforms = $config['activeSocialPlatforms'] ?? $this->activeSocialPlatforms;
+            $this->editorjsKeys = $config['editorjsKeys'] ?? $this->editorjsKeys;
+            $this->dateKeys = $config['dateKeys'] ?? $this->dateKeys;
         }
 
-        $this->availableKeys[] = $this->newKey;
-        $this->newKey = '';
-    }
-
-    public function removeKey($index)
-    {
-        if (isset($this->availableKeys[$index])) {
-            unset($this->availableKeys[$index]);
-            $this->availableKeys = array_values($this->availableKeys);
-        }
-    }
-
-    public function save()
-    {
         // Validate at least one key exists
         if (count($this->availableKeys) === 0) {
             $this->dispatch('toast', message: 'Please add at least one key!', type: 'error');
@@ -175,6 +166,8 @@ class SearchableEditKey extends Component
             $content['meta']['enable_upload'] = $this->enableUpload;
             $content['meta']['enable_social'] = $this->enableSocial;
             $content['meta']['social_platforms'] = $this->activeSocialPlatforms;
+            $content['meta']['editorjs_keys'] = $this->editorjsKeys;
+            $content['meta']['date_keys'] = $this->dateKeys;
 
             $content['items'] = $items;
 

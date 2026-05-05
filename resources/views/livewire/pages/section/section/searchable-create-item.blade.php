@@ -1,4 +1,74 @@
 <div>
+    <style>
+        /* Editor.js Dark Mode Overrides */
+        .dark .ce-block {
+            color: #e2e8f0;
+        }
+
+        .dark .ce-toolbar__plus,
+        .dark .ce-toolbar__settings-btn {
+            color: #94a3b8;
+            background-color: transparent;
+        }
+
+        .dark .ce-toolbar__plus:hover,
+        .dark .ce-toolbar__settings-btn:hover {
+            color: #f1f5f9;
+            background-color: #334155;
+        }
+
+        .dark .ce-popover,
+        .dark .ce-popover--inline {
+            background-color: #1e293b;
+            border-color: #334155;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+        }
+
+        .dark .ce-popover__container {
+            background-color: #1e293b;
+            border-color: #334155;
+        }
+
+        .dark .ce-popover__search .cdx-search-field {
+            background-color: #0f172a;
+            border-color: #334155;
+        }
+
+        .dark .ce-popover-item {
+            color: #e2e8f0;
+        }
+
+        .dark .ce-popover-item:hover,
+        .dark .ce-popover-item--focused {
+            background-color: #334155;
+        }
+
+        .dark .ce-popover-item__icon {
+            background-color: #334155;
+            color: #cbd5e1;
+        }
+
+        .dark .ce-inline-toolbar,
+        .dark .ce-inline-toolbar__buttons {
+            background-color: #1e293b;
+            color: #e2e8f0;
+            border-color: #334155;
+        }
+
+        .dark .ce-inline-tool:hover {
+            background-color: #334155;
+        }
+
+        .dark .ce-settings,
+        .dark .ce-settings__button {
+            background-color: #1e293b;
+            color: #e2e8f0;
+        }
+
+        .dark .ce-settings__button:hover {
+            background-color: #334155;
+        }
+    </style>
     <div x-data="baleCreateItem">
 
         {{-- Breadcrumb Navigation --}}
@@ -127,7 +197,6 @@
 
                     <div class="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700">
 
-                        {{-- Field Key/Label Header --}}
                         <div class="flex items-center gap-1.5 mb-3">
                             @if (in_array($key, $socialKeys))
                                 <x-lucide-share-2 class="w-4 h-4 text-pink-500" />
@@ -136,8 +205,22 @@
                                     class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400 rounded">
                                     social media
                                 </span>
+                            @elseif(in_array($key, $editorjsKeys))
+                                <x-lucide-file-text class="w-4 h-4 text-amber-500" />
+                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
+                                <span
+                                    class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400 rounded">
+                                    rich text
+                                </span>
+                            @elseif(in_array($key, $dateKeys))
+                                <x-lucide-calendar class="w-4 h-4 text-blue-500" />
+                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
+                                <span
+                                    class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400 rounded">
+                                    date
+                                </span>
                             @else
-                                <x-lucide-tag class="w-4 h-4 text-blue-600" />
+                                <x-lucide-tag class="w-4 h-4 text-purple-600" />
                                 <label class="text-sm font-semibold text-gray-700 dark:text-gray-300">{{ $key }}</label>
                             @endif
                         </div>
@@ -276,7 +359,14 @@
                                 </div>
 
                             </div>
-
+                        @elseif(in_array($key, $editorjsKeys))
+                            {{-- ── EDITORJS INPUT FIELD ── --}}
+                            <div
+                                class="editorjs-container border border-gray-200 dark:border-gray-700 rounded-xl overflow-hidden bg-white dark:bg-gray-800">
+                                <div wire:ignore id="editor-{{ $key }}" x-init="initEditor('{{ $key }}')"
+                                    class="px-6 py-4 min-h-[200px] prose prose-slate dark:prose-invert max-w-none">
+                                </div>
+                            </div>
                         @else
                             {{-- ── TEXT INPUT FIELD (existing behavior) ── --}}
 
@@ -284,7 +374,7 @@
                             <div class="mb-3">
                                 <div class="flex gap-2">
                                     <div class="flex-1">
-                                        @if ($key == 'date')
+                                        @if (in_array($key, $dateKeys))
                                             <x-core::input type="date" x-model="tempInputs['{{ $key }}']"
                                                 @keydown.enter="addValue('{{ $key }}')" @click.outside="addValue('{{ $key }}')"
                                                 placeholder="Select date" />
@@ -374,13 +464,13 @@
                 {{-- Dynamic Social Media Fields (Alpine-managed visibility) --}}
                 <div x-show="enableSocial" x-cloak class="space-y-5 animate-in fade-in duration-300">
                     <template x-for="p in platformsList" :key="'field-'+p">
-                        <div x-show="activeSocialPlatforms.includes(p)" 
-                             x-collapse
-                             class="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700">
+                        <div x-show="activeSocialPlatforms.includes(p)" x-collapse
+                            class="p-4 bg-gray-50 dark:bg-gray-900/50 rounded-xl border border-gray-200 dark:border-gray-700">
                             {{-- Field Key/Label Header --}}
                             <div class="flex items-center gap-1.5 mb-3">
                                 <x-lucide-share-2 class="w-4 h-4 text-pink-500" />
-                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300" x-text="p.charAt(0).toUpperCase() + p.slice(1)"></label>
+                                <label class="text-sm font-semibold text-gray-700 dark:text-gray-300"
+                                    x-text="p.charAt(0).toUpperCase() + p.slice(1)"></label>
                                 <span
                                     class="ml-1 px-1.5 py-0.5 text-xs font-medium bg-pink-100 text-pink-700 dark:bg-pink-900/30 dark:text-pink-400 rounded">
                                     social media
@@ -388,22 +478,24 @@
                             </div>
 
                             {{-- ── SOCIAL MEDIA INPUT FIELD ── --}}
-                            <div x-init="$nextTick(() => { platform = getSocialPlatform('sm_' + p); })" x-data="{ platform: {} }" class="space-y-3">
+                            <div x-init="$nextTick(() => { platform = getSocialPlatform('sm_' + p); })"
+                                x-data="{ platform: {} }" class="space-y-3">
                                 <div class="relative overflow-hidden bg-white dark:bg-gray-800 rounded-xl border transition-all duration-200"
                                     :class="platform.border + ' shadow-sm'">
-                                    
+
                                     {{-- Platform Icon & Label --}}
                                     <div class="flex items-center gap-3 p-3 border-b" :class="platform.border">
-                                        <div class="w-6 h-6 flex items-center justify-center" :class="platform.text" x-html="platform.icon"></div>
-                                        <span class="text-xs font-bold uppercase tracking-wider" :class="platform.text" x-text="platform.name"></span>
+                                        <div class="w-6 h-6 flex items-center justify-center" :class="platform.text"
+                                            x-html="platform.icon"></div>
+                                        <span class="text-xs font-bold uppercase tracking-wider" :class="platform.text"
+                                            x-text="platform.name"></span>
                                     </div>
 
                                     <div class="p-2 space-y-2">
                                         <template x-for="(val, vIdx) in (item['sm_' + p] || [])" :key="vIdx">
                                             <div class="flex items-center gap-2">
                                                 <div class="relative flex-1">
-                                                    <input type="url" 
-                                                        :value="val"
+                                                    <input type="url" :value="val"
                                                         @input.debounce.300ms="item['sm_' + p][vIdx] = $event.target.value"
                                                         :placeholder="platform.placeholder"
                                                         class="w-full px-4 py-2.5 bg-gray-50 dark:bg-gray-900/50 border border-gray-100 dark:border-gray-700 rounded-lg text-sm focus:ring-2 focus:ring-opacity-20 transition-all outline-none"
@@ -418,15 +510,20 @@
 
                                         {{-- Empty State for Field --}}
                                         <template x-if="!(item['sm_' + p] || []).length">
-                                            <div class="px-4 py-8 text-center bg-gray-50/50 dark:bg-gray-900/30 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700">
-                                                <div class="mb-4 opacity-20 flex justify-center" :class="platform.text" x-html="platform.icon ? platform.icon.replace('<svg ', '<svg class=\'w-12 h-12\' ') : ''"></div>
-                                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">No <span x-text="platform.name"></span> links</p>
-                                                <p class="text-[10px] text-gray-400 mt-1">Configure your social profile URL below</p>
+                                            <div
+                                                class="px-4 py-8 text-center bg-gray-50/50 dark:bg-gray-900/30 rounded-lg border-2 border-dashed border-gray-200 dark:border-gray-700">
+                                                <div class="mb-4 opacity-20 flex justify-center" :class="platform.text"
+                                                    x-html="platform.icon ? platform.icon.replace('<svg ', '<svg class=\'w-12 h-12\' ') : ''">
+                                                </div>
+                                                <p class="text-xs font-medium text-gray-500 uppercase tracking-wide">No
+                                                    <span x-text="platform.name"></span> links</p>
+                                                <p class="text-[10px] text-gray-400 mt-1">Configure your social profile
+                                                    URL below</p>
                                             </div>
                                         </template>
 
                                         {{-- Add Link Button --}}
-                                        <button type="button" 
+                                        <button type="button"
                                             @click="if(!item['sm_' + p]) item['sm_' + p] = []; item['sm_' + p].push('')"
                                             class="w-full mt-2 py-2.5 border-2 border-dashed rounded-lg text-xs font-bold transition-all flex items-center justify-center gap-2"
                                             :class="platform.border + ' ' + platform.text + ' opacity-60 hover:opacity-100 bg-white/50 dark:bg-gray-800/50'">
@@ -445,12 +542,8 @@
         {{-- ── Upload Section (Universal Upload Zone) ── --}}
         <div class="mt-8">
             @if ($enableUpload)
-                <livewire:cms.pages.section.section.section-item-upload
-                    :slug="$slug"
-                    :itemId="$itemId"
-                    :fileKeys="$fileKeys"
-                    :key="'upload-section-'.$itemId"
-                />
+                <livewire:cms.pages.section.section.section-item-upload :slug="$slug" :itemId="$itemId"
+                    :fileKeys="$fileKeys" :key="'upload-section-' . $itemId" />
             @endif
         </div>
 
@@ -466,9 +559,7 @@
                     </p>
                 </div>
             </div>
-            <button type="button"
-                x-data
-                @click="$dispatch('bale-save-item')"
+            <button type="button" x-data @click="$dispatch('bale-save-item')"
                 class="inline-flex items-center gap-2 px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white font-semibold rounded-xl shadow-md transition-all">
                 <x-lucide-save class="w-4 h-4" />
                 {{ $editMode ? 'Update Item' : 'Create Item' }}
@@ -502,10 +593,11 @@
             const _baleCreateItemFactory = () => ({
                     // Initialize component state from backend data
                     item: @js($currentItem),
-                    platformsList: @js($this::SOCIAL_PLATFORMS),
-                tempInputs: {},
+                platformsList: @js($this::SOCIAL_PLATFORMS),
+                tempInputs: { },
                 fileKeys: @js($fileKeys),
                 socialKeys: @js($socialKeys),
+                editorjsKeys: @js($editorjsKeys),
 
                 // Retrieve styling and metadata based on social media platform name
                 getSocialPlatform(key) {
@@ -548,12 +640,47 @@
 
                 // Proxy save method to avoid context loss in Livewire 3
                 saveItem() {
-                    this.$wire.save(this.item);
+                    this.$wire.save( this.item );
+                },
+
+                // Initialize EditorJS for a specific key
+                initEditor(key) {
+                    const holderId = 'editor-' + key;
+                const token = "{{ csrf_token() }}";
+
+                // Initial data (always an array, take first element for EditorJS)
+                let initialData = this.item[key];
+                if (Array.isArray(initialData)) {
+                    initialData = initialData[ 0 ] || {};
+                    }
+
+                new EditorJS({
+                    holder: holderId,
+                tools: {
+                    Header: {
+                    class: Header,
+                inlineToolbar: ['link'],
+                config: { placeholder: 'Enter a header', levels: [2, 3, 4], defaultLevel: 3 }
+                            },
+                List: { class: List, inlineToolbar: true, config: { defaultStyle: 'unordered' } },
+                table: { class: Table, inlineToolbar: true, config: { rows: 2, cols: 3 } },
+                Quote: { class: Quote, inlineToolbar: true },
+                Code: { class: Code },
+                Embed: { class: Embed },
+                        },
+                data: initialData,
+                        onChange: async (api) => {
+                            const savedData = await api.saver.save();
+                // Sync back to Alpine item state (as first element of array)
+                this.item[key] = [savedData];
+                        },
+                placeholder: "Start writing content for " + key + "..."
+                    });
                 },
 
                 init() {
                     // Listen for cross-scope save dispatch
-                    window.addEventListener('bale-save-item', () => this.saveItem());
+                    window.addEventListener( 'bale-save-item', () => this.saveItem() );
                 },
             });
 

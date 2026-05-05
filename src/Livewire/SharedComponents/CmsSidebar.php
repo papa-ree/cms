@@ -15,22 +15,44 @@ class CmsSidebar extends Component
     }
 
     #[Computed]
-    public function availableMenus()
+    public function cmsMenus(): array
     {
-        $allMenus = [
-            ['label' => 'posts', 'url' => 'posts', 'icon' => 'file-text', 'permission' => 'bale-post.read'],
-            ['label' => 'categories', 'url' => 'categories', 'icon' => 'tag', 'permission' => 'bale-category.read'],
-            ['label' => 'pages', 'url' => 'pages', 'icon' => 'file', 'permission' => 'bale-page.read'],
-            ['label' => 'navigations', 'url' => 'navigations', 'icon' => 'navigation', 'permission' => 'bale-navigation.read'],
-            ['label' => 'sections', 'url' => 'sections', 'icon' => 'layers', 'permission' => 'bale-section.read'],
-            ['label' => 'roles', 'url' => 'roles', 'icon' => 'shield-check', 'permission' => 'bale-role.read'],
-            ['label' => 'permissions', 'url' => 'permissions', 'icon' => 'shield', 'permission' => 'bale-role.read'],
-            ['label' => 'users', 'url' => 'users', 'icon' => 'users', 'permission' => 'bale-user.read'],
+        $menus = [
+            ['label' => 'posts',       'url' => 'posts',       'icon' => 'file-text',    'permission' => 'bale-post.read',       'group' => 'cms'],
+            ['label' => 'categories',  'url' => 'categories',  'icon' => 'tag',           'permission' => 'bale-category.read',   'group' => 'cms'],
+            ['label' => 'pages',       'url' => 'pages',       'icon' => 'file',          'permission' => 'bale-page.read',       'group' => 'cms'],
+            ['label' => 'navigations', 'url' => 'navigations', 'icon' => 'navigation',    'permission' => 'bale-navigation.read', 'group' => 'cms'],
+            ['label' => 'sections',    'url' => 'sections',    'icon' => 'layers',        'permission' => 'bale-section.read',    'group' => 'cms'],
+            ['label' => 'roles',       'url' => 'roles',       'icon' => 'shield-check',  'permission' => 'bale-role.read',       'group' => 'cms'],
+            ['label' => 'permissions', 'url' => 'permissions', 'icon' => 'shield',        'permission' => 'bale-role.read',       'group' => 'cms'],
+            ['label' => 'users',       'url' => 'users',       'icon' => 'users',         'permission' => 'bale-user.read',       'group' => 'cms'],
         ];
 
-        return array_filter($allMenus, function ($item) {
-            return auth()->user()->can($item['permission']);
-        });
+        return array_values(array_filter($menus, fn($item) => auth()->user()->can($item['permission'])));
+    }
+
+    #[Computed]
+    public function ikmMenus(): array
+    {
+        $ikmMenuPath = base_path('packages/ikm/src/menu.php');
+
+        if (! file_exists($ikmMenuPath)) {
+            return [];
+        }
+
+        $menus = include $ikmMenuPath;
+
+        return array_values(array_filter($menus, fn($item) => auth()->user()->can($item['permission'])));
+    }
+
+    /**
+     * Tetap dipertahankan agar tidak breaking change jika ada view lain yang menggunakannya.
+     * @deprecated Gunakan cmsMenus() atau ikmMenus() secara langsung.
+     */
+    #[Computed]
+    public function availableMenus(): array
+    {
+        return array_merge($this->cmsMenus, $this->ikmMenus);
     }
 
     #[Computed]
@@ -38,7 +60,7 @@ class CmsSidebar extends Component
     {
         $uuid = session('bale_active_uuid');
 
-        if (!$uuid) {
+        if (! $uuid) {
             return null;
         }
 

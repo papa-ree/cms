@@ -17,6 +17,8 @@ class SearchableSectionTableView extends Component
     public $sectionName;
 
     public $availableKeys = [];
+    public array $editorjsKeys = [];
+    public array $dateKeys = [];
     public $searchQuery = '';
 
     public function mount($slug)
@@ -58,6 +60,8 @@ class SearchableSectionTableView extends Component
 
         $remainingKeys = array_diff($itemKeys, $orderedKeys);
         $this->availableKeys = array_values(array_merge($orderedKeys, $remainingKeys));
+        $this->editorjsKeys = $meta['editorjs_keys'] ?? [];
+        $this->dateKeys = $meta['date_keys'] ?? [];
     }
 
     public function render()

@@ -1,15 +1,20 @@
 <div x-data="{
-    keys: @entangle('availableKeys'),
+    keys: @js($availableKeys),
     newKey: '',
     sortingEnabled: false,
     sortableInstance: null,
     
-    // Feature Toggles (entangled with Livewire properties)
-    enableUpload: @entangle('enableUpload'),
-    enableSocial: @entangle('enableSocial'),
-    activeSocialPlatforms: @entangle('activeSocialPlatforms'),
+    // Feature Toggles (Local state initialized from backend)
+    enableUpload: @js($enableUpload),
+    enableSocial: @js($enableSocial),
+    enableEditorJS: @js(!empty($editorjsKeys)),
+    enableDate: @js(!empty($dateKeys)),
+    activeSocialPlatforms: @js($activeSocialPlatforms),
+    editorjsKeys: @js($editorjsKeys),
+    dateKeys: @js($dateKeys),
     platformsList: @js($this::SOCIAL_PLATFORMS),
 
+    // Local Logic (Single Request Strategy)
     addKey() {
         const k = this.newKey.trim();
         const reserved = ['id', 'created_at', 'updated_at', 'uploads', 'attachments'];
@@ -22,8 +27,40 @@
     },
     removeKey(index) {
         if (confirm('Are you sure? This will remove this key from all items.')) {
+            const key = this.keys[index];
             this.keys.splice(index, 1);
+            // Cleanup type configurations
+            this.editorjsKeys = this.editorjsKeys.filter(k => k !== key);
+            this.dateKeys = this.dateKeys.filter(k => k !== key);
         }
+    },
+    toggleEditorJS(key) {
+        if (this.editorjsKeys.includes(key)) {
+            this.editorjsKeys = this.editorjsKeys.filter(k => k !== key);
+        } else {
+            // Remove from dateKeys first (mutual exclusivity)
+            this.dateKeys = this.dateKeys.filter(k => k !== key);
+            this.editorjsKeys.push(key);
+        }
+    },
+    toggleDate(key) {
+        if (this.dateKeys.includes(key)) {
+            this.dateKeys = this.dateKeys.filter(k => k !== key);
+        } else {
+            // Remove from editorjsKeys first (mutual exclusivity)
+            this.editorjsKeys = this.editorjsKeys.filter(k => k !== key);
+            this.dateKeys.push(key);
+        }
+    },
+    saveConfig() {
+        this.$wire.save({
+            keys: this.keys,
+            enableUpload: this.enableUpload,
+            enableSocial: this.enableSocial,
+            activeSocialPlatforms: this.activeSocialPlatforms,
+            editorjsKeys: this.enableEditorJS ? this.editorjsKeys : [],
+            dateKeys: this.enableDate ? this.dateKeys : []
+        });
     },
     initSortable() {
         let el = document.getElementById('keys-list');
@@ -104,26 +141,37 @@
                 <x-lucide-lightbulb class="w-6 h-6" />
             </div>
             <div class="flex-1">
-                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">{{ __('Section Configuration System') }}</h3>
+                <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                    {{ __('Section Configuration System') }}
+                </h3>
                 <p class="text-sm text-gray-700 dark:text-gray-300 mb-3">
                     {!! __('This page is used to define the <strong>Architecture</strong> of the section. Changes here will affect all items within this section.') !!}
                 </p>
                 <div class="grid gap-2 md:grid-cols-2">
                     <div class="flex items-start gap-2">
                         <x-lucide-check class="w-4 h-4 text-purple-600 mt-0.5" />
-                        <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">{{ __('Global Features: Enable Upload Zone or Social Media for all items.') }}</span>
+                        <span
+                            class="text-sm text-gray-600 dark:text-gray-400 font-medium">{{ __('Global Features: Enable Upload Zone or Social Media for all items.') }}</span>
                     </div>
                     <div class="flex items-start gap-2">
                         <x-lucide-check class="w-4 h-4 text-purple-600 mt-0.5" />
-                        <span class="text-sm text-gray-600 dark:text-gray-400 font-medium">{{ __('Field Keys: Add data keys you want to manage and search.') }}</span>
+                        <span
+                            class="text-sm text-gray-600 dark:text-gray-400 font-medium">{{ __('Field Keys: Add data keys you want to manage and search.') }}</span>
+                    </div>
+                    <div class="flex items-start gap-2">
+                        <x-lucide-edit-3 class="w-4 h-4 text-purple-600 mt-0.5" />
+                        <span
+                            class="text-sm text-gray-600 dark:text-gray-400 font-medium">{{ __('Enable Rich Text editing for specific keys by clicking the file icon.') }}</span>
                     </div>
                     <div class="flex items-start gap-2">
                         <x-lucide-shield-check class="w-4 h-4 text-purple-600 mt-0.5" />
-                        <span class="text-sm text-gray-600 dark:text-gray-400">{!! __('Reserved Keys (attachments, sm_*) are automatically managed by global features.') !!}</span>
+                        <span
+                            class="text-sm text-gray-600 dark:text-gray-400">{!! __('Reserved Keys (attachments, sm_*) are automatically managed by global features.') !!}</span>
                     </div>
                     <div class="flex items-start gap-2">
                         <x-lucide-alert-triangle class="w-4 h-4 text-amber-500 mt-0.5" />
-                        <span class="text-sm text-gray-600 dark:text-gray-400 italic font-medium text-amber-600">{{ __('IMPORTANT: Deleting a key will permanently delete related data on all items!') }}</span>
+                        <span
+                            class="text-sm text-gray-600 dark:text-gray-400 italic font-medium text-amber-600">{{ __('IMPORTANT: Deleting a key will permanently delete related data on all items!') }}</span>
                     </div>
                 </div>
             </div>
@@ -167,6 +215,48 @@
 
                     <div class="h-px bg-gray-100 dark:bg-gray-800 w-full"></div>
 
+                    {{-- EditorJS Global Toggle --}}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-amber-500 rounded-lg">
+                                <x-lucide-file-text class="w-4 h-4 text-white" />
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-900 dark:text-white">Rich Text Editor</p>
+                                <p class="text-[10px] text-gray-500">Gunakan Rich Text Editor untuk field teks</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" x-model="enableEditorJS" class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-amber-300 dark:peer-focus:ring-amber-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-amber-500">
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="h-px bg-gray-100 dark:bg-gray-800 w-full"></div>
+
+                    {{-- Date Type Global Toggle --}}
+                    <div class="flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <div class="p-2 bg-blue-500 rounded-lg">
+                                <x-lucide-calendar class="w-4 h-4 text-white" />
+                            </div>
+                            <div>
+                                <p class="text-sm font-bold text-gray-900 dark:text-white">Date Fields</p>
+                                <p class="text-[10px] text-gray-500">Gunakan Date Picker untuk field tanggal</p>
+                            </div>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" x-model="enableDate" class="sr-only peer">
+                            <div
+                                class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 dark:peer-focus:ring-blue-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-blue-500">
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="h-px bg-gray-100 dark:bg-gray-800 w-full"></div>
+
                     {{-- Social Media Toggle --}}
                     <div class="space-y-4">
                         <div class="flex items-center justify-between">
@@ -198,6 +288,27 @@
                                             x-text="p"></div>
                                     </label>
                                 </template>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="h-px bg-gray-100 dark:bg-gray-800 w-full"></div>
+
+                    {{-- Feature Help Info --}}
+                    <div x-show="enableEditorJS || enableDate" x-cloak x-collapse
+                        class="p-3 bg-gray-50 dark:bg-gray-900/10 border border-gray-100 dark:border-gray-800 rounded-xl">
+                        <div class="flex gap-2">
+                            <x-lucide-info class="w-4 h-4 text-purple-600 shrink-0 mt-0.5" />
+                            <div>
+                                <p class="text-[10px] font-bold text-gray-900 dark:text-white uppercase tracking-wider">
+                                    Tipe Field Khusus</p>
+                                <p class="text-[10px] text-gray-700 dark:text-gray-400">
+                                    Klik ikon pada tag kunci di bawah untuk mengubah tipe field:
+                                    <br>• <x-lucide-file-text class="inline w-3 h-3 text-amber-500" /> : Rich Text
+                                    (EditorJS)
+                                    <br>• <x-lucide-calendar class="inline w-3 h-3 text-blue-500" /> : Tanggal (Date
+                                    Picker)
+                                </p>
                             </div>
                         </div>
                     </div>
@@ -262,6 +373,27 @@
                                 class="w-3.5 h-3.5 text-gray-400 group-hover:text-purple-600 cursor-move" />
                             <x-lucide-tag class="w-3.5 h-3.5 text-purple-600" />
                             <span class="text-sm font-medium text-gray-800 dark:text-white" x-text="key"></span>
+
+                            {{-- EditorJS Toggle Button (Alpine Local) --}}
+                            <template x-if="enableEditorJS">
+                                <button type="button" @click="toggleEditorJS(key)"
+                                    class="p-1 rounded-md transition-all ml-1 border"
+                                    :class="editorjsKeys.includes(key) ? 'bg-amber-500 border-amber-600 text-white shadow-sm' : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-400 hover:text-amber-500'"
+                                    :title="editorjsKeys.includes(key) ? 'EditorJS Enabled' : 'Enable EditorJS'">
+                                    <x-lucide-file-text class="w-3.5 h-3.5" />
+                                </button>
+                            </template>
+
+                            {{-- Date Toggle Button (Alpine Local) --}}
+                            <template x-if="enableDate">
+                                <button type="button" @click="toggleDate(key)"
+                                    class="p-1 rounded-md transition-all ml-1 border"
+                                    :class="dateKeys.includes(key) ? 'bg-blue-500 border-blue-600 text-white shadow-sm' : 'bg-white dark:bg-gray-700 border-gray-200 dark:border-gray-600 text-gray-400 hover:text-blue-500'"
+                                    :title="dateKeys.includes(key) ? 'Date Type Enabled' : 'Enable Date Type'">
+                                    <x-lucide-calendar class="w-3.5 h-3.5" />
+                                </button>
+                            </template>
+
                             <button type="button" @click="removeKey(index)"
                                 class="p-0.5 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors ml-1">
                                 <x-lucide-x class="w-3.5 h-3.5" />
@@ -289,7 +421,7 @@
                 <p class="text-xs text-gray-600 dark:text-gray-400">This will update the section structure</p>
             </div>
         </div>
-        <button type="button" @click="$wire.save()"
+        <button type="button" @click="saveConfig()"
             class="inline-flex items-center gap-2 px-6 py-3 bg-purple-600 hover:bg-purple-700 text-white font-semibold rounded-xl shadow-md transition-all">
             <x-lucide-save class="w-4 h-4" />
             Save Configuration

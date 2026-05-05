@@ -143,14 +143,32 @@
                                         @elseif(isset($item[$key]))
                                             @if(is_array($item[$key]))
                                                 @if(count($item[$key]) > 0)
-                                                    <div class="flex flex-wrap gap-1">
-                                                        @foreach($item[$key] as $value)
-                                                            <span
-                                                                class="inline-flex items-center px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-md">
-                                                                {{ \Illuminate\Support\Str::limit($value, 20) }}
-                                                            </span>
-                                                        @endforeach
-                                                    </div>
+                                                    @if(in_array($key, $editorjsKeys))
+                                                        <span
+                                                            class="inline-flex items-center gap-1.5 px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider rounded-md border border-amber-200 dark:border-amber-800">
+                                                            <x-lucide-file-text class="w-3 h-3" />
+                                                            Rich Text
+                                                        </span>
+                                                    @elseif(in_array($key, $dateKeys))
+                                                        <div class="flex flex-wrap gap-1">
+                                                            @foreach($item[$key] as $value)
+                                                                <span
+                                                                    class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-md border border-blue-200 dark:border-blue-800">
+                                                                    <x-lucide-calendar class="w-3 h-3 mr-1" />
+                                                                    {{ $value }}
+                                                                </span>
+                                                            @endforeach
+                                                        </div>
+                                                    @else
+                                                        <div class="flex flex-wrap gap-1">
+                                                            @foreach($item[$key] as $value)
+                                                                <span
+                                                                    class="inline-flex items-center px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-md">
+                                                                    {{ \Illuminate\Support\Str::limit($value, 20) }}
+                                                                </span>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
                                                 @else
                                                     <span class="text-gray-400 dark:text-gray-600 italic text-xs">Empty</span>
                                                 @endif
@@ -289,14 +307,32 @@
                                         @elseif(isset($item[$key]))
                                             @if(is_array($item[$key]))
                                                 @if(count($item[$key]) > 0)
-                                                    <div class="flex flex-wrap gap-1">
-                                                        @foreach($item[$key] as $value)
-                                                            <span
-                                                                class="inline-flex items-center px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-md">
-                                                                {{ $value }}
-                                                            </span>
-                                                        @endforeach
-                                                    </div>
+                                                    @if(in_array($key, $editorjsKeys))
+                                                        <span
+                                                            class="inline-flex items-center gap-1.5 px-2 py-1 bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400 text-[10px] font-bold uppercase tracking-wider rounded-md border border-amber-200 dark:border-amber-800">
+                                                            <x-lucide-file-text class="w-3 h-3" />
+                                                            Rich Text Content
+                                                        </span>
+                                                    @elseif(in_array($key, $dateKeys))
+                                                        <div class="flex flex-wrap gap-1">
+                                                            @foreach($item[$key] as $value)
+                                                                <span
+                                                                    class="inline-flex items-center gap-1 px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 text-xs font-medium rounded-md border border-blue-200 dark:border-blue-800">
+                                                                    <x-lucide-calendar class="w-3 h-3 mr-1" />
+                                                                    {{ $value }}
+                                                                </span>
+                                                            @endforeach
+                                                        </div>
+                                                    @else
+                                                        <div class="flex flex-wrap gap-1">
+                                                            @foreach($item[$key] as $value)
+                                                                <span
+                                                                    class="inline-flex items-center px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300 text-xs font-medium rounded-md">
+                                                                    {{ $value }}
+                                                                </span>
+                                                            @endforeach
+                                                        </div>
+                                                    @endif
                                                 @else
                                                     <span class="text-gray-400 dark:text-gray-600 italic text-xs">Empty</span>
                                                 @endif

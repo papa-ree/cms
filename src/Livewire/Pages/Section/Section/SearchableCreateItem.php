@@ -43,6 +43,12 @@ class SearchableCreateItem extends Component
     public bool $enableSocial = false;
     public array $activeSocialPlatforms = [];
 
+    /** List of keys that should use EditorJS */
+    public array $editorjsKeys = [];
+
+    /** List of keys that should use Date Picker */
+    public array $dateKeys = [];
+
     /** Becomes true after item is first saved in create mode, revealing the upload section */
     public bool $showUploadSection = false;
 
@@ -76,6 +82,8 @@ class SearchableCreateItem extends Component
         $this->enableUpload = $content['meta']['enable_upload'] ?? false;
         $this->enableSocial = $content['meta']['enable_social'] ?? false;
         $this->activeSocialPlatforms = $content['meta']['social_platforms'] ?? [];
+        $this->editorjsKeys = $content['meta']['editorjs_keys'] ?? [];
+        $this->dateKeys = $content['meta']['date_keys'] ?? [];
 
         // Add social media keys to sysKeys to avoid double rendering
         foreach ($this->activeSocialPlatforms as $platform) {
