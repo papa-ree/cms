@@ -89,19 +89,19 @@
             </ul>
         </nav>
 
-        {{-- ========== Loker Section ========== --}}
-        @if(count($this->lokerMenus) > 0)
+        {{-- ========== Dynamic Package Sections ========== --}}
+        @foreach(collect($this->packageMenus)->groupBy('group') as $group => $menus)
             <div class="px-4 mb-2 mt-6">
                 <div class="flex items-center gap-2">
                     <div class="h-px flex-1 bg-slate-700/60"></div>
-                    <span class="text-[10px] uppercase tracking-widest text-slate-500 font-semibold text-center">{{ __('Loker') }}</span>
+                    <span class="text-[10px] uppercase tracking-widest text-slate-500 font-semibold text-center">{{ __($group) }}</span>
                     <div class="h-px flex-1 bg-slate-700/60"></div>
                 </div>
             </div>
 
             <nav class="flex flex-col w-full px-3">
                 <ul class="space-y-0.5">
-                    @foreach ($this->lokerMenus as $menu)
+                    @foreach ($menus as $menu)
                         <li>
                             <a href="/cms/{{ $menu['url'] }}" wire:navigate.hover
                                 class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
@@ -119,41 +119,9 @@
                     @endforeach
                 </ul>
             </nav>
-        @endif
+        @endforeach
 
-        {{-- ========== IKM Section ========== --}}
-        @if(count($this->ikmMenus) > 0)
-            <div class="px-4 mb-2 mt-6">
-                <div class="flex items-center gap-2">
-                    <div class="h-px flex-1 bg-slate-700/60"></div>
-                    <span class="text-[10px] uppercase tracking-widest text-slate-500 font-semibold text-center">{{ __('IKM') }}</span>
-                    <div class="h-px flex-1 bg-slate-700/60"></div>
-                </div>
-            </div>
-
-            <nav class="flex flex-col w-full px-3 pb-24">
-                <ul class="space-y-0.5">
-                    @foreach ($this->ikmMenus as $menu)
-                        <li>
-                            <a href="/cms/{{ $menu['url'] }}" wire:navigate.hover
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                                       text-slate-400 hover:text-white hover:bg-white/8
-                                       transition-all duration-150 ease-in-out"
-                                wire:current.exact="bg-indigo-600/25 border border-indigo-500/40 text-white shadow-xs">
-
-                                <span class="shrink-0 w-5 h-5 text-slate-500 group-hover:text-indigo-400 transition-colors duration-150">
-                                    <x-dynamic-component :component="'lucide-' . ($menu['icon'] ?? 'circle')" class="w-5 h-5" />
-                                </span>
-
-                                <span class="capitalize tracking-wide">{{ __($menu['label']) }}</span>
-                            </a>
-                        </li>
-                    @endforeach
-                </ul>
-            </nav>
-        @else
-            <div class="pb-24"></div>
-        @endif
+        <div class="pb-24"></div>
 
         {{-- ========== Bottom: Exit CMS ========== --}}
         <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700/60 bg-slate-900/90 backdrop-blur-sm">
