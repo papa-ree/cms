@@ -45,14 +45,28 @@ class CmsSidebar extends Component
         return array_values(array_filter($menus, fn($item) => auth()->user()->can($item['permission'])));
     }
 
+    #[Computed]
+    public function lokerMenus(): array
+    {
+        $lokerMenuPath = base_path('packages/loker/src/menu.php');
+
+        if (! file_exists($lokerMenuPath)) {
+            return [];
+        }
+
+        $menus = include $lokerMenuPath;
+
+        return array_values(array_filter($menus, fn($item) => auth()->user()->can($item['permission'])));
+    }
+
     /**
      * Tetap dipertahankan agar tidak breaking change jika ada view lain yang menggunakannya.
-     * @deprecated Gunakan cmsMenus() atau ikmMenus() secara langsung.
+     * @deprecated Gunakan cmsMenus(), ikmMenus(), atau lokerMenus() secara langsung.
      */
     #[Computed]
     public function availableMenus(): array
     {
-        return array_merge($this->cmsMenus, $this->ikmMenus);
+        return array_merge($this->cmsMenus, $this->ikmMenus, $this->lokerMenus);
     }
 
     #[Computed]

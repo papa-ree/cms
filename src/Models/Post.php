@@ -33,6 +33,37 @@ class Post extends Model
         'updated_at' => 'datetime:d M Y',
     ];
 
+    protected static function booted()
+    {
+        static::deleting(function ($post) {
+            $slug = session('bale_active_slug');
+            if (!$slug) {
+                return;
+            }
+
+            // Hapus thumbnail
+            if ($post->thumbnail) {
+                \Illuminate\Support\Facades\Storage::disk('s3')->delete($slug . '/thumbnails/' . $post->thumbnail);
+            }
+
+            // Hapus image dari EditorJS content
+            if (is_array($post->content) && isset($post->content['blocks'])) {
+                foreach ($post->content['blocks'] as $block) {
+                    if ($block['type'] === 'image' && isset($block['data']['file']['url'])) {
+                        $url = $block['data']['file']['url'];
+                        $path = parse_url($url, PHP_URL_PATH);
+                        if ($path) {
+                            $filename = basename($path);
+                            if ($filename) {
+                                \Illuminate\Support\Facades\Storage::disk('s3')->delete($slug . '/images/' . $filename);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     /**
      * Relasi dengan user (berdasarkan UUID)
      */
