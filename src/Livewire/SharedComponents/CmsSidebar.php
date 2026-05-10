@@ -32,41 +32,66 @@ class CmsSidebar extends Component
     }
 
     #[Computed]
-    public function ikmMenus(): array
+    public function packageMenus(): array
     {
-        $ikmMenuPath = base_path('packages/ikm/src/menu.php');
+        $allMenus = [];
+        $providers = app()->getLoadedProviders();
 
-        if (! file_exists($ikmMenuPath)) {
-            return [];
+        foreach (array_keys($providers) as $provider) {
+            // Filter hanya package kita (Bale, Nawasara, Paparee)
+            if (
+                str_starts_with($provider, 'Bale\\') || 
+                str_starts_with($provider, 'Nawasara\\') || 
+                str_starts_with($provider, 'Paparee\\')
+            ) {
+                // Skip CMS provider karena menu-nya sudah di handle di cmsMenus()
+                if ($provider === \Bale\Cms\CmsServiceProvider::class) {
+                    continue;
+                }
+
+                $menus = $this->getPackageMenu($provider);
+                if (! empty($menus)) {
+                    $allMenus = array_merge($allMenus, $menus);
+                }
+            }
         }
 
-        $menus = include $ikmMenuPath;
-
-        return array_values(array_filter($menus, fn($item) => auth()->user()->can($item['permission'])));
+        return $allMenus;
     }
 
-    #[Computed]
-    public function lokerMenus(): array
+    /**
+     * Mengambil menu dari direktori src package secara dinamis (dev & prod friendly)
+     */
+    private function getPackageMenu(string $serviceProviderClass): array
     {
-        $lokerMenuPath = base_path('packages/loker/src/menu.php');
-
-        if (! file_exists($lokerMenuPath)) {
+        if (! class_exists($serviceProviderClass)) {
             return [];
         }
 
-        $menus = include $lokerMenuPath;
+        try {
+            $reflection = new \ReflectionClass($serviceProviderClass);
+            $menuPath = dirname($reflection->getFileName()) . '/menu.php';
 
-        return array_values(array_filter($menus, fn($item) => auth()->user()->can($item['permission'])));
+            if (! file_exists($menuPath)) {
+                return [];
+            }
+
+            $menus = include $menuPath;
+
+            return array_values(array_filter($menus, fn($item) => auth()->user()->can($item['permission'])));
+        } catch (\Throwable $e) {
+            return [];
+        }
     }
 
     /**
      * Tetap dipertahankan agar tidak breaking change jika ada view lain yang menggunakannya.
-     * @deprecated Gunakan cmsMenus(), ikmMenus(), atau lokerMenus() secara langsung.
+     * @deprecated Gunakan cmsMenus() atau packageMenus() secara langsung.
      */
     #[Computed]
     public function availableMenus(): array
     {
-        return array_merge($this->cmsMenus, $this->ikmMenus, $this->lokerMenus);
+        return array_merge($this->cmsMenus, $this->packageMenus);
     }
 
     #[Computed]
