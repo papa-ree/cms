@@ -18,17 +18,37 @@ class CmsSidebar extends Component
     public function cmsMenus(): array
     {
         $menus = [
-            ['label' => 'posts',       'url' => 'posts',       'icon' => 'file-text',    'permission' => 'bale-post.read',       'group' => 'cms'],
-            ['label' => 'categories',  'url' => 'categories',  'icon' => 'tag',           'permission' => 'bale-category.read',   'group' => 'cms'],
-            ['label' => 'pages',       'url' => 'pages',       'icon' => 'file',          'permission' => 'bale-page.read',       'group' => 'cms'],
-            ['label' => 'navigations', 'url' => 'navigations', 'icon' => 'navigation',    'permission' => 'bale-navigation.read', 'group' => 'cms'],
-            ['label' => 'sections',    'url' => 'sections',    'icon' => 'layers',        'permission' => 'bale-section.read',    'group' => 'cms'],
-            ['label' => 'roles',       'url' => 'roles',       'icon' => 'shield-check',  'permission' => 'bale-role.read',       'group' => 'cms'],
-            ['label' => 'permissions', 'url' => 'permissions', 'icon' => 'shield',        'permission' => 'bale-role.read',       'group' => 'cms'],
-            ['label' => 'users',       'url' => 'users',       'icon' => 'users',         'permission' => 'bale-user.read',       'group' => 'cms'],
+            ['label' => 'posts',       'url' => 'posts',       'icon' => 'file-text',    'permission' => 'bale-post.read',       'group' => 'cms', 'table' => 'posts'],
+            ['label' => 'categories',  'url' => 'categories',  'icon' => 'tag',           'permission' => 'bale-category.read',   'group' => 'cms', 'table' => 'categories'],
+            ['label' => 'pages',       'url' => 'pages',       'icon' => 'file',          'permission' => 'bale-page.read',       'group' => 'cms', 'table' => 'pages'],
+            ['label' => 'navigations', 'url' => 'navigations', 'icon' => 'navigation',    'permission' => 'bale-navigation.read', 'group' => 'cms', 'table' => 'navigations'],
+            ['label' => 'sections',    'url' => 'sections',    'icon' => 'layers',        'permission' => 'bale-section.read',    'group' => 'cms', 'table' => 'sections'],
+            ['label' => 'roles',       'url' => 'roles',       'icon' => 'shield-check',  'permission' => 'bale-role.read',       'group' => 'cms', 'table' => 'roles'],
+            ['label' => 'permissions', 'url' => 'permissions', 'icon' => 'shield',        'permission' => 'bale-role.read',       'group' => 'cms', 'table' => 'permissions'],
+            ['label' => 'users',       'url' => 'users',       'icon' => 'users',         'permission' => 'bale-user.read',       'group' => 'cms', 'table' => 'users'],
         ];
 
-        return array_values(array_filter($menus, fn($item) => auth()->user()->can($item['permission'])));
+        return $this->filterMenus($menus);
+    }
+
+    /**
+     * Memfilter menu berdasarkan permission dan keberadaan tabel (jika didefinisikan).
+     */
+    private function filterMenus(array $menus): array
+    {
+        return array_values(array_filter($menus, function($item) {
+            // Cek permission
+            if (! auth()->user()->can($item['permission'])) {
+                return false;
+            }
+
+            // Cek apakah tabel ada (jika didefinisikan)
+            if (isset($item['table']) && ! \Illuminate\Support\Facades\Schema::hasTable($item['table'])) {
+                return false;
+            }
+
+            return true;
+        }));
     }
 
     #[Computed]
@@ -78,7 +98,7 @@ class CmsSidebar extends Component
 
             $menus = include $menuPath;
 
-            return array_values(array_filter($menus, fn($item) => auth()->user()->can($item['permission'])));
+            return $this->filterMenus($menus);
         } catch (\Throwable $e) {
             return [];
         }
