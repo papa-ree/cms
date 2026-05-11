@@ -36,15 +36,23 @@ class CmsSidebar extends Component
      */
     private function filterMenus(array $menus): array
     {
-        return array_values(array_filter($menus, function($item) {
+        $connection = \Bale\Cms\Services\TenantManager::getActiveConnection();
+
+        return array_values(array_filter($menus, function($item) use ($connection) {
             // Cek permission
             if (! auth()->user()->can($item['permission'])) {
                 return false;
             }
 
             // Cek apakah tabel ada (jika didefinisikan)
-            if (isset($item['table']) && ! \Illuminate\Support\Facades\Schema::hasTable($item['table'])) {
-                return false;
+            if (isset($item['table'])) {
+                $hasTable = $connection 
+                    ? \Illuminate\Support\Facades\Schema::connection($connection)->hasTable($item['table'])
+                    : \Illuminate\Support\Facades\Schema::hasTable($item['table']);
+
+                if (! $hasTable) {
+                    return false;
+                }
             }
 
             return true;
