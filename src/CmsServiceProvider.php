@@ -6,7 +6,9 @@ use Bale\Cms\Commands\GenerateBaleCommand;
 use Bale\Cms\Commands\GenerateOrganisasiCommand;
 use Bale\Cms\Commands\GenerateUserBaleCommand;
 use Bale\Cms\Commands\InstallCmsCommand;
+use Bale\Cms\Commands\PublishCmsMigrationCommand;
 use Bale\Cms\Commands\PublishMigrationCommand;
+use Bale\Cms\Commands\TenantMigrateCommand;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Component as LivewireComponent;
@@ -34,6 +36,8 @@ class CmsServiceProvider extends ServiceProvider
             'command.cms:make-user' => GenerateUserBaleCommand::class,
             'command.cms:install' => InstallCmsCommand::class,
             'command.cms:publish-migration' => PublishMigrationCommand::class,
+            'command.cms:publish-cms-migration' => PublishCmsMigrationCommand::class,
+            'command.cms:tenant-migrate' => TenantMigrateCommand::class,
         ];
 
         foreach ($commands as $key => $class) {
