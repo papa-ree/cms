@@ -83,12 +83,23 @@ class EditPage extends Component
         $connection = TenantConnectionService::connection();
 
         return [
-            'title' => 'required|string|min:3|max:50',
+            'title' => 'required|string|min:3|max:60',
             'slug' => [
                 'required',
                 'string',
                 Rule::unique($connection . '.pages', 'slug')->ignore($this->id),
             ],
+        ];
+    }
+
+    protected function messages()
+    {
+        return [
+            'title.required' => 'The title are missing.',
+            'title.min' => 'The title min 3 characters.',
+            'title.max' => 'The title max 60 characters.',
+            'slug.required' => 'The slug are missing.',
+            'slug.unique' => 'The slug is already taken.',
         ];
     }
 
