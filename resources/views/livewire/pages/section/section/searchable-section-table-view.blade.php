@@ -69,7 +69,7 @@
         @if(count($this->filteredItems) > 0)
             {{-- Desktop Table View --}}
             <div
-                class="hidden md:block overflow-x-auto scrollbar-thin scrollbar-thumb-gray-500 dark:scrollbar-thumb-gray-700 scrollbar-track-gray-300 scrollbar-thumb-rounded-full scrollbar-track-rounded-full overscroll-none">
+                class="hidden md:block overflow-x-auto scrollbar-thin scrollbar-thumb-gray-500 dark:scrollbar-thumb-gray-700 scrollbar-track-gray-300 scrollbar-thumb-rounded-full scrollbar-track-rounded-full">
                 <table class="w-full">
                     <thead class="bg-gray-50 dark:bg-gray-900/50 border-b border-gray-200 dark:border-gray-700">
                         <tr>
