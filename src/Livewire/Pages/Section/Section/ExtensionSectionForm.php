@@ -353,17 +353,19 @@ class ExtensionSectionForm extends Component
 
         $path = session('bale_active_slug') . '/landing-page';
 
+        $disk = app()->isProduction() ? 's3' : 'public';
+
         $storedPath = $upload->storeAs(
             path: $path,
             name: $fileName,
-            options: 's3'
+            options: $disk
         );
 
         return [
             'type' => 'file',
-            'disk' => 's3',
+            'disk' => $disk,
             'path' => $storedPath,
-            'url' => Storage::disk('s3')->url($storedPath),
+            'url' => Storage::disk($disk)->url($storedPath),
             'mime' => $upload->getMimeType(),
             'size' => $upload->getSize(),
         ];

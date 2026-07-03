@@ -251,6 +251,8 @@ class SearchableCreateItem extends Component
                 foreach ($items as $i => $item) {
                     $id = $item['id'][0] ?? $item['id'] ?? null;
                     if ($id === $this->itemId) {
+                        $this->currentItem['uploads'] = $item['uploads'] ?? [];
+                        $this->currentItem['attachments'] = $item['attachments'] ?? [];
                         $items[$i] = $this->currentItem;
                         break;
                     }

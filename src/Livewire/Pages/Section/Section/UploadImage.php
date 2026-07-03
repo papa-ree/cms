@@ -64,8 +64,8 @@ class UploadImage extends Component
                 // Define final path in S3
                 $finalPath = session('bale_active_slug') . '/landing-page/' . $file_name;
 
-                // Upload to S3 using Storage facade with Livewire's get() method
-                Storage::disk('s3')->put($finalPath, $upload->get());
+                // Upload using Storage facade with Livewire's get() method
+                Storage::disk(app()->isProduction() ? 's3' : 'public')->put($finalPath, $upload->get());
 
                 $content['backgrounds'][] = [
                     "alt" => pathinfo($file_name, PATHINFO_FILENAME),
@@ -119,8 +119,9 @@ class UploadImage extends Component
             // Hapus file di S3
             $filePath = $slug . '/landing-page/' . $path;
 
-            if (Storage::disk('s3')->exists($filePath)) {
-                Storage::disk('s3')->delete($filePath);
+            $disk = app()->isProduction() ? 's3' : 'public';
+            if (Storage::disk($disk)->exists($filePath)) {
+                Storage::disk($disk)->delete($filePath);
             }
 
             // Filter backgrounds berdasarkan path

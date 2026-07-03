@@ -67,7 +67,7 @@ class EditPost extends Component
             $this->updated_at = $post->updated_at;
             $this->content = json_decode(json_encode($post->content), true) ?? [];
             $this->thumbnail = $post->thumbnail;
-            $this->published = $post->published;
+            $this->published = (bool) $post->published;
             $this->show_upload_zone = $post->thumbnail ? false : true;
             $this->category_name = $post->category_slug ?? null;
             $this->category_slug = $post->category_slug ?? null;
@@ -150,8 +150,8 @@ class EditPost extends Component
             // Define final path in S3
             $finalPath = session('bale_active_slug') . '/thumbnails/' . $thumbnail_name;
 
-            // Upload to S3 using Storage facade with get() to read contents from temp
-            Storage::disk('s3')->put($finalPath, $this->thumbnail_new->get());
+            // Upload using Storage facade with get() to read contents from temp
+            Storage::disk(app()->isProduction() ? 's3' : 'public')->put($finalPath, $this->thumbnail_new->get());
 
             return $thumbnail_name;
         }
@@ -164,7 +164,7 @@ class EditPost extends Component
         $this->saveStatus = 'saving';
 
         if ($this->thumbnail) {
-            Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->thumbnail);
+            Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug') . '/thumbnails/' . $this->thumbnail);
         }
 
         TenantConnectionService::ensureActive();
@@ -188,7 +188,7 @@ class EditPost extends Component
         $this->saveStatus = 'saving';
 
         if ($this->og_image) {
-            Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->og_image);
+            Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug') . '/thumbnails/' . $this->og_image);
         }
 
         TenantConnectionService::ensureActive();
@@ -212,11 +212,11 @@ class EditPost extends Component
         }
 
         // Fields that trigger auto-save
-        // Fields that trigger auto-save
         $autoSaveFields = [
             'title',
             'slug',
             'content',
+            'published',
             'category_slug',
             'seo_title',
             'seo_description',
@@ -235,13 +235,19 @@ class EditPost extends Component
 
     public function updatedThumbnailNew()
     {
-        // Skip manual validation here if it causes "Unable to retrieve file_size" on S3 temp disk
-        // Filepond and Livewire's own config handles basic limits
+        $this->validate([
+            'thumbnail_new' => 'required|image|mimes:jpeg,jpg,png|max:512',
+        ], [
+            'thumbnail_new.required' => 'The thumbnail file is required.',
+            'thumbnail_new.image' => 'The thumbnail must be a valid image file.',
+            'thumbnail_new.mimes' => 'The thumbnail must be a file of type: jpeg, jpg, png.',
+            'thumbnail_new.max' => 'The thumbnail may not be greater than 512 kilobytes.',
+        ]);
 
         try {
             // Delete old thumbnail if it exists
             if ($this->thumbnail) {
-                Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->thumbnail);
+                Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug') . '/thumbnails/' . $this->thumbnail);
             }
 
             $thumbnail_name = $this->uploadThumbnail();
@@ -273,9 +279,19 @@ class EditPost extends Component
     public function updatedOgImageNew()
     {
         $this->authorize('bale-seo.update');
+
+        $this->validate([
+            'og_image_new' => 'required|image|mimes:jpeg,jpg,png|max:1024',
+        ], [
+            'og_image_new.required' => 'The SEO image file is required.',
+            'og_image_new.image' => 'The SEO image must be a valid image file.',
+            'og_image_new.mimes' => 'The SEO image must be a file of type: jpeg, jpg, png.',
+            'og_image_new.max' => 'The SEO image may not be greater than 1024 kilobytes.',
+        ]);
+
         try {
             if ($this->og_image) {
-                Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->og_image);
+                Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug') . '/thumbnails/' . $this->og_image);
             }
 
             // Reuse uploadThumbnail logic
@@ -284,7 +300,7 @@ class EditPost extends Component
                 $filename = session('bale_active_slug') . '-seo-' . uniqid() . '.' . $extension;
                 $finalPath = session('bale_active_slug') . '/thumbnails/' . $filename;
 
-                Storage::disk('s3')->put($finalPath, $this->og_image_new->get());
+                Storage::disk(app()->isProduction() ? 's3' : 'public')->put($finalPath, $this->og_image_new->get());
 
                 TenantConnectionService::ensureActive();
                 $connection = TenantConnectionService::connection();
@@ -319,10 +335,24 @@ class EditPost extends Component
                 ->find($this->id);
 
             if ($post) {
+                // Clean up removed image files from storage
+                $oldImages = $this->getEditorImages($post->content);
+                $newImages = $this->getEditorImages($this->content);
+                $removedImages = array_diff($oldImages, $newImages);
+
+                $slug = session('bale_active_slug');
+                if ($slug && !empty($removedImages)) {
+                    $disk = Storage::disk(app()->isProduction() ? 's3' : 'public');
+                    foreach ($removedImages as $filename) {
+                        $disk->delete($slug . '/images/' . $filename);
+                    }
+                }
+
                 $post->update([
                     'title' => $this->title,
                     'slug' => $this->slug,
                     'content' => $this->content,
+                    'published' => $this->published,
                     'category_slug' => $this->category_slug,
                 ]);
 
@@ -353,5 +383,25 @@ class EditPost extends Component
             $this->dispatch('status-updated', status: 'error');
             info('Auto-save failed: ' . $th->getMessage());
         }
+    }
+
+    private function getEditorImages($content)
+    {
+        $images = [];
+        if (is_array($content) && isset($content['blocks'])) {
+            foreach ($content['blocks'] as $block) {
+                if ($block['type'] === 'image' && isset($block['data']['file']['url'])) {
+                    $url = $block['data']['file']['url'];
+                    $path = parse_url($url, PHP_URL_PATH);
+                    if ($path) {
+                        $filename = basename($path);
+                        if ($filename) {
+                            $images[] = $filename;
+                        }
+                    }
+                }
+            }
+        }
+        return $images;
     }
 }

@@ -29,6 +29,7 @@ class Post extends Model
 
     protected $casts = [
         'content' => 'array', // otomatis konversi JSON ↔ array
+        'published' => 'boolean',
         'created_at' => 'datetime:d M Y',
         'updated_at' => 'datetime:d M Y',
     ];
@@ -41,9 +42,11 @@ class Post extends Model
                 return;
             }
 
+            $disk = app()->isProduction() ? 's3' : 'public';
+
             // Hapus thumbnail
             if ($post->thumbnail) {
-                \Illuminate\Support\Facades\Storage::disk('s3')->delete($slug . '/thumbnails/' . $post->thumbnail);
+                \Illuminate\Support\Facades\Storage::disk($disk)->delete($slug . '/thumbnails/' . $post->thumbnail);
             }
 
             // Hapus image dari EditorJS content
@@ -55,7 +58,7 @@ class Post extends Model
                         if ($path) {
                             $filename = basename($path);
                             if ($filename) {
-                                \Illuminate\Support\Facades\Storage::disk('s3')->delete($slug . '/images/' . $filename);
+                                \Illuminate\Support\Facades\Storage::disk($disk)->delete($slug . '/images/' . $filename);
                             }
                         }
                     }

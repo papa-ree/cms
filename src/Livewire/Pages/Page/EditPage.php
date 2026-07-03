@@ -3,6 +3,7 @@
 namespace Bale\Cms\Livewire\Pages\Page;
 
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 use Livewire\Component;
@@ -116,7 +117,7 @@ class EditPage extends Component
         $this->authorize('bale-seo.update');
         $this->saveStatus = 'saving';
         if ($this->og_image) {
-            \Illuminate\Support\Facades\Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->og_image);
+            \Illuminate\Support\Facades\Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug') . '/thumbnails/' . $this->og_image);
         }
 
         TenantConnectionService::ensureActive();
@@ -161,9 +162,19 @@ class EditPage extends Component
     public function updatedOgImageNew()
     {
         $this->authorize('bale-seo.update');
+
+        $this->validate([
+            'og_image_new' => 'required|image|mimes:jpeg,jpg,png|max:1024',
+        ], [
+            'og_image_new.required' => 'The SEO image file is required.',
+            'og_image_new.image' => 'The SEO image must be a valid image file.',
+            'og_image_new.mimes' => 'The SEO image must be a file of type: jpeg, jpg, png.',
+            'og_image_new.max' => 'The SEO image may not be greater than 1024 kilobytes.',
+        ]);
+
         try {
             if ($this->og_image) {
-                \Illuminate\Support\Facades\Storage::disk('s3')->delete(session('bale_active_slug') . '/thumbnails/' . $this->og_image);
+                Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug') . '/thumbnails/' . $this->og_image);
             }
 
             if ($this->og_image_new) {
@@ -171,7 +182,7 @@ class EditPage extends Component
                 $filename = session('bale_active_slug') . '-seo-' . uniqid() . '.' . $extension;
                 $finalPath = session('bale_active_slug') . '/thumbnails/' . $filename;
 
-                \Illuminate\Support\Facades\Storage::disk('s3')->put($finalPath, $this->og_image_new->get());
+                Storage::disk(app()->isProduction() ? 's3' : 'public')->put($finalPath, $this->og_image_new->get());
 
                 TenantConnectionService::ensureActive();
                 $connection = TenantConnectionService::connection();
@@ -206,6 +217,19 @@ class EditPage extends Component
                 ->find($this->id);
 
             if ($page) {
+                // Clean up removed image files from storage
+                $oldImages = $this->getEditorImages($page->content);
+                $newImages = $this->getEditorImages($this->content);
+                $removedImages = array_diff($oldImages, $newImages);
+
+                $slug = session('bale_active_slug');
+                if ($slug && !empty($removedImages)) {
+                    $disk = Storage::disk(app()->isProduction() ? 's3' : 'public');
+                    foreach ($removedImages as $filename) {
+                        $disk->delete($slug . '/images/' . $filename);
+                    }
+                }
+
                 $page->update([
                     'title' => $this->title,
                     'slug' => $this->slug,
@@ -241,5 +265,25 @@ class EditPage extends Component
             $this->dispatch('status-updated', status: 'error');
             info('Auto-save failed: ' . $th->getMessage());
         }
+    }
+
+    private function getEditorImages($content)
+    {
+        $images = [];
+        if (is_array($content) && isset($content['blocks'])) {
+            foreach ($content['blocks'] as $block) {
+                if ($block['type'] === 'image' && isset($block['data']['file']['url'])) {
+                    $url = $block['data']['file']['url'];
+                    $path = parse_url($url, PHP_URL_PATH);
+                    if ($path) {
+                        $filename = basename($path);
+                        if ($filename) {
+                            $images[] = $filename;
+                        }
+                    }
+                }
+            }
+        }
+        return $images;
     }
 }

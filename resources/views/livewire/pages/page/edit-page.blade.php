@@ -390,6 +390,7 @@
 
                                     <x-core::upload-zone wire:model.live="og_image_new" accept="image/*" maxSize="1024" :label="__('Custom social image')" />
                                     <p class="mt-1 text-[10px] text-gray-500">{{ __('Optional custom image for social sharing.') }}</p>
+                                    <x-core::input-error for="og_image_new" class="mt-1" />
                                 </div>
 
                                 {{-- Twitter Card --}}

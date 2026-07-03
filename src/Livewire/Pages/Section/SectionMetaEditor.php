@@ -175,13 +175,15 @@ class SectionMetaEditor extends Component
             // Define final path in S3
             $path = session('bale_active_slug') . '/landing-page/' . $fileName;
 
-            // Upload to S3 using Storage facade
-            Storage::disk('s3')->put($path, $file->get());
+            $disk = app()->isProduction() ? 's3' : 'public';
+
+            // Upload using Storage facade
+            Storage::disk($disk)->put($path, $file->get());
 
             $uploadedData = [
                 'path' => $path,
                 'cdn_url' => Cdn::url('landing-page/' . $fileName),
-                'disk' => 's3',
+                'disk' => $disk,
                 'mime' => $file->getMimeType(),
                 'size' => $file->getSize(),
             ];

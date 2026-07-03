@@ -2,6 +2,7 @@
 
 use Bale\Core\Support\Cdn;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
@@ -47,7 +48,7 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
 
         Route::post('/editorjs/upload', function (Request $request) {
             $validator = Validator::make($request->all(), [
-                'image' => 'required|image|max:512', // 512KB
+                'image' => 'required|image|mimes:jpeg,jpg,png,gif,webp|max:512', // 512KB
             ]);
 
             if ($validator->fails()) {
@@ -58,12 +59,12 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             }
 
             try {
-                // Upload file to S3 in images folder
+                // Upload file in images folder
                 $file = $request->file('image');
                 $filename = uniqid() . '.' . $file->extension();
                 $path = session('bale_active_slug') . '/images/' . $filename;
 
-                Storage::disk('s3')->put($path, $file->get());
+                Storage::disk(app()->isProduction() ? 's3' : 'public')->put($path, $file->get());
 
                 // Generate CDN URL
                 // Format: https://cdn_url/cdn_prefix/organization_slug/images/filename
@@ -84,14 +85,63 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
         })->name('editorjs.upload');
 
         Route::post('/editorjs/fetchUrl', function (Request $request) {
+            $validator = Validator::make($request->all(), [
+                'url' => 'required|url',
+            ]);
+
+            if ($validator->fails()) {
+                return response()->json([
+                    'success' => 0,
+                    'message' => $validator->errors()->first('url'),
+                ]);
+            }
+
             $url = $request->input('url');
 
             try {
-                $contents = file_get_contents($url);
-                $filename = uniqid() . '.jpg';
+                // Securely fetch input image from url
+                $response = Http::get($url);
+
+                if (!$response->successful()) {
+                    return response()->json([
+                        'success' => 0,
+                        'message' => 'Failed to retrieve image from the provided URL.',
+                    ]);
+                }
+
+                $contents = $response->body();
+                $size = strlen($contents);
+
+                // Validate image size (max 512KB)
+                if ($size > 512 * 1024) {
+                    return response()->json([
+                        'success' => 0,
+                        'message' => 'The image size may not be greater than 512 kilobytes.',
+                    ]);
+                }
+
+                // Parse and validate Content-Type header
+                $mimeType = $response->header('Content-Type');
+                if (!in_array($mimeType, ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'])) {
+                    return response()->json([
+                        'success' => 0,
+                        'message' => 'The file must be a valid image (JPEG, PNG, GIF, WEBP).',
+                    ]);
+                }
+
+                $extension = 'jpg';
+                if (str_contains($mimeType, 'png')) {
+                    $extension = 'png';
+                } elseif (str_contains($mimeType, 'gif')) {
+                    $extension = 'gif';
+                } elseif (str_contains($mimeType, 'webp')) {
+                    $extension = 'webp';
+                }
+
+                $filename = uniqid() . '.' . $extension;
                 $path = session('bale_active_slug') . '/images/' . $filename;
 
-                Storage::disk('s3')->put($path, $contents);
+                Storage::disk(app()->isProduction() ? 's3' : 'public')->put($path, $contents);
 
                 // Generate CDN URL
                 $cdnUrl = Cdn::url('images/' . $filename);

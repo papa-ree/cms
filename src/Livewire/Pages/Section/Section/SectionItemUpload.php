@@ -136,7 +136,7 @@ class SectionItemUpload extends Component
                     $orgSlug      = session('bale_active_slug', '');
                     $s3Path       = $orgSlug . '/landing-page/items/' . $this->slug . '/' . $fileName;
 
-                    Storage::disk('s3')->put($s3Path, $file->get());
+                    Storage::disk(app()->isProduction() ? 's3' : 'public')->put($s3Path, $file->get());
 
                     $cdnUrl = Cdn::url('landing-page/items/' . $this->slug . '/' . $fileName);
 
@@ -212,7 +212,7 @@ class SectionItemUpload extends Component
                             // Delete from S3
                             $s3Path = $upload['path'] ?? '';
                             if ($s3Path) {
-                                Storage::disk('s3')->delete($s3Path);
+                                Storage::disk(app()->isProduction() ? 's3' : 'public')->delete($s3Path);
                             }
                             unset($uploads[$u]);
                             break;
