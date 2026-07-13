@@ -236,10 +236,10 @@ class EditPost extends Component
     public function updatedThumbnailNew()
     {
         $this->validate([
-            'thumbnail_new' => 'required|mimetypes:image/jpeg,image/jpg,image/png|max:512',
+            'thumbnail_new' => 'required|image|mimes:jpeg,jpg,png|max:512',
         ], [
             'thumbnail_new.required' => 'The thumbnail file is required.',
-            'thumbnail_new.mimetypes' => 'The thumbnail must be a file of type: jpeg, jpg, png.',
+            'thumbnail_new.mimes' => 'The thumbnail must be a file of type: jpeg, jpg, png.',
             'thumbnail_new.max' => 'The thumbnail may not be greater than 512 kilobytes.',
         ]);
 
