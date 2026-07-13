@@ -43,8 +43,31 @@ class UploadImage extends Component
     }
 
 
+    public function updatedBackgrounds()
+    {
+        $this->validate([
+            'backgrounds.*' => 'required|image|mimes:jpeg,jpg,png|max:2048',
+        ], [
+            'backgrounds.*.required' => 'The image file is required.',
+            'backgrounds.*.image'    => 'Each file must be a valid image.',
+            'backgrounds.*.mimes'    => 'Each image must be a file of type: jpeg, jpg, png.',
+            'backgrounds.*.max'      => 'Each image may not be greater than 2048 kilobytes.',
+        ]);
+    }
+
     public function uploadImages()
     {
+        $this->validate([
+            'backgrounds'   => 'required|array|min:1',
+            'backgrounds.*' => 'required|image|mimes:jpeg,jpg,png|max:2048',
+        ], [
+            'backgrounds.required'   => 'Please select at least one image.',
+            'backgrounds.min'        => 'Please select at least one image.',
+            'backgrounds.*.image'    => 'Each file must be a valid image.',
+            'backgrounds.*.mimes'    => 'Each image must be a file of type: jpeg, jpg, png.',
+            'backgrounds.*.max'      => 'Each image may not be greater than 2048 kilobytes.',
+        ]);
+
         DB::beginTransaction();
         try {
 
