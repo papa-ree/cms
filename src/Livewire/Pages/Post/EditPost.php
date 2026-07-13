@@ -216,7 +216,6 @@ class EditPost extends Component
             'title',
             'slug',
             'content',
-            'published',
             'category_slug',
             'seo_title',
             'seo_description',
@@ -227,6 +226,11 @@ class EditPost extends Component
             'canonical_url',
             'structured_data'
         ];
+
+        if ($propertyName === 'published') {
+            $this->togglePublished();
+            return;
+        }
 
         if (in_array($propertyName, $autoSaveFields)) {
             $this->autoSave();
@@ -319,6 +323,41 @@ class EditPost extends Component
             $this->saveStatus = 'error';
             $this->dispatch('status-updated', status: 'error');
             info('SEO Image upload failed: ' . $th->getMessage());
+        }
+    }
+
+    public function togglePublished()
+    {
+        $this->saveStatus = 'saving';
+        $this->dispatch('status-updated', status: 'saving');
+
+        try {
+            TenantConnectionService::ensureActive();
+            $connection = TenantConnectionService::connection();
+
+            $post = Post::on($connection)->find($this->id);
+            if ($post) {
+                $publishedAt = $this->published ? now() : null;
+
+                $post->update([
+                    'published'    => $this->published,
+                    'published_at' => $publishedAt,
+                ]);
+
+                $this->updated_at = $post->fresh()->updated_at;
+
+                $this->saveStatus = 'saved';
+                $this->dispatch('status-updated', status: 'saved');
+
+                $message = $this->published
+                    ? __('Post published successfully!')
+                    : __('Post unpublished.');
+                $this->dispatch('toast', message: $message, type: 'success');
+            }
+        } catch (\Throwable $th) {
+            $this->saveStatus = 'error';
+            $this->dispatch('status-updated', status: 'error');
+            info('Toggle publish failed: ' . $th->getMessage());
         }
     }
 
