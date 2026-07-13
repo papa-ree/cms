@@ -86,7 +86,7 @@ class Post extends Model
     protected function publishedAt(): Attribute
     {
         return Attribute::make(
-            get: fn(string $value) => Carbon::parse($value)->diffForHumans(),
+            get: fn(?string $value) => $value ? Carbon::parse($value)->diffForHumans() : null,
         );
     }
 
