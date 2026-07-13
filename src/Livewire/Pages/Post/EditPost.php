@@ -239,6 +239,7 @@ class EditPost extends Component
             'thumbnail_new' => 'required|image|mimes:jpeg,jpg,png|max:512',
         ], [
             'thumbnail_new.required' => 'The thumbnail file is required.',
+            'thumbnail_new.image' => 'The thumbnail must be a valid image file.',
             'thumbnail_new.mimes' => 'The thumbnail must be a file of type: jpeg, jpg, png.',
             'thumbnail_new.max' => 'The thumbnail may not be greater than 512 kilobytes.',
         ]);
