@@ -42,7 +42,7 @@ class AnalyticsService
      * Falls back to an "unavailable" state if Umami is not configured or is down,
      * without throwing exceptions.
      */
-    public function getExternalStats(int $days = 7): array
+    public function getExternalStats($days = 7): array
     {
         $umami = new UmamiService();
 
@@ -55,6 +55,27 @@ class AnalyticsService
         }
 
         // Mapping data Umami ke format yang digunakan oleh view
+        return [
+            'unavailable' => false,
+            'overview' => $this->mapOverview($stats),
+            'chart' => $this->mapChart($pageviews, $days),
+        ];
+    }
+
+    /**
+     * Get external analytics statistics for a specific path via Umami.
+     */
+    public function getPathStats(string $path, $days = 7): array
+    {
+        $umami = new UmamiService();
+
+        $stats = $umami->getStats($days, $path);
+        $pageviews = $umami->getPageviews($days, $path);
+
+        if (is_null($stats) || is_null($pageviews)) {
+            return $this->unavailableStats();
+        }
+
         return [
             'unavailable' => false,
             'overview' => $this->mapOverview($stats),
@@ -110,9 +131,25 @@ class AnalyticsService
      *   "sessions":  [{"x": "2024-01-01", "y":  78}, ...]
      * }
      */
-    protected function mapChart(array $pageviews, int $days): array
+    protected function mapChart(array $pageviews, $days): array
     {
         $timezone = config('core.analytics.umami.timezone', 'Asia/Jakarta');
+
+        $daysCount = $days;
+        $baseDate = null;
+
+        if (is_array($days)) {
+            $startAtMs = $days[0];
+            $endAtMs = $days[1];
+
+            $startDate = \Carbon\Carbon::createFromTimestampMs($startAtMs, $timezone);
+            $endDate = \Carbon\Carbon::createFromTimestampMs($endAtMs, $timezone);
+
+            $daysCount = (int) $startDate->diffInDays($endDate) + 1;
+            $baseDate = $endDate;
+        } else {
+            $baseDate = now($timezone);
+        }
 
         // Buat map dari data Umami untuk lookup cepat
         $pvMap = collect(data_get($pageviews, 'pageviews', []))->keyBy(function ($item) {
@@ -126,9 +163,9 @@ class AnalyticsService
         $visitors = [];
         $chartPageViews = [];
 
-        for ($i = $days - 1; $i >= 0; $i--) {
+        for ($i = $daysCount - 1; $i >= 0; $i--) {
             // Tanggal harus dihitung dalam timezone yang sama dengan yang dikirim ke Umami API
-            $day = now($timezone)->subDays($i);
+            $day = $baseDate->copy()->subDays($i);
             $date = $day->format('Y-m-d');  // key lookup ke Umami response
             $label = $day->format('M d');    // label di chart
 
