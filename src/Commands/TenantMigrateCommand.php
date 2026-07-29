@@ -32,11 +32,12 @@ class TenantMigrateCommand extends Command
     {
         $tenantSlug = $this->option('tenant');
 
-        if (!$tenantSlug) {
+        if (! $tenantSlug) {
             // Fetch only active tenants
             $tenants = BaleList::where('is_active', true)->get();
             if ($tenants->isEmpty()) {
                 $this->error('No active tenants found in bale_lists table.');
+
                 return self::FAILURE;
             }
 
@@ -49,19 +50,20 @@ class TenantMigrateCommand extends Command
         try {
             $tenant = BaleList::where('slug', $tenantSlug)->firstOrFail();
 
-            if (!$tenant->is_active) {
+            if (! $tenant->is_active) {
                 $this->warn("Warning: The selected tenant '{$tenant->name}' is not active, but proceeding anyway.");
             }
 
             $sourceDir = base_path('database/migrations/cms');
-            
+
             // Fallback to package migration source if root doesn't exist
-            if (!File::isDirectory($sourceDir)) {
-                $sourceDir = __DIR__ . '/../../database/migrations/cms';
+            if (! File::isDirectory($sourceDir)) {
+                $sourceDir = __DIR__.'/../../database/migrations/cms';
             }
 
-            if (!File::isDirectory($sourceDir)) {
+            if (! File::isDirectory($sourceDir)) {
                 $this->error("Migration source directory 'database/migrations/cms' not found.");
+
                 return self::FAILURE;
             }
 
@@ -81,21 +83,22 @@ class TenantMigrateCommand extends Command
                     $filename = $file->getFilename();
                     if (Str::endsWith($filename, '.stub')) {
                         $newFilename = Str::beforeLast($filename, '.stub');
-                        if (!Str::endsWith($newFilename, '.php')) {
+                        if (! Str::endsWith($newFilename, '.php')) {
                             $newFilename .= '.php';
                         }
-                    } else if (Str::endsWith($filename, '.php')) {
+                    } elseif (Str::endsWith($filename, '.php')) {
                         $newFilename = $filename;
                     } else {
                         continue;
                     }
 
-                    File::copy($file->getPathname(), $tempDir . '/' . $newFilename);
+                    File::copy($file->getPathname(), $tempDir.'/'.$newFilename);
                     $copiedCount++;
                 }
 
                 if ($copiedCount === 0) {
                     $this->error("No migrations found in {$sourceDir}");
+
                     return self::FAILURE;
                 }
 
@@ -103,7 +106,7 @@ class TenantMigrateCommand extends Command
                 TenantManager::initializeFromBaleUuid($tenant->id);
                 $connection = TenantManager::getActiveConnection();
 
-                if (!$connection) {
+                if (! $connection) {
                     throw new \Exception("Failed to activate connection for tenant {$tenant->slug}");
                 }
 
@@ -111,8 +114,8 @@ class TenantMigrateCommand extends Command
 
                 $this->call('migrate', [
                     '--database' => $connection,
-                    '--path'     => 'database/migrations/cms_temp',
-                    '--force'    => true,
+                    '--path' => 'database/migrations/cms_temp',
+                    '--force' => true,
                 ]);
 
                 $this->info("Migration for tenant {$tenant->slug} completed successfully.");
@@ -125,7 +128,8 @@ class TenantMigrateCommand extends Command
                 }
             }
         } catch (Throwable $e) {
-            $this->error("Migration failed: " . $e->getMessage());
+            $this->error('Migration failed: '.$e->getMessage());
+
             return self::FAILURE;
         }
     }

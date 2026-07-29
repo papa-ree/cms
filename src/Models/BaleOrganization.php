@@ -3,13 +3,14 @@
 namespace Bale\Cms\Models;
 
 use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Bale\Core\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 class BaleOrganization extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, LogsActivity;
 
     protected $fillable = [
         'name',

@@ -2,16 +2,16 @@
 
 namespace Bale\Cms\Models;
 
-use Bale\Cms\Services\TenantConnectionService;
+use Bale\Cms\Traits\UsesTenantConnection;
+use Bale\Core\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
-use Bale\Cms\Services\TenantManager;
-use Bale\Cms\Traits\UsesTenantConnection;
 
 class Navigation extends Model
 {
-    use UsesTenantConnection;
     use HasUuids;
+    use LogsActivity;
+    use UsesTenantConnection;
 
     protected static function booted(): void
     {
@@ -49,7 +49,7 @@ class Navigation extends Model
         return $this->newHasMany(
             $instance->newQuery(),
             $this,
-            $instance->getTable() . '.parent_id',
+            $instance->getTable().'.parent_id',
             'id'
         )->orderBy('order');
     }
@@ -67,5 +67,4 @@ class Navigation extends Model
             'parent'
         );
     }
-
 }

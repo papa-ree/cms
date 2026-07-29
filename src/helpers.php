@@ -3,7 +3,7 @@
 use Bale\Cms\Models\Option;
 use Bale\Core\Support\Cdn;
 
-if (!function_exists('organization_slug')) {
+if (! function_exists('organization_slug')) {
     /**
      * Get the organization slug from the options table.
      *
@@ -15,13 +15,10 @@ if (!function_exists('organization_slug')) {
     }
 }
 
-if (!function_exists('cdn_asset')) {
+if (! function_exists('cdn_asset')) {
     /**
      * Generate CDN URL untuk asset path.
      * Format: https://cdn.ponorogo.go.id/bale/organization-slug/path
-     *
-     * @param string $path
-     * @return string
      */
     function cdn_asset(string $path): string
     {
@@ -29,13 +26,10 @@ if (!function_exists('cdn_asset')) {
     }
 }
 
-if (!function_exists('cdn_url')) {
+if (! function_exists('cdn_url')) {
     /**
      * Generate CDN URL untuk path.
      * Alias untuk cdn_asset()
-     *
-     * @param string $path
-     * @return string
      */
     function cdn_url(string $path): string
     {
@@ -43,12 +37,10 @@ if (!function_exists('cdn_url')) {
     }
 }
 
-if (!function_exists('cdn_enabled')) {
+if (! function_exists('cdn_enabled')) {
     /**
      * Check apakah CDN aktif.
      * Mengambil nilai dari environment variable EMPERAN_CDN_ENABLED
-     *
-     * @return bool
      */
     function cdn_enabled(): bool
     {

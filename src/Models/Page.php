@@ -2,16 +2,18 @@
 
 namespace Bale\Cms\Models;
 
+use Bale\Cms\Traits\UsesTenantConnection;
+use Bale\Core\Traits\LogsActivity;
+use Bale\Seo\Traits\HasSeoMeta;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
-use Bale\Cms\Traits\UsesTenantConnection;
-use Bale\Seo\Traits\HasSeoMeta;
 
 class Page extends Model
 {
-    use UsesTenantConnection;
-    use HasUuids;
     use HasSeoMeta;
+    use HasUuids;
+    use LogsActivity;
+    use UsesTenantConnection;
 
     protected $table = 'pages';
 

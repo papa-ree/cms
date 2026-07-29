@@ -2,11 +2,14 @@
 
 namespace Bale\Cms\Models;
 
-use Spatie\Permission\Models\Role as SpatieRole;
 use Bale\Cms\Services\TenantConnectionService;
+use Bale\Core\Traits\LogsActivity;
+use Spatie\Permission\Models\Role as SpatieRole;
 
 class Role extends SpatieRole
 {
+    use LogsActivity;
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

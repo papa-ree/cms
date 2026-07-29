@@ -2,9 +2,10 @@
 
 namespace Bale\Cms\Livewire\SharedComponents;
 
-use Livewire\Component;
-use Livewire\Attributes\{Computed, Layout};
 use Bale\Cms\Models\BaleList;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 #[Layout('cms::layouts.app')]
 class CmsTopbar extends Component
@@ -19,7 +20,7 @@ class CmsTopbar extends Component
     {
         $uuid = session('bale_active_uuid');
 
-        if (!$uuid) {
+        if (! $uuid) {
             return null;
         }
 

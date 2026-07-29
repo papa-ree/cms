@@ -5,8 +5,11 @@ namespace Bale\Cms\Livewire\Pages\Section\Section;
 use Bale\Cms\Models\Section;
 use Bale\Cms\Services\TenantConnectionService;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\Attributes\{Computed, Layout, Locked, Title};
 
 #[Layout('cms::layouts.app')]
 #[Title('Bale | View Searchable Section')]
@@ -14,11 +17,15 @@ class SearchableSectionTableView extends Component
 {
     #[Locked]
     public $sectionSlug;
+
     public $sectionName;
 
     public $availableKeys = [];
+
     public array $editorjsKeys = [];
+
     public array $dateKeys = [];
+
     public $searchQuery = '';
 
     public function mount($slug)
@@ -41,11 +48,11 @@ class SearchableSectionTableView extends Component
         $meta = $content['meta'] ?? [];
 
         $sysKeys = ['id', 'created_at', 'updated_at', 'uploads', 'attachments'];
-        
+
         // Add social media keys if present in meta
         if (isset($meta['social_platforms'])) {
             foreach ($meta['social_platforms'] as $platform) {
-                $sysKeys[] = 'sm_' . $platform;
+                $sysKeys[] = 'sm_'.$platform;
             }
         }
 
@@ -96,13 +103,15 @@ class SearchableSectionTableView extends Component
         // Search across all key values
         return array_filter($items, function ($item) {
             foreach ($item as $key => $values) {
-                if ($key === 'uploads' || str_starts_with($key, 'sm_')) continue;
+                if ($key === 'uploads' || str_starts_with($key, 'sm_')) {
+                    continue;
+                }
 
                 // Handle both array and string values
                 if (is_array($values)) {
                     // Check if it's an array of arrays (like uploads, although we skip it above)
                     // or an array of strings (social links, tags, etc.)
-                    $searchableValues = array_filter($values, fn($v) => is_string($v) || is_numeric($v));
+                    $searchableValues = array_filter($values, fn ($v) => is_string($v) || is_numeric($v));
                     $searchableText = implode(' ', $searchableValues);
                 } else {
                     $searchableText = (string) $values;
@@ -112,6 +121,7 @@ class SearchableSectionTableView extends Component
                     return true;
                 }
             }
+
             return false;
         });
     }
@@ -129,7 +139,7 @@ class SearchableSectionTableView extends Component
                 ->whereSlug($this->sectionSlug)
                 ->first();
 
-            if (!$section) {
+            if (! $section) {
                 throw new \Exception('Section not found');
             }
 
@@ -139,6 +149,7 @@ class SearchableSectionTableView extends Component
             // Find item by id or index to match Blade logic
             $items = array_values(array_filter($items, function ($item, $idx) use ($itemId) {
                 $id = $item['id'][0] ?? $item['id'] ?? (string) $idx;
+
                 return (string) $id !== (string) $itemId;
             }, ARRAY_FILTER_USE_BOTH));
 
@@ -151,7 +162,7 @@ class SearchableSectionTableView extends Component
 
         } catch (\Throwable $th) {
             DB::connection($connection)->rollBack();
-            info('Item delete failed: ' . $th->getMessage());
+            info('Item delete failed: '.$th->getMessage());
             $this->dispatch('toast', message: 'Failed to delete item!', type: 'error');
         }
     }

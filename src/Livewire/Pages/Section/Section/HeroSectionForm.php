@@ -6,8 +6,9 @@ use Bale\Cms\Models\Option;
 use Bale\Cms\Models\Section;
 use Bale\Cms\Services\TenantConnectionService;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
-use Livewire\Attributes\{Layout, Locked};
 
 #[Layout('cms::layouts.app')]
 class HeroSectionForm extends Component
@@ -67,7 +68,7 @@ class HeroSectionForm extends Component
                 ->firstOrFail();
 
             $section->update([
-                'content' => $this->section
+                'content' => $this->section,
             ]);
 
             DB::commit();
@@ -77,7 +78,7 @@ class HeroSectionForm extends Component
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
-            info('Post creation failed: ' . $th->getMessage());
+            info('Post creation failed: '.$th->getMessage());
             $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }

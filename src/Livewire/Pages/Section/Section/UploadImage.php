@@ -6,8 +6,9 @@ use Bale\Cms\Models\Section;
 use Bale\Cms\Services\TenantConnectionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
-use Livewire\Attributes\{Layout, Locked};
 use Livewire\WithFileUploads;
 use Log;
 
@@ -18,6 +19,7 @@ class UploadImage extends Component
 
     #[Locked]
     public string $slug;
+
     public $section = [];
 
     public $backgrounds = [];
@@ -41,7 +43,6 @@ class UploadImage extends Component
     {
         return view('cms::livewire.pages.section.section.upload-image');
     }
-
 
     public function updatedBackgrounds()
     {
@@ -82,25 +83,25 @@ class UploadImage extends Component
             $content = $section->content;
 
             foreach ($this->backgrounds as $upload) {
-                $file_name = session('bale_active_slug') . '-' . uniqid() . '.' . $upload->extension();
+                $file_name = session('bale_active_slug').'-'.uniqid().'.'.$upload->extension();
 
                 // Define final path in S3
-                $finalPath = session('bale_active_slug') . '/landing-page/' . $file_name;
+                $finalPath = session('bale_active_slug').'/landing-page/'.$file_name;
 
                 // Upload using Storage facade with Livewire's get() method
                 Storage::disk(app()->isProduction() ? 's3' : 'public')->put($finalPath, $upload->get());
 
                 $content['backgrounds'][] = [
-                    "alt" => pathinfo($file_name, PATHINFO_FILENAME),
-                    "path" => $file_name,
-                    "type" => "image",
-                    "caption" => "Background " . (count($content['backgrounds']) + 1),
-                    "position" => "center",
+                    'alt' => pathinfo($file_name, PATHINFO_FILENAME),
+                    'path' => $file_name,
+                    'type' => 'image',
+                    'caption' => 'Background '.(count($content['backgrounds']) + 1),
+                    'position' => 'center',
                 ];
             }
 
             $section->update([
-                'content' => $content
+                'content' => $content,
             ]);
 
             $this->backgrounds = [];
@@ -112,7 +113,7 @@ class UploadImage extends Component
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
-            Log::info('Upload Hero image failed: ' . $th->getMessage());
+            Log::info('Upload Hero image failed: '.$th->getMessage());
             $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }
@@ -135,12 +136,12 @@ class UploadImage extends Component
             $content = $section->content ?? [];
 
             // Pastikan key backgrounds ada
-            if (!isset($content['backgrounds']) || !is_array($content['backgrounds'])) {
+            if (! isset($content['backgrounds']) || ! is_array($content['backgrounds'])) {
                 return; // aman keluar
             }
 
             // Hapus file di S3
-            $filePath = $slug . '/landing-page/' . $path;
+            $filePath = $slug.'/landing-page/'.$path;
 
             $disk = app()->isProduction() ? 's3' : 'public';
             if (Storage::disk($disk)->exists($filePath)) {
@@ -156,7 +157,7 @@ class UploadImage extends Component
 
             // Simpan kembali
             $section->update([
-                'content' => $content
+                'content' => $content,
             ]);
 
             // Sinkronkan ke Livewire
@@ -166,7 +167,7 @@ class UploadImage extends Component
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
-            Log::info('Delete Hero image failed: ' . $th->getMessage());
+            Log::info('Delete Hero image failed: '.$th->getMessage());
             $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }

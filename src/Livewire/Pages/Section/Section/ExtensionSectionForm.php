@@ -6,10 +6,11 @@ use Bale\Cms\Models\Section;
 use Bale\Cms\Services\TenantConnectionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\Attributes\{Computed, Layout, Locked, Title};
 use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 
@@ -21,11 +22,17 @@ class ExtensionSectionForm extends Component
 
     #[Locked]
     public $id;
+
     public $name = '';
+
     public $slug = '';
+
     public $usage = 'general';
+
     public $content = [];
+
     public $actived = true;
+
     public $editMode = false;
 
     public function mount($slug = null)
@@ -61,8 +68,8 @@ class ExtensionSectionForm extends Component
                         'key' => '',
                         'value' => '',
                         'type' => 'string',
-                        'children' => []
-                    ]
+                        'children' => [],
+                    ],
                 ];
             }
         }
@@ -92,7 +99,7 @@ class ExtensionSectionForm extends Component
                         'key' => $key,
                         'value' => '',
                         'type' => 'object',
-                        'children' => $this->convertJsonToForm($value) // RECURSIVE
+                        'children' => $this->convertJsonToForm($value), // RECURSIVE
                     ];
 
                 } else {
@@ -105,7 +112,7 @@ class ExtensionSectionForm extends Component
                             'key' => '',
                             'value' => is_array($item) ? '' : (string) $item,
                             'type' => $this->detectType($item),
-                            'children' => is_array($item) ? $this->convertJsonToForm($item) : []
+                            'children' => is_array($item) ? $this->convertJsonToForm($item) : [],
                         ];
                     }
 
@@ -113,7 +120,7 @@ class ExtensionSectionForm extends Component
                         'key' => $key,
                         'value' => '',
                         'type' => 'list',
-                        'children' => $children
+                        'children' => $children,
                     ];
                 }
 
@@ -124,7 +131,7 @@ class ExtensionSectionForm extends Component
                     'key' => $key,
                     'value' => is_bool($value) ? ($value ? 'true' : 'false') : (string) $value,
                     'type' => $this->detectType($value),
-                    'children' => []
+                    'children' => [],
                 ];
             }
         }
@@ -139,7 +146,6 @@ class ExtensionSectionForm extends Component
     {
         return array_keys($arr) !== range(0, count($arr) - 1);
     }
-
 
     // private function convertJsonToForm($json)
     // {
@@ -239,8 +245,9 @@ class ExtensionSectionForm extends Component
                 'key' => '',
                 'value' => '',
                 'type' => 'string',
-                'children' => []
+                'children' => [],
             ];
+
             return;
         }
 
@@ -253,6 +260,7 @@ class ExtensionSectionForm extends Component
         if (count($path) === 1) {
             unset($node['children'][$path[0]]);
             $node['children'] = array_values($node['children']);
+
             return;
         }
 
@@ -262,7 +270,7 @@ class ExtensionSectionForm extends Component
 
     public function addSubSubKey($i, $j)
     {
-        if (!isset($this->content[$i]['children'][$j]['children'])) {
+        if (! isset($this->content[$i]['children'][$j]['children'])) {
             $this->content[$i]['children'][$j]['children'] = [];
         }
 
@@ -270,7 +278,7 @@ class ExtensionSectionForm extends Component
             'key' => '',
             'value' => '',
             'type' => 'string',
-            'children' => []
+            'children' => [],
         ];
 
         $this->content[$i]['children'][$j]['children'] =
@@ -289,12 +297,12 @@ class ExtensionSectionForm extends Component
     private function ensureChildrenStructure()
     {
         foreach ($this->content as &$item) {
-            if (!isset($item['children']) || !is_array($item['children'])) {
+            if (! isset($item['children']) || ! is_array($item['children'])) {
                 $item['children'] = [];
             }
 
             foreach ($item['children'] as &$child) {
-                if (!isset($child['children']) || !is_array($child['children'])) {
+                if (! isset($child['children']) || ! is_array($child['children'])) {
                     $child['children'] = [];
                 }
             }
@@ -341,17 +349,18 @@ class ExtensionSectionForm extends Component
         };
     }
 
-    //upload handler
+    // upload handler
     private function uploadToMinio($upload)
     {
-        if (!$upload)
+        if (! $upload) {
             return null;
+        }
 
         $fileName = session('bale_active_slug')
-            . '-' . uniqid()
-            . '.' . $upload->extension();
+            .'-'.uniqid()
+            .'.'.$upload->extension();
 
-        $path = session('bale_active_slug') . '/landing-page';
+        $path = session('bale_active_slug').'/landing-page';
 
         $disk = app()->isProduction() ? 's3' : 'public';
 
@@ -376,8 +385,9 @@ class ExtensionSectionForm extends Component
         $out = [];
 
         foreach ($this->content as $node) {
-            if (!$node['key'])
+            if (! $node['key']) {
                 continue;
+            }
             $out[$node['key']] = $this->convertNodeToJson($node);
         }
 
@@ -404,13 +414,15 @@ class ExtensionSectionForm extends Component
     private function convertNodeToJson($node)
     {
         // Nested
-        if (!empty($node['children'])) {
+        if (! empty($node['children'])) {
             $arr = [];
             foreach ($node['children'] as $child) {
-                if (!$child['key'])
+                if (! $child['key']) {
                     continue;
+                }
                 $arr[$child['key']] = $this->convertNodeToJson($child);
             }
+
             return $arr;
         }
 
@@ -422,7 +434,6 @@ class ExtensionSectionForm extends Component
         // Simple value
         return $this->castValue($node['value'], $node['type']);
     }
-
 
     public function rules()
     {
@@ -437,7 +448,7 @@ class ExtensionSectionForm extends Component
             'slug' => [
                 'required',
                 'string',
-                Rule::unique($connection . '.sections', 'slug')->ignore($this->id),
+                Rule::unique($connection.'.sections', 'slug')->ignore($this->id),
             ],
         ];
     }
@@ -455,8 +466,8 @@ class ExtensionSectionForm extends Component
             $connection = TenantConnectionService::connection();
 
             $content = [
-                "meta" => $this->generateMetaJson(),
-                "items" => [],
+                'meta' => $this->generateMetaJson(),
+                'items' => [],
             ];
 
             (new Section)
@@ -475,7 +486,7 @@ class ExtensionSectionForm extends Component
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
-            info('Section update failed: ' . $th->getMessage());
+            info('Section update failed: '.$th->getMessage());
             $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
 
@@ -503,7 +514,7 @@ class ExtensionSectionForm extends Component
 
             $content = [
                 'meta' => $meta,
-                'items' => $existing['items'] ?? []
+                'items' => $existing['items'] ?? [],
             ];
 
             $section->update([
@@ -519,7 +530,7 @@ class ExtensionSectionForm extends Component
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
-            info('Section update failed: ' . $th->getMessage());
+            info('Section update failed: '.$th->getMessage());
             $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }
@@ -539,7 +550,7 @@ class ExtensionSectionForm extends Component
         // $content['is_active'] = !$content['is_active'];
 
         $section->update([
-            'actived' => !$this->actived
+            'actived' => ! $this->actived,
         ]);
     }
 }

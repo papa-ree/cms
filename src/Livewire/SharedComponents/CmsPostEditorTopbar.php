@@ -2,8 +2,9 @@
 
 namespace Bale\Cms\Livewire\SharedComponents;
 
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Component;
-use Livewire\Attributes\{Layout, On};
 
 #[Layout('cms::layouts.app')]
 class CmsPostEditorTopbar extends Component

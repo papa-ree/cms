@@ -2,8 +2,10 @@
 
 namespace Bale\Cms\Services;
 
-use Illuminate\Support\Facades\DB;
 use Bale\Cms\Models\BaleList;
+use Illuminate\Database\Connection;
+use Illuminate\Database\ConnectionInterface;
+use Illuminate\Support\Facades\DB;
 
 class TenantManager
 {
@@ -16,6 +18,7 @@ class TenantManager
      * Inisialisasi koneksi dari bale UUID.
      *
      * @param  string  $baleUuid
+     *
      * @throws \RuntimeException
      */
     public static function initializeFromBaleUuid(string $uuid): void
@@ -24,12 +27,12 @@ class TenantManager
 
         $bale = BaleList::find($uuid);
 
-        if (!$bale) {
+        if (! $bale) {
             throw new \Exception("Bale with UUID $uuid not found");
         }
 
         // Generate connection name
-        $connectionName = "bale_" . str_replace('-', '_', $uuid);
+        $connectionName = 'bale_'.str_replace('-', '_', $uuid);
 
         // Tambahkan konfigurasi runtime
         config([
@@ -53,7 +56,7 @@ class TenantManager
         try {
             DB::connection($connectionName)->getPdo();
         } catch (\Throwable $e) {
-            info("TenantManager failed to connect: " . $e->getMessage());
+            info('TenantManager failed to connect: '.$e->getMessage());
             throw $e;
         }
     }
@@ -70,12 +73,13 @@ class TenantManager
     /**
      * Mendapatkan instance DB connection aktif.
      *
-     * @return \Illuminate\Database\Connection|\Illuminate\Database\ConnectionInterface
+     * @return Connection|ConnectionInterface
+     *
      * @throws \RuntimeException
      */
     public static function connection()
     {
-        if (!self::$activeConnection) {
+        if (! self::$activeConnection) {
             // throw new \RuntimeException("No active tenant connection found. Please initialize first.");
         }
 
@@ -87,7 +91,7 @@ class TenantManager
      */
     public static function connectionName(string $baleUuid): string
     {
-        return 'bale_' . str_replace('-', '_', $baleUuid);
+        return 'bale_'.str_replace('-', '_', $baleUuid);
     }
 
     /**

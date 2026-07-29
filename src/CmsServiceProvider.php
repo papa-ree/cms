@@ -9,6 +9,7 @@ use Bale\Cms\Commands\InstallCmsCommand;
 use Bale\Cms\Commands\PublishCmsMigrationCommand;
 use Bale\Cms\Commands\PublishMigrationCommand;
 use Bale\Cms\Commands\TenantMigrateCommand;
+use Bale\Core\Support\Cdn;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Component as LivewireComponent;
@@ -19,7 +20,7 @@ class CmsServiceProvider extends ServiceProvider
 {
     /**
      * Method register()
-     * 
+     *
      * Digunakan untuk mendaftarkan service, binding, atau command
      * ke dalam service container Laravel.
      */
@@ -49,7 +50,7 @@ class CmsServiceProvider extends ServiceProvider
 
     /**
      * Method boot()
-     * 
+     *
      * Dipanggil setelah semua service diregistrasi.
      * Digunakan untuk load resource seperti:
      * - view
@@ -60,12 +61,12 @@ class CmsServiceProvider extends ServiceProvider
     public function boot(): void
     {
         // Register CDN organization slug resolver
-        \Bale\Core\Support\Cdn::resolveOrganizationSlugUsing(function () {
+        Cdn::resolveOrganizationSlugUsing(function () {
             return session('bale_active_slug');
         });
 
         $this->app->booted(function () {
-            $this->loadRoutesFrom(__DIR__ . '/../routes/web.php');
+            $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
         });
 
         $this->registerViews();
@@ -82,29 +83,29 @@ class CmsServiceProvider extends ServiceProvider
     {
         Livewire::addNamespace(
             'cms-pages',
-            __DIR__ . '/../resources/views/livewire/pages'
+            __DIR__.'/../resources/views/livewire/pages'
         );
         Livewire::addNamespace(
             'cms-shared-components',
-            __DIR__ . '/../resources/views/livewire/shared-components'
+            __DIR__.'/../resources/views/livewire/shared-components'
         );
     }
 
     /**
      * Load migration langsung dari package.
-     * 
+     *
      * Dengan ini, user bisa langsung menjalankan migration
      * tanpa harus publish file ke aplikasi utama.
      */
     protected function loadMigrations(): void
     {
-        $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
+        $this->loadMigrationsFrom(__DIR__.'/../database/migrations');
     }
 
     protected function registerViews(): void
     {
         $this->loadViewsFrom(
-            __DIR__ . '/../resources/views',
+            __DIR__.'/../resources/views',
             'cms'
         );
     }
@@ -112,20 +113,19 @@ class CmsServiceProvider extends ServiceProvider
     /**
      * Publish file agar bisa diubah oleh user.
      */
-
     protected function offerPublishing(): void
     {
-        if (!$this->app->runningInConsole()) {
+        if (! $this->app->runningInConsole()) {
             return;
         }
 
         // Publish config
         $this->publishes([
-            __DIR__ . '/../config/cms.php' => config_path('cms.php'),
+            __DIR__.'/../config/cms.php' => config_path('cms.php'),
         ], 'cms:config');
 
         $this->publishes([
-            __DIR__ . '/../resources/js/cms.js' => resource_path('js/cms.js'),
+            __DIR__.'/../resources/js/cms.js' => resource_path('js/cms.js'),
         ], 'cms:assets');
 
         $this->publishes($this->getMigrations(), 'cms:migrations');
@@ -138,15 +138,15 @@ class CmsServiceProvider extends ServiceProvider
     protected function getMigrations(): array
     {
         $migrations = [];
-        $sourcePath = __DIR__ . '/../database/migrations/';
+        $sourcePath = __DIR__.'/../database/migrations/';
 
         // Pastikan direktori ada
-        if (!is_dir($sourcePath)) {
+        if (! is_dir($sourcePath)) {
             return $migrations;
         }
 
         // Loop semua file migration (baik .php maupun .stub)
-        foreach (glob($sourcePath . '*.{php,stub}', GLOB_BRACE) as $file) {
+        foreach (glob($sourcePath.'*.{php,stub}', GLOB_BRACE) as $file) {
             $filename = basename($file);
 
             // Jika file stub, ganti menjadi nama migration yang benar di aplikasi
@@ -166,33 +166,32 @@ class CmsServiceProvider extends ServiceProvider
         $timestamp = date('Y_m_d_His');
         $migrationName = str_replace('.stub', '', $filename);
 
-        return database_path('migrations/' . $timestamp . '_' . $migrationName);
+        return database_path('migrations/'.$timestamp.'_'.$migrationName);
     }
 
     /**
      * Registrasi semua Livewire Component yang ada di folder src/Livewire.
-     * 
+     *
      * Mekanisme:
      * - Cari semua file PHP di dalam folder Livewire
      * - Pastikan class tersebut adalah turunan Livewire\Component
      * - Buat alias secara otomatis dari struktur folder
-     * 
+     *
      * Contoh:
      *   src/Livewire/Dashboard.php
      *     => <livewire:cms.dashboard />
-     *
      */
     protected function registerLivewireComponents(): void
     {
-        $namespace = "Bale\\Cms\\Livewire";
-        $basePath = __DIR__ . "/Livewire";
+        $namespace = 'Bale\\Cms\\Livewire';
+        $basePath = __DIR__.'/Livewire';
 
         // Jika folder Livewire tidak ada, hentikan proses
-        if (!is_dir($basePath)) {
+        if (! is_dir($basePath)) {
             return;
         }
 
-        $finder = new Finder();
+        $finder = new Finder;
         $finder->files()->in($basePath)->name('*.php');
 
         foreach ($finder as $file) {
@@ -202,24 +201,24 @@ class CmsServiceProvider extends ServiceProvider
             $nsPath = str_replace(['/', '\\'], '\\', $relativePathname);
 
             // Konversi ke FQCN (Fully Qualified Class Name)
-            $class = $namespace . '\\' . Str::beforeLast($nsPath, '.php');
+            $class = $namespace.'\\'.Str::beforeLast($nsPath, '.php');
 
             // Skip jika class tidak ditemukan
-            if (!class_exists($class)) {
+            if (! class_exists($class)) {
                 continue;
             }
 
             // Skip jika bukan turunan Livewire\Component
-            if (!is_subclass_of($class, LivewireComponent::class)) {
+            if (! is_subclass_of($class, LivewireComponent::class)) {
                 continue;
             }
 
             // Buat alias berdasarkan struktur folder (kebab-case)
             $withoutExt = Str::replaceLast('.php', '', $relativePathname);
             $segments = preg_split('#[\\/\\\\]#', $withoutExt);
-            $kebab = array_map(fn($s) => Str::kebab($s), $segments);
+            $kebab = array_map(fn ($s) => Str::kebab($s), $segments);
 
-            $alias = 'cms.' . implode('.', $kebab);
+            $alias = 'cms.'.implode('.', $kebab);
 
             // Registrasi komponen ke Livewire
             Livewire::component($alias, $class);

@@ -6,8 +6,10 @@ use Bale\Cms\Models\Section;
 use Bale\Cms\Services\TenantConnectionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\Attributes\{Layout, Locked, Title};
 use Livewire\WithFileUploads;
 
 #[Layout('cms::layouts.app')]
@@ -18,13 +20,21 @@ class SearchableSectionForm extends Component
 
     #[Locked]
     public $id;
+
     public $name = '';
+
     public $slug = '';
+
     public $availableKeys = [];          // daftar key yg dapat digunakan
+
     public $newKey = '';                 // input key baru
+
     public $meta = [];
+
     public $items = [];                  // items[i][key] = ['value1', 'value2', ...]
+
     public $tempInputs = [];             // temporary input untuk add value: [itemIndex][key] = 'newValue'
+
     public $editMode = false;
 
     public function mount($slug = null)
@@ -57,7 +67,7 @@ class SearchableSectionForm extends Component
                 foreach ($this->items as &$item) {
                     foreach ($item as $key => &$value) {
                         // Convert string values to array
-                        if (!is_array($value)) {
+                        if (! is_array($value)) {
                             $value = $value !== '' ? [$value] : [];
                         }
                     }
@@ -75,8 +85,9 @@ class SearchableSectionForm extends Component
 
     public function addKey()
     {
-        if (!$this->newKey || in_array($this->newKey, $this->availableKeys))
+        if (! $this->newKey || in_array($this->newKey, $this->availableKeys)) {
             return;
+        }
 
         $this->availableKeys[] = $this->newKey;
 
@@ -122,17 +133,17 @@ class SearchableSectionForm extends Component
     public function addValue($itemIndex, $key)
     {
         // Validasi input tidak kosong
-        if (!isset($this->tempInputs[$itemIndex][$key]) || $this->tempInputs[$itemIndex][$key] === '') {
+        if (! isset($this->tempInputs[$itemIndex][$key]) || $this->tempInputs[$itemIndex][$key] === '') {
             return;
         }
 
         // Ensure items array structure exists
-        if (!isset($this->items[$itemIndex][$key])) {
+        if (! isset($this->items[$itemIndex][$key])) {
             $this->items[$itemIndex][$key] = [];
         }
 
         // Convert to array if it's still a string (backward compatibility)
-        if (!is_array($this->items[$itemIndex][$key])) {
+        if (! is_array($this->items[$itemIndex][$key])) {
             $this->items[$itemIndex][$key] = $this->items[$itemIndex][$key] !== ''
                 ? [$this->items[$itemIndex][$key]]
                 : [];
@@ -148,7 +159,7 @@ class SearchableSectionForm extends Component
     public function removeValue($itemIndex, $key, $valueIndex)
     {
         // Ensure it's an array
-        if (!is_array($this->items[$itemIndex][$key])) {
+        if (! is_array($this->items[$itemIndex][$key])) {
             return;
         }
 
@@ -172,7 +183,7 @@ class SearchableSectionForm extends Component
             'slug' => [
                 'required',
                 'string',
-                Rule::unique($connection . '.sections', 'slug')->ignore($this->id),
+                Rule::unique($connection.'.sections', 'slug')->ignore($this->id),
             ],
         ];
     }
@@ -213,7 +224,7 @@ class SearchableSectionForm extends Component
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
-            info('Section update failed: ' . $th->getMessage());
+            info('Section update failed: '.$th->getMessage());
             $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }
@@ -258,7 +269,7 @@ class SearchableSectionForm extends Component
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
-            info('Section update failed: ' . $th->getMessage());
+            info('Section update failed: '.$th->getMessage());
             $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }

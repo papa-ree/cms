@@ -1,32 +1,29 @@
 <?php
 
+use Bale\Cms\Livewire\Pages\Navigation\CreateNewNavigation;
+use Bale\Cms\Livewire\Pages\Navigation\EditNavigation;
+use Bale\Cms\Livewire\Pages\Navigation\Index as NavigationIndex;
+use Bale\Cms\Livewire\Pages\Overview\Index;
+use Bale\Cms\Livewire\Pages\Page\CreateNewPage;
+use Bale\Cms\Livewire\Pages\Page\EditPage;
+use Bale\Cms\Livewire\Pages\Page\Index as PageIndex;
+use Bale\Cms\Livewire\Pages\Post\CreateNewPost;
+use Bale\Cms\Livewire\Pages\Post\EditPost;
+use Bale\Cms\Livewire\Pages\Post\Index as PostIndex;
+use Bale\Cms\Livewire\Pages\Section\CreateNewSection;
+use Bale\Cms\Livewire\Pages\Section\Index as SectionIndex;
+use Bale\Cms\Livewire\Pages\Section\Section\SearchableCreateItem;
+use Bale\Cms\Livewire\Pages\Section\Section\SearchableEditKey;
+use Bale\Cms\Livewire\Pages\Section\Section\SearchableSectionTableView;
+use Bale\Cms\Livewire\Pages\Section\SectionMetaEditor;
+use Bale\Cms\Middleware\EnsureBaleSelected;
+use Bale\Cms\Middleware\SwitchBaleConnection;
 use Bale\Core\Support\Cdn;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
-use Bale\Cms\Livewire\Pages\Navigation\CreateNewNavigation;
-use Bale\Cms\Livewire\Pages\Navigation\EditNavigation;
-use Bale\Cms\Livewire\Pages\Navigation\Index as NavigationIndex;
-use Bale\Cms\Livewire\Pages\Post\CreateNewPost;
-use Bale\Cms\Livewire\Pages\Post\EditPost;
-use Bale\Cms\Livewire\Pages\Overview\Index;
-use Bale\Cms\Livewire\Pages\Page\CreateNewPage;
-use Bale\Cms\Livewire\Pages\Page\EditPage;
-use Bale\Cms\Livewire\Pages\Page\Index as PageIndex;
-use Bale\Cms\Livewire\Pages\Post\Index as PostIndex;
-use Bale\Cms\Livewire\Pages\Section\CreateNewSection;
-use Bale\Cms\Livewire\Pages\Section\EditSection;
-use Bale\Cms\Livewire\Pages\Section\Index as SectionIndex;
-use Bale\Cms\Livewire\Pages\Section\Section\ExtensionSectionForm;
-use Bale\Cms\Livewire\Pages\Section\SectionMetaEditor;
-use Bale\Cms\Livewire\Pages\Section\Section\SearchableSectionForm;
-use Bale\Cms\Livewire\Pages\Section\Section\SearchableSectionTableView;
-use Bale\Cms\Livewire\Pages\Section\Section\SearchableEditKey;
-use Bale\Cms\Livewire\Pages\Section\Section\SearchableCreateItem;
-use Bale\Cms\Middleware\EnsureBaleSelected;
-use Bale\Cms\Middleware\SwitchBaleConnection;
 
 /*
  Note:
@@ -61,14 +58,14 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             try {
                 // Upload file in images folder
                 $file = $request->file('image');
-                $filename = uniqid() . '.' . $file->extension();
-                $path = session('bale_active_slug') . '/images/' . $filename;
+                $filename = uniqid().'.'.$file->extension();
+                $path = session('bale_active_slug').'/images/'.$filename;
 
                 Storage::disk(app()->isProduction() ? 's3' : 'public')->put($path, $file->get());
 
                 // Generate CDN URL
                 // Format: https://cdn_url/cdn_prefix/organization_slug/images/filename
-                $url = Cdn::url('images/' . $filename);
+                $url = Cdn::url('images/'.$filename);
 
                 return response()->json([
                     'success' => 1,
@@ -76,10 +73,10 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
                         'url' => $url,
                     ],
                 ]);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 return response()->json([
                     'success' => 0,
-                    'message' => 'Upload failed: ' . $e->getMessage(),
+                    'message' => 'Upload failed: '.$e->getMessage(),
                 ], 500);
             }
         })->name('editorjs.upload');
@@ -102,7 +99,7 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
                 // Securely fetch input image from url
                 $response = Http::get($url);
 
-                if (!$response->successful()) {
+                if (! $response->successful()) {
                     return response()->json([
                         'success' => 0,
                         'message' => 'Failed to retrieve image from the provided URL.',
@@ -122,7 +119,7 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
 
                 // Parse and validate Content-Type header
                 $mimeType = $response->header('Content-Type');
-                if (!in_array($mimeType, ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'])) {
+                if (! in_array($mimeType, ['image/jpeg', 'image/png', 'image/jpg', 'image/gif', 'image/webp'])) {
                     return response()->json([
                         'success' => 0,
                         'message' => 'The file must be a valid image (JPEG, PNG, GIF, WEBP).',
@@ -138,13 +135,13 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
                     $extension = 'webp';
                 }
 
-                $filename = uniqid() . '.' . $extension;
-                $path = session('bale_active_slug') . '/images/' . $filename;
+                $filename = uniqid().'.'.$extension;
+                $path = session('bale_active_slug').'/images/'.$filename;
 
                 Storage::disk(app()->isProduction() ? 's3' : 'public')->put($path, $contents);
 
                 // Generate CDN URL
-                $cdnUrl = Cdn::url('images/' . $filename);
+                $cdnUrl = Cdn::url('images/'.$filename);
 
                 return response()->json([
                     'success' => 1,
@@ -152,10 +149,10 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
                         'url' => $cdnUrl,
                     ],
                 ]);
-            } catch (\Throwable $e) {
+            } catch (Throwable $e) {
                 return response()->json([
                     'success' => 0,
-                    'message' => 'Fetch failed: ' . $e->getMessage(),
+                    'message' => 'Fetch failed: '.$e->getMessage(),
                 ], 500);
             }
         });

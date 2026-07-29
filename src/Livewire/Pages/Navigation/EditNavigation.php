@@ -2,18 +2,17 @@
 
 namespace Bale\Cms\Livewire\Pages\Navigation;
 
-use Bale\Cms\Livewire\Pages\Navigation\Section\NavigationSortable;
-use Bale\Cms\Livewire\SharedComponents\DeleteModelAction;
 use Bale\Cms\Models\Navigation;
 use Bale\Cms\Models\Page;
 use Bale\Cms\Services\TenantConnectionService;
 use Bale\Cms\Traits\HasSafeDelete;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Livewire\Attributes\On;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\Attributes\{Computed, Layout, Locked, Title};
-use Livewire\Livewire;
 
 #[Layout('cms::layouts.app')]
 #[Title('Bale | Edit Navigation')]
@@ -25,11 +24,17 @@ class EditNavigation extends Component
 
     #[Locked]
     public $id;
+
     public $name;
+
     public $slug;
+
     public $url_mode;
+
     public $url;
+
     public $page_slug = '';
+
     public $parent;
 
     #[Locked]
@@ -84,6 +89,7 @@ class EditNavigation extends Component
         $pages = (new Page)->setConnection($connection)
             ->query()
             ->select('id', 'title', 'slug')->get();
+
         return $pages;
     }
 
@@ -98,6 +104,7 @@ class EditNavigation extends Component
             ->whereParentId($this->id)
             ->orderBy('order')
             ->select('id', 'name', 'slug')->get();
+
         return $pages;
     }
 
@@ -121,7 +128,7 @@ class EditNavigation extends Component
         $itemsArray = $items->values();
 
         // Temukan index item yang dipindah
-        $currentIndex = $itemsArray->search(fn($i) => $i->id == $itemId);
+        $currentIndex = $itemsArray->search(fn ($i) => $i->id == $itemId);
 
         // Ambil itemnya
         $movedItem = $itemsArray->pull($currentIndex);
@@ -165,7 +172,7 @@ class EditNavigation extends Component
             'slug' => [
                 'required',
                 'string',
-                Rule::unique($connection . '.navigations', 'slug')->ignore($this->id),
+                Rule::unique($connection.'.navigations', 'slug')->ignore($this->id),
             ],
             'url_mode' => ['required', 'boolean'],
             'url' => ['required_if:url_mode,true', 'required_if:url_mode,1', 'max:255'],
@@ -205,7 +212,7 @@ class EditNavigation extends Component
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
-            info('Page creation failed: ' . $th->getMessage());
+            info('Page creation failed: '.$th->getMessage());
             $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }

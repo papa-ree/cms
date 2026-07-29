@@ -16,7 +16,7 @@ class PostStatusToggle extends Component
 
     public function mount(int|string $postId, bool $published): void
     {
-        $this->postId    = $postId;
+        $this->postId = $postId;
         $this->published = $published;
     }
 
@@ -26,12 +26,14 @@ class PostStatusToggle extends Component
 
         $this->published = ! $this->published;
 
-        Post::on(TenantConnectionService::connection())
-            ->where('id', $this->postId)
-            ->update([
-                'published'    => $this->published,
+        $post = Post::on(TenantConnectionService::connection())->find($this->postId);
+
+        if ($post) {
+            $post->update([
+                'published' => $this->published,
                 'published_at' => $this->published ? now() : null,
             ]);
+        }
 
         $message = $this->published
             ? __('Post published successfully!')

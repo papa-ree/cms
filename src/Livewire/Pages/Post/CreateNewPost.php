@@ -2,22 +2,21 @@
 
 namespace Bale\Cms\Livewire\Pages\Post;
 
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
-use Livewire\Attributes\Title;
-use Livewire\Component;
-use Livewire\Attributes\{Layout, Validate};
 use Bale\Cms\Models\Post;
 use Bale\Cms\Services\TenantConnectionService;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('cms::layouts.app')]
 #[Title('Bale | Create Post')]
 class CreateNewPost extends Component
 {
-
     public $title;
+
     public $slug;
 
     public $tag;
@@ -40,7 +39,7 @@ class CreateNewPost extends Component
             'slug' => [
                 'required',
                 'string',
-                Rule::unique($connection . '.posts', 'slug'),
+                Rule::unique($connection.'.posts', 'slug'),
             ],
         ];
     }
@@ -88,9 +87,8 @@ class CreateNewPost extends Component
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
-            info('Post creation failed: ' . $th->getMessage());
+            info('Post creation failed: '.$th->getMessage());
             $this->dispatch('toast', message: __('Something went wrong!'), type: 'error');
         }
     }
-
 }

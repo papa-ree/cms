@@ -2,12 +2,14 @@
 
 namespace Bale\Cms\Livewire\Pages\Navigation;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
-use Livewire\Component;
-use Livewire\Attributes\{Layout, Locked, Title};
 use Bale\Cms\Models\Navigation;
 use Bale\Cms\Services\TenantConnectionService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('cms::layouts.app')]
 #[Title('Bale | Create Navigation')]
@@ -58,7 +60,7 @@ class CreateNewNavigation extends Component
             'slug' => [
                 'required',
                 'string',
-                Rule::unique($connection . '.navigations', 'slug'),
+                Rule::unique($connection.'.navigations', 'slug'),
             ],
         ];
     }
@@ -98,12 +100,10 @@ class CreateNewNavigation extends Component
                 $this->redirectRoute('bale.cms.navigations.edit', $this->parent_slug ?? $this->slug, navigate: true);
             }
 
-
-
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
-            info('Page creation failed: ' . $th->getMessage());
+            info('Page creation failed: '.$th->getMessage());
             $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }

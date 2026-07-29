@@ -6,7 +6,9 @@ use Bale\Cms\Models\Section;
 use Bale\Cms\Services\TenantConnectionService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\Rule;
-use Livewire\Attributes\{Computed, Layout, Title};
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
 
 #[Layout('cms::layouts.app')]
@@ -14,8 +16,11 @@ use Livewire\Component;
 class CreateNewSection extends Component
 {
     public $name = '';
+
     public $slug = '';
+
     public $usage = '';
+
     public $actived = true;
 
     #[Computed]
@@ -44,9 +49,9 @@ class CreateNewSection extends Component
             'slug' => [
                 'required',
                 'string',
-                Rule::unique($connection . '.sections', 'slug'),
+                Rule::unique($connection.'.sections', 'slug'),
             ],
-            'usage' => ['required', 'string', 'in:' . implode(',', $schemaKeys)],
+            'usage' => ['required', 'string', 'in:'.implode(',', $schemaKeys)],
         ];
     }
 
@@ -87,7 +92,7 @@ class CreateNewSection extends Component
                 $customMeta[$key] = $config['default'] ?? null;
             }
 
-            if (!empty($customMeta)) {
+            if (! empty($customMeta)) {
                 $meta['custom'] = $customMeta;
             }
 
@@ -114,7 +119,7 @@ class CreateNewSection extends Component
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
-            info('Section creation failed: ' . $th->getMessage());
+            info('Section creation failed: '.$th->getMessage());
             $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }

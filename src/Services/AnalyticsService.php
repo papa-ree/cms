@@ -2,9 +2,10 @@
 
 namespace Bale\Cms\Services;
 
-use Bale\Core\Services\UmamiService;
 use Bale\Cms\Models\Page;
 use Bale\Cms\Models\Post;
+use Bale\Core\Services\UmamiService;
+use Carbon\Carbon;
 
 class AnalyticsService
 {
@@ -44,7 +45,7 @@ class AnalyticsService
      */
     public function getExternalStats($days = 7): array
     {
-        $umami = new UmamiService();
+        $umami = new UmamiService;
 
         $stats = $umami->getStats($days);
         $pageviews = $umami->getPageviews($days);
@@ -67,7 +68,7 @@ class AnalyticsService
      */
     public function getPathStats(string $path, $days = 7): array
     {
-        $umami = new UmamiService();
+        $umami = new UmamiService;
 
         $stats = $umami->getStats($days, $path);
         $pageviews = $umami->getPageviews($days, $path);
@@ -105,13 +106,13 @@ class AnalyticsService
 
         // Bounce rate = (bounces / visits) * 100
         $bounceRate = $visits > 0
-            ? round(($bounces / $visits) * 100, 1) . '%'
+            ? round(($bounces / $visits) * 100, 1).'%'
             : 'N/A';
 
         // Avg session duration = totaltime (detik) / visits
         $avgSeconds = $visits > 0 ? intdiv($totaltime, $visits) : 0;
         $avgDuration = $avgSeconds > 0
-            ? intdiv($avgSeconds, 60) . 'm ' . ($avgSeconds % 60) . 's'
+            ? intdiv($avgSeconds, 60).'m '.($avgSeconds % 60).'s'
             : 'N/A';
 
         return [
@@ -142,8 +143,8 @@ class AnalyticsService
             $startAtMs = $days[0];
             $endAtMs = $days[1];
 
-            $startDate = \Carbon\Carbon::createFromTimestampMs($startAtMs, $timezone);
-            $endDate = \Carbon\Carbon::createFromTimestampMs($endAtMs, $timezone);
+            $startDate = Carbon::createFromTimestampMs($startAtMs, $timezone);
+            $endDate = Carbon::createFromTimestampMs($endAtMs, $timezone);
 
             $daysCount = (int) $startDate->diffInDays($endDate) + 1;
             $baseDate = $endDate;

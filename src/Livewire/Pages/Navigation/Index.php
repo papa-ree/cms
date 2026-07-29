@@ -2,8 +2,9 @@
 
 namespace Bale\Cms\Livewire\Pages\Navigation;
 
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\Attributes\{Layout, Title};
 
 #[Layout('cms::layouts.app')]
 #[Title('Bale | Navigation')]
@@ -13,5 +14,4 @@ class Index extends Component
     {
         return view('cms::livewire.pages.navigation.index');
     }
-
 }

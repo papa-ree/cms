@@ -2,17 +2,18 @@
 
 namespace Bale\Cms\Livewire\Pages\Post;
 
-use Illuminate\Support\Facades\DB;
+use Bale\Cms\Models\Category;
+use Bale\Cms\Models\Post;
+use Bale\Cms\Services\TenantConnectionService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
-use Livewire\Component;
-use Livewire\Attributes\{Layout, Locked, Title};
-use Livewire\WithFileUploads;
-use Bale\Cms\Models\Post;
-use Bale\Cms\Models\Category;
-use Bale\Cms\Services\TenantConnectionService;
 use Illuminate\Validation\Rule;
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\Title;
+use Livewire\Component;
+use Livewire\WithFileUploads;
 
 #[Layout('cms::layouts.post-editor')]
 #[Title('Bale | Edit Post')]
@@ -22,33 +23,58 @@ class EditPost extends Component
 
     #[Locked]
     public $id;
+
     public $post;
+
     public $title;
+
     public $content;
+
     public $thumbnail;
+
     public $thumbnail_new;
+
     public $slug;
+
     public $updated_at;
+
     public $published;
+
     public $publish_at;
+
     public $tag;
+
     public $availableTag;
+
     public $category_id;
+
     public $category_name;
+
     public $category_slug;
+
     public $show_upload_zone = true;
+
     public $saveStatus = 'editing'; // editing, saving, saved, error
 
     // SEO Properties
     public $seo_title;
+
     public $seo_description;
+
     public $seo_keywords;
+
     public $og_image;
+
     public $og_image_new;
+
     public $twitter_card = 'summary_large_image';
+
     public $no_index = false;
+
     public $no_follow = false;
+
     public $canonical_url;
+
     public $structured_data;
 
     public function mount($slug)
@@ -60,7 +86,7 @@ class EditPost extends Component
         // Ambil data dari tenant database, bukan landlord
         $post = Post::whereSlug($slug)->firstOrFail();
 
-        if (!is_null($post)) {
+        if (! is_null($post)) {
             $this->id = $post->id;
             $this->title = $post->title ?? '';
             $this->slug = $post->slug ?? '';
@@ -98,6 +124,7 @@ class EditPost extends Component
     {
         TenantConnectionService::ensureActive();
         $connection = TenantConnectionService::connection();
+
         return (new Category)
             ->setConnection($connection)
             ->orderBy('name', 'asc')
@@ -117,7 +144,7 @@ class EditPost extends Component
             'slug' => [
                 'required',
                 'string',
-                Rule::unique($connection . '.posts', 'slug')->ignore($this->id),
+                Rule::unique($connection.'.posts', 'slug')->ignore($this->id),
             ],
             'category_slug' => 'nullable|string',
         ];
@@ -145,10 +172,10 @@ class EditPost extends Component
         if ($this->thumbnail_new) {
             // set name by slug, use getClientOriginalExtension for reliability
             $extension = $this->thumbnail_new->getClientOriginalExtension();
-            $thumbnail_name = session('bale_active_slug') . '-' . uniqid() . '.' . $extension;
+            $thumbnail_name = session('bale_active_slug').'-'.uniqid().'.'.$extension;
 
             // Define final path in S3
-            $finalPath = session('bale_active_slug') . '/thumbnails/' . $thumbnail_name;
+            $finalPath = session('bale_active_slug').'/thumbnails/'.$thumbnail_name;
 
             // Upload using Storage facade with get() to read contents from temp
             Storage::disk(app()->isProduction() ? 's3' : 'public')->put($finalPath, $this->thumbnail_new->get());
@@ -164,7 +191,7 @@ class EditPost extends Component
         $this->saveStatus = 'saving';
 
         if ($this->thumbnail) {
-            Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug') . '/thumbnails/' . $this->thumbnail);
+            Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug').'/thumbnails/'.$this->thumbnail);
         }
 
         TenantConnectionService::ensureActive();
@@ -188,7 +215,7 @@ class EditPost extends Component
         $this->saveStatus = 'saving';
 
         if ($this->og_image) {
-            Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug') . '/thumbnails/' . $this->og_image);
+            Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug').'/thumbnails/'.$this->og_image);
         }
 
         TenantConnectionService::ensureActive();
@@ -224,11 +251,12 @@ class EditPost extends Component
             'no_index',
             'no_follow',
             'canonical_url',
-            'structured_data'
+            'structured_data',
         ];
 
         if ($propertyName === 'published') {
             $this->togglePublished();
+
             return;
         }
 
@@ -251,7 +279,7 @@ class EditPost extends Component
         try {
             // Delete old thumbnail if it exists
             if ($this->thumbnail) {
-                Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug') . '/thumbnails/' . $this->thumbnail);
+                Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug').'/thumbnails/'.$this->thumbnail);
             }
 
             $thumbnail_name = $this->uploadThumbnail();
@@ -276,7 +304,7 @@ class EditPost extends Component
         } catch (\Throwable $th) {
             $this->saveStatus = 'error';
             $this->dispatch('status-updated', status: 'error');
-            info('Immediate thumbnail upload failed: ' . $th->getMessage());
+            info('Immediate thumbnail upload failed: '.$th->getMessage());
         }
     }
 
@@ -295,14 +323,14 @@ class EditPost extends Component
 
         try {
             if ($this->og_image) {
-                Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug') . '/thumbnails/' . $this->og_image);
+                Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug').'/thumbnails/'.$this->og_image);
             }
 
             // Reuse uploadThumbnail logic
             if ($this->og_image_new) {
                 $extension = $this->og_image_new->getClientOriginalExtension();
-                $filename = session('bale_active_slug') . '-seo-' . uniqid() . '.' . $extension;
-                $finalPath = session('bale_active_slug') . '/thumbnails/' . $filename;
+                $filename = session('bale_active_slug').'-seo-'.uniqid().'.'.$extension;
+                $finalPath = session('bale_active_slug').'/thumbnails/'.$filename;
 
                 Storage::disk(app()->isProduction() ? 's3' : 'public')->put($finalPath, $this->og_image_new->get());
 
@@ -322,7 +350,7 @@ class EditPost extends Component
         } catch (\Throwable $th) {
             $this->saveStatus = 'error';
             $this->dispatch('status-updated', status: 'error');
-            info('SEO Image upload failed: ' . $th->getMessage());
+            info('SEO Image upload failed: '.$th->getMessage());
         }
     }
 
@@ -357,7 +385,7 @@ class EditPost extends Component
         } catch (\Throwable $th) {
             $this->saveStatus = 'error';
             $this->dispatch('status-updated', status: 'error');
-            info('Toggle publish failed: ' . $th->getMessage());
+            info('Toggle publish failed: '.$th->getMessage());
         }
     }
 
@@ -380,10 +408,10 @@ class EditPost extends Component
                 $removedImages = array_diff($oldImages, $newImages);
 
                 $slug = session('bale_active_slug');
-                if ($slug && !empty($removedImages)) {
+                if ($slug && ! empty($removedImages)) {
                     $disk = Storage::disk(app()->isProduction() ? 's3' : 'public');
                     foreach ($removedImages as $filename) {
-                        $disk->delete($slug . '/images/' . $filename);
+                        $disk->delete($slug.'/images/'.$filename);
                     }
                 }
 
@@ -420,7 +448,7 @@ class EditPost extends Component
         } catch (\Throwable $th) {
             $this->saveStatus = 'error';
             $this->dispatch('status-updated', status: 'error');
-            info('Auto-save failed: ' . $th->getMessage());
+            info('Auto-save failed: '.$th->getMessage());
         }
     }
 
@@ -441,6 +469,7 @@ class EditPost extends Component
                 }
             }
         }
+
         return $images;
     }
 }

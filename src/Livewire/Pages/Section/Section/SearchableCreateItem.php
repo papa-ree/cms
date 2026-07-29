@@ -5,8 +5,11 @@ namespace Bale\Cms\Livewire\Pages\Section\Section;
 use Bale\Cms\Models\Section;
 use Bale\Cms\Services\TenantConnectionService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\Attributes\{Layout, Locked, Title};
 
 #[Layout('cms::layouts.app')]
 #[Title('Bale | Manage Item')]
@@ -15,9 +18,8 @@ class SearchableCreateItem extends Component
     public const SOCIAL_PLATFORMS = [
         'facebook', 'instagram', 'youtube', 'whatsapp', 'tiktok',
         'twitter', 'x', 'linkedin', 'telegram', 'pinterest',
-        'snapchat', 'threads', 'line', 'wechat'
+        'snapchat', 'threads', 'line', 'wechat',
     ];
-
 
     #[Locked]
     public $id;
@@ -32,8 +34,11 @@ class SearchableCreateItem extends Component
     public $itemId = null;
 
     public $availableKeys = [];
+
     public $currentItem = [];
+
     public $tempInputs = [];
+
     public $editMode = false;
 
     /** Toggle to show/hide the Upload Zone for this section */
@@ -41,6 +46,7 @@ class SearchableCreateItem extends Component
 
     /** Toggle to show/hide the Social Media fields for this section */
     public bool $enableSocial = false;
+
     public array $activeSocialPlatforms = [];
 
     /** List of keys that should use EditorJS */
@@ -66,8 +72,9 @@ class SearchableCreateItem extends Component
             ->whereSlug($slug)
             ->first();
 
-        if (!$section) {
+        if (! $section) {
             session()->flash('error', 'Section not found');
+
             return $this->redirectRoute('bale.cms.sections.index', navigate: true);
         }
 
@@ -87,7 +94,7 @@ class SearchableCreateItem extends Component
 
         // Add social media keys to sysKeys to avoid double rendering
         foreach ($this->activeSocialPlatforms as $platform) {
-            $sysKeys[] = 'sm_' . $platform;
+            $sysKeys[] = 'sm_'.$platform;
         }
 
         $orderedKeys = $content['meta']['order'] ?? [];
@@ -104,6 +111,7 @@ class SearchableCreateItem extends Component
 
         if (count($this->availableKeys) === 0) {
             session()->flash('error', 'Please add keys first before creating items');
+
             return $this->redirectRoute('bale.cms.sections.edit-keys', $slug, navigate: true);
         }
 
@@ -119,13 +127,14 @@ class SearchableCreateItem extends Component
 
             if ($foundItem === null) {
                 session()->flash('error', 'Item not found');
+
                 return $this->redirectRoute('bale.cms.sections.view-searchable', $slug, navigate: true);
             }
 
             $this->currentItem = $foundItem;
 
             foreach ($this->currentItem as $key => &$value) {
-                if (!is_array($value)) {
+                if (! is_array($value)) {
                     $value = $value !== '' ? [$value] : [];
                 }
             }
@@ -140,9 +149,9 @@ class SearchableCreateItem extends Component
     public function render()
     {
         return view('cms::livewire.pages.section.section.searchable-create-item', [
-            'fileKeys'           => $this->getFileKeys(),
-            'socialKeys'         => $this->getSocialKeys(),
-            'showUploadSection'  => $this->showUploadSection || $this->editMode,
+            'fileKeys' => $this->getFileKeys(),
+            'socialKeys' => $this->getSocialKeys(),
+            'showUploadSection' => $this->showUploadSection || $this->editMode,
         ]);
     }
 
@@ -160,24 +169,24 @@ class SearchableCreateItem extends Component
      */
     public function getSocialKeys(): array
     {
-        if (!$this->enableSocial) {
+        if (! $this->enableSocial) {
             return [];
         }
-        
-        return array_map(fn($p) => 'sm_' . $p, $this->activeSocialPlatforms);
+
+        return array_map(fn ($p) => 'sm_'.$p, $this->activeSocialPlatforms);
     }
 
     public function addValue($key)
     {
-        if (!isset($this->tempInputs[$key]) || $this->tempInputs[$key] === '') {
+        if (! isset($this->tempInputs[$key]) || $this->tempInputs[$key] === '') {
             return;
         }
 
-        if (!isset($this->currentItem[$key])) {
+        if (! isset($this->currentItem[$key])) {
             $this->currentItem[$key] = [];
         }
 
-        if (!is_array($this->currentItem[$key])) {
+        if (! is_array($this->currentItem[$key])) {
             $this->currentItem[$key] = $this->currentItem[$key] !== ''
                 ? [$this->currentItem[$key]]
                 : [];
@@ -189,7 +198,7 @@ class SearchableCreateItem extends Component
 
     public function removeValue($key, $valueIndex)
     {
-        if (!is_array($this->currentItem[$key])) {
+        if (! is_array($this->currentItem[$key])) {
             return;
         }
 
@@ -199,7 +208,7 @@ class SearchableCreateItem extends Component
 
     public function updateValue($key, $valueIndex, $newValue)
     {
-        if (!is_array($this->currentItem[$key])) {
+        if (! is_array($this->currentItem[$key])) {
             return;
         }
 
@@ -215,10 +224,10 @@ class SearchableCreateItem extends Component
      */
     public function save($data = [])
     {
-        if (!empty($data)) {
+        if (! empty($data)) {
             $fileKeys = $this->getFileKeys();
             foreach ($data as $key => $value) {
-                if (!in_array($key, $fileKeys)) {
+                if (! in_array($key, $fileKeys)) {
                     $this->currentItem[$key] = $value;
                 }
             }
@@ -240,12 +249,12 @@ class SearchableCreateItem extends Component
             if ($this->editMode) {
                 $this->currentItem['updated_at'] = [now()->toDateTimeString()];
 
-                if (!isset($this->currentItem['created_at'])) {
+                if (! isset($this->currentItem['created_at'])) {
                     $this->currentItem['created_at'] = [now()->toDateTimeString()];
                 }
 
-                if (!isset($this->currentItem['id'])) {
-                    $this->currentItem['id'] = [$this->itemId ?? \Illuminate\Support\Str::uuid()->toString()];
+                if (! isset($this->currentItem['id'])) {
+                    $this->currentItem['id'] = [$this->itemId ?? Str::uuid()->toString()];
                 }
 
                 foreach ($items as $i => $item) {
@@ -267,12 +276,12 @@ class SearchableCreateItem extends Component
 
             } else {
                 // Create mode: save item, stay on page so user can upload files
-                $now   = now()->toDateTimeString();
-                $newId = \Illuminate\Support\Str::uuid()->toString();
+                $now = now()->toDateTimeString();
+                $newId = Str::uuid()->toString();
 
                 $this->currentItem['created_at'] = [$now];
                 $this->currentItem['updated_at'] = [$now];
-                $this->currentItem['id']         = [$newId];
+                $this->currentItem['id'] = [$newId];
 
                 $items[] = $this->currentItem;
                 $content['items'] = $items;
@@ -281,8 +290,8 @@ class SearchableCreateItem extends Component
                 DB::connection($connection)->commit();
 
                 // Switch to edit mode and reveal the upload section
-                $this->itemId            = $newId;
-                $this->editMode          = true;
+                $this->itemId = $newId;
+                $this->editMode = true;
                 $this->showUploadSection = true;
 
                 $fileKeys = $this->getFileKeys();
@@ -297,7 +306,7 @@ class SearchableCreateItem extends Component
 
         } catch (\Throwable $th) {
             DB::connection($connection)->rollBack();
-            info('Item save failed: ' . $th->getMessage());
+            info('Item save failed: '.$th->getMessage());
             $this->dispatch('toast', message: 'Something went wrong!', type: 'error');
         }
     }

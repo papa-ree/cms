@@ -3,9 +3,9 @@
 namespace Bale\Cms\Traits;
 
 use Bale\Cms\Services\TenantConnectionService;
+use Illuminate\Database\Eloquent\Model;
 use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
-use Illuminate\Database\Eloquent\Model;
 
 trait HasSafeDelete
 {
@@ -25,8 +25,8 @@ trait HasSafeDelete
      */
     protected function getModelClass(): string
     {
-        if (!property_exists($this, 'modelClass')) {
-            throw new \Exception("Property \$modelClass belum didefinisikan pada komponen Livewire.");
+        if (! property_exists($this, 'modelClass')) {
+            throw new \Exception('Property $modelClass belum didefinisikan pada komponen Livewire.');
         }
 
         return $this->modelClass;
@@ -44,8 +44,9 @@ trait HasSafeDelete
 
         $item = $model->find($this->deleteId);
 
-        if (!$item) {
+        if (! $item) {
             $this->dispatch('toast', message: 'Item not found', type: 'error');
+
             return;
         }
 

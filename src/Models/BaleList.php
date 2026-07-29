@@ -3,13 +3,15 @@
 namespace Bale\Cms\Models;
 
 use App\Models\User;
-use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Bale\Core\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Spatie\Activitylog\LogOptions;
 
 class BaleList extends Model
 {
-    use HasFactory, HasUuids;
+    use HasFactory, HasUuids, LogsActivity;
 
     protected $guarded = ['id'];
 
@@ -47,5 +49,13 @@ class BaleList extends Model
     public function menus()
     {
         return $this->hasMany(BaleMenu::class, 'bale_id');
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->dontSubmitEmptyLogs()
+            ->logOnlyDirty()
+            ->logExcept(['database_password', 'database_username']);
     }
 }

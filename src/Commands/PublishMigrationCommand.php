@@ -27,10 +27,11 @@ class PublishMigrationCommand extends Command
      */
     public function handle(): int
     {
-        $sourcePath = __DIR__ . '/../../database/migrations/';
-        
-        if (!File::isDirectory($sourcePath)) {
+        $sourcePath = __DIR__.'/../../database/migrations/';
+
+        if (! File::isDirectory($sourcePath)) {
             $this->error("Source directory not found: {$sourcePath}");
+
             return self::FAILURE;
         }
 
@@ -42,16 +43,17 @@ class PublishMigrationCommand extends Command
             // Expected filename: migration_name.php.stub or migration_name.stub
             $baseName = Str::before($filename, '.stub');
             $baseName = Str::before($baseName, '.php');
-            
+
             $migrations[$baseName] = $file->getPathname();
         }
 
         if (empty($migrations)) {
-            $this->warn("No migrations found in the CMS package.");
+            $this->warn('No migrations found in the CMS package.');
+
             return self::SUCCESS;
         }
 
-        $this->info("Bale CMS Migration Publisher");
+        $this->info('Bale CMS Migration Publisher');
 
         $mode = $this->choice(
             'Select publishing mode:',
@@ -71,7 +73,7 @@ class PublishMigrationCommand extends Command
                 break;
         }
 
-        $this->info("Publishing process completed.");
+        $this->info('Publishing process completed.');
 
         return self::SUCCESS;
     }
@@ -87,7 +89,7 @@ class PublishMigrationCommand extends Command
     {
         $published = 0;
         foreach ($migrations as $baseName => $path) {
-            if (!$this->migrationExists($baseName)) {
+            if (! $this->migrationExists($baseName)) {
                 $this->publishFile($baseName, $path);
                 $published++;
             } else {
@@ -96,7 +98,7 @@ class PublishMigrationCommand extends Command
         }
 
         if ($published === 0) {
-            $this->info("No new migrations to publish.");
+            $this->info('No new migrations to publish.');
         }
     }
 
@@ -119,7 +121,7 @@ class PublishMigrationCommand extends Command
     protected function migrationExists(string $baseName): bool
     {
         $migrationFiles = File::files(database_path('migrations'));
-        
+
         foreach ($migrationFiles as $file) {
             if (Str::endsWith($file->getFilename(), "_{$baseName}.php") || $file->getFilename() === "{$baseName}.php") {
                 return true;
@@ -134,7 +136,7 @@ class PublishMigrationCommand extends Command
         $timestamp = date('Y_m_d_His');
         $targetName = "{$timestamp}_{$baseName}.php";
         $targetPath = database_path("migrations/{$targetName}");
-        
+
         while (File::exists($targetPath)) {
             sleep(1);
             $timestamp = date('Y_m_d_His');

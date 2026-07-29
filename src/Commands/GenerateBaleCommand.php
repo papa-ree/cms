@@ -2,10 +2,10 @@
 
 namespace Bale\Cms\Commands;
 
-use Illuminate\Console\Command;
-use Illuminate\Support\Str;
 use Bale\Cms\Models\BaleList;
 use Bale\Cms\Models\BaleOrganization;
+use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 
 class GenerateBaleCommand extends Command
 {
@@ -25,8 +25,9 @@ class GenerateBaleCommand extends Command
         $organizationName = $this->option('organization_slug') ?? $this->ask('Masukkan nama organisasi induk');
         $organization = BaleOrganization::whereName($organizationName)->first();
 
-        if (!$organization) {
+        if (! $organization) {
             $this->error('❌ Organisasi tidak ditemukan.');
+
             return self::FAILURE;
         }
 

@@ -2,9 +2,13 @@
 
 namespace Bale\Cms\Livewire\SharedComponents;
 
-use Livewire\Component;
-use Livewire\Attributes\{Computed, Layout};
+use Bale\Cms\CmsServiceProvider;
 use Bale\Cms\Models\BaleList;
+use Bale\Cms\Services\TenantManager;
+use Illuminate\Support\Facades\Schema;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Component;
 
 class CmsSidebar extends Component
 {
@@ -36,9 +40,9 @@ class CmsSidebar extends Component
      */
     private function filterMenus(array $menus): array
     {
-        $connection = \Bale\Cms\Services\TenantManager::getActiveConnection();
+        $connection = TenantManager::getActiveConnection();
 
-        return array_values(array_filter($menus, function($item) use ($connection) {
+        return array_values(array_filter($menus, function ($item) use ($connection) {
             // Cek permission
             if (! auth()->user()->can($item['permission'])) {
                 return false;
@@ -46,9 +50,9 @@ class CmsSidebar extends Component
 
             // Cek apakah tabel ada (jika didefinisikan)
             if (isset($item['table'])) {
-                $hasTable = $connection 
-                    ? \Illuminate\Support\Facades\Schema::connection($connection)->hasTable($item['table'])
-                    : \Illuminate\Support\Facades\Schema::hasTable($item['table']);
+                $hasTable = $connection
+                    ? Schema::connection($connection)->hasTable($item['table'])
+                    : Schema::hasTable($item['table']);
 
                 if (! $hasTable) {
                     return false;
@@ -68,12 +72,12 @@ class CmsSidebar extends Component
         foreach (array_keys($providers) as $provider) {
             // Filter hanya package kita (Bale, Nawasara, Paparee)
             if (
-                str_starts_with($provider, 'Bale\\') || 
-                str_starts_with($provider, 'Nawasara\\') || 
+                str_starts_with($provider, 'Bale\\') ||
+                str_starts_with($provider, 'Nawasara\\') ||
                 str_starts_with($provider, 'Paparee\\')
             ) {
                 // Skip CMS provider karena menu-nya sudah di handle di cmsMenus()
-                if ($provider === \Bale\Cms\CmsServiceProvider::class) {
+                if ($provider === CmsServiceProvider::class) {
                     continue;
                 }
 
@@ -98,7 +102,7 @@ class CmsSidebar extends Component
 
         try {
             $reflection = new \ReflectionClass($serviceProviderClass);
-            $menuPath = dirname($reflection->getFileName()) . '/menu.php';
+            $menuPath = dirname($reflection->getFileName()).'/menu.php';
 
             if (! file_exists($menuPath)) {
                 return [];
@@ -114,6 +118,7 @@ class CmsSidebar extends Component
 
     /**
      * Tetap dipertahankan agar tidak breaking change jika ada view lain yang menggunakannya.
+     *
      * @deprecated Gunakan cmsMenus() atau packageMenus() secara langsung.
      */
     #[Computed]

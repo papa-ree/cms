@@ -5,16 +5,21 @@ namespace Bale\Cms\Livewire\Pages\Navigation\Section;
 use Bale\Cms\Models\Navigation;
 use Bale\Cms\Services\TenantConnectionService;
 use Bale\Cms\Traits\HasSafeDelete;
+use Livewire\Attributes\Async;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
-use Livewire\Attributes\{Computed, Layout, Locked, On, Async};
 
 #[Layout('cms::layouts.app')]
 class NavigationSortable extends Component
 {
     use HasSafeDelete;
+
     protected string $modelClass = Navigation::class;
 
     public $nav_parent;
+
     public $parentId;
 
     #[Locked]
@@ -46,7 +51,7 @@ class NavigationSortable extends Component
                 return $query->with([
                     'children' => function ($q) {
                         $q->orderBy('order');
-                    }
+                    },
                 ])->whereNull('parent_id');
             })
             ->orderBy('order')
@@ -63,7 +68,7 @@ class NavigationSortable extends Component
             $connection = TenantConnectionService::connection();
 
             // Save parent order
-            if (!empty($parentOrder)) {
+            if (! empty($parentOrder)) {
                 foreach ($parentOrder as $index => $id) {
                     $nav = (new Navigation)->setConnection($connection)->find($id);
                     if ($nav) {
@@ -75,7 +80,7 @@ class NavigationSortable extends Component
 
             // Save children data
             // Structure: [{ parentId: '1', childIds: ['2', '3'] }, ...]
-            if (!empty($childrenData)) {
+            if (! empty($childrenData)) {
                 foreach ($childrenData as $group) {
                     $parentId = $group['parentId'] ?? null;
                     $childIds = $group['childIds'] ?? [];
@@ -98,7 +103,7 @@ class NavigationSortable extends Component
             // $this->redirectRoute('bale.cms.navigations.index', navigate: true);
 
         } catch (\Exception $e) {
-            $this->dispatch('toast', message: 'Failed to save changes: ' . $e->getMessage(), type: 'error');
+            $this->dispatch('toast', message: 'Failed to save changes: '.$e->getMessage(), type: 'error');
         } finally {
             $this->isSaving = false;
         }

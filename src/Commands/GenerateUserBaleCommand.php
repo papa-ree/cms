@@ -3,10 +3,9 @@
 namespace Bale\Cms\Commands;
 
 use App\Models\User;
-use Illuminate\Console\Command;
-use Illuminate\Support\Facades\DB;
 use Bale\Cms\Models\BaleList;
 use Bale\Cms\Models\BaleUser;
+use Illuminate\Console\Command;
 
 class GenerateUserBaleCommand extends Command
 {
@@ -23,16 +22,18 @@ class GenerateUserBaleCommand extends Command
 
         $bale = BaleList::whereName($baleSlug)->first();
 
-        if (!$bale) {
+        if (! $bale) {
             $this->error('❌ Bale tidak ditemukan.');
+
             return self::FAILURE;
         }
 
         // Ambil user dari database utama (default connection)
         $user = User::whereUsername($nip)->first();
 
-        if (!$user) {
+        if (! $user) {
             $this->error("❌ User dengan NIP {$nip} tidak ditemukan di database utama.");
+
             return self::FAILURE;
         }
 
@@ -43,6 +44,7 @@ class GenerateUserBaleCommand extends Command
 
         if ($exists) {
             $this->warn("⚠️  User '{$user->name}' sudah terhubung dengan Bale '{$bale->name}'.");
+
             return self::SUCCESS;
         }
 

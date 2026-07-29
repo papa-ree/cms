@@ -6,8 +6,8 @@ use Bale\Cms\Models\Section;
 use Bale\Cms\Services\TenantConnectionService;
 use Bale\Core\Support\Cdn;
 use Illuminate\Support\Facades\Storage;
-use Livewire\Component;
 use Livewire\Attributes\Locked;
+use Livewire\Component;
 use Livewire\WithFileUploads;
 
 /**
@@ -50,8 +50,8 @@ class SectionItemUpload extends Component
 
     public function mount(string $slug, ?string $itemId = null, array $fileKeys = []): void
     {
-        $this->slug     = $slug;
-        $this->itemId   = $itemId;
+        $this->slug = $slug;
+        $this->itemId = $itemId;
         $this->fileKeys = $fileKeys;
     }
 
@@ -70,7 +70,7 @@ class SectionItemUpload extends Component
      * Read the current uploads array for this item from the database.
      * Grouped by `key` so the view can render per-field galleries.
      *
-     * @return array<string, array>  e.g. ['images' => [...], 'photos' => [...]]
+     * @return array<string, array> e.g. ['images' => [...], 'photos' => [...]]
      */
     public function getUploads(): array
     {
@@ -82,7 +82,7 @@ class SectionItemUpload extends Component
                 ->setConnection($connection)
                 ->findOrFail($this->getSectionId());
 
-            $items   = $section->content['items'] ?? [];
+            $items = $section->content['items'] ?? [];
             $uploads = [];
 
             foreach ($items as $item) {
@@ -91,7 +91,7 @@ class SectionItemUpload extends Component
                     $raw = $item['uploads'] ?? [];
                     // Group by key
                     foreach ($raw as $entry) {
-                        $key = !empty($entry['key']) ? $entry['key'] : ($this->fileKeys[0] ?? 'files');
+                        $key = ! empty($entry['key']) ? $entry['key'] : ($this->fileKeys[0] ?? 'files');
                         $uploads[$key][] = $entry;
                     }
                     break;
@@ -120,50 +120,54 @@ class SectionItemUpload extends Component
 
         try {
             foreach ($this->tempUpload as $uploadKey => $fileData) {
-                if (empty($fileData)) continue;
+                if (empty($fileData)) {
+                    continue;
+                }
 
                 $files = is_array($fileData) ? $fileData : [$fileData];
 
                 foreach ($files as $file) {
-                    if (!is_object($file)) continue;
+                    if (! is_object($file)) {
+                        continue;
+                    }
 
-                    $extension    = $file->getClientOriginalExtension();
+                    $extension = $file->getClientOriginalExtension();
                     $originalName = $file->getClientOriginalName();
-                    $mime         = $file->getMimeType() ?: ($file->getClientMimeType() ?: '');
-                    $size         = $file->getSize(); // bytes
-                    $fileType     = $this->resolveFileType($mime, $extension);
-                    $fileName     = $this->slug . '-' . uniqid() . '.' . $extension;
-                    $orgSlug      = session('bale_active_slug', '');
-                    $s3Path       = $orgSlug . '/landing-page/items/' . $this->slug . '/' . $fileName;
+                    $mime = $file->getMimeType() ?: ($file->getClientMimeType() ?: '');
+                    $size = $file->getSize(); // bytes
+                    $fileType = $this->resolveFileType($mime, $extension);
+                    $fileName = $this->slug.'-'.uniqid().'.'.$extension;
+                    $orgSlug = session('bale_active_slug', '');
+                    $s3Path = $orgSlug.'/landing-page/items/'.$this->slug.'/'.$fileName;
 
                     Storage::disk(app()->isProduction() ? 's3' : 'public')->put($s3Path, $file->get());
 
-                    $cdnUrl = Cdn::url('landing-page/items/' . $this->slug . '/' . $fileName);
+                    $cdnUrl = Cdn::url('landing-page/items/'.$this->slug.'/'.$fileName);
 
                     $entry = [
-                        'item_id'       => $this->itemId,
-                        'url'           => $cdnUrl,
-                        'name'          => $fileName,
+                        'item_id' => $this->itemId,
+                        'url' => $cdnUrl,
+                        'name' => $fileName,
                         'original_name' => $originalName,
-                        'size'          => $size,
-                        'mime_type'     => $mime,
-                        'file_type'     => $fileType,
-                        'path'          => $s3Path,
-                        'key'           => $uploadKey,
-                        'uploaded_at'   => now()->toDateTimeString(),
+                        'size' => $size,
+                        'mime_type' => $mime,
+                        'file_type' => $fileType,
+                        'path' => $s3Path,
+                        'key' => $uploadKey,
+                        'uploaded_at' => now()->toDateTimeString(),
                     ];
 
                     $this->persistUpload($entry);
 
                     $this->dispatch('upload-saved', [
-                        'key'           => $uploadKey,
-                        'url'           => $cdnUrl,
-                        'name'          => $fileName,
+                        'key' => $uploadKey,
+                        'url' => $cdnUrl,
+                        'name' => $fileName,
                         'original_name' => $originalName,
-                        'mime'          => $mime,
-                        'size'          => $size,
-                        'file_type'     => $fileType,
-                        's3Path'        => $s3Path,
+                        'mime' => $mime,
+                        'size' => $size,
+                        'file_type' => $fileType,
+                        's3Path' => $s3Path,
                     ]);
                 }
             }
@@ -171,8 +175,8 @@ class SectionItemUpload extends Component
             $this->saveStatus = 'saved';
 
         } catch (\Throwable $th) {
-            info('SectionItemUpload upload failed: ' . $th->getMessage());
-            $this->dispatch('toast', message: 'Upload gagal: ' . $th->getMessage(), type: 'error');
+            info('SectionItemUpload upload failed: '.$th->getMessage());
+            $this->dispatch('toast', message: 'Upload gagal: '.$th->getMessage(), type: 'error');
             $this->saveStatus = null;
         } finally {
             $this->tempUpload = [];
@@ -195,11 +199,13 @@ class SectionItemUpload extends Component
                 ->findOrFail($this->getSectionId());
 
             $content = $section->content ?? [];
-            $items   = $content['items'] ?? [];
+            $items = $content['items'] ?? [];
 
             foreach ($items as $i => $item) {
                 $id = $item['id'][0] ?? $item['id'] ?? null;
-                if ($id !== $this->itemId) continue;
+                if ($id !== $this->itemId) {
+                    continue;
+                }
 
                 $uploads = $item['uploads'] ?? [];
 
@@ -232,8 +238,8 @@ class SectionItemUpload extends Component
             $this->dispatch('toast', message: 'File berhasil dihapus.', type: 'success');
 
         } catch (\Throwable $th) {
-            info('SectionItemUpload deleteUpload failed: ' . $th->getMessage());
-            $this->dispatch('toast', message: 'Gagal menghapus file: ' . $th->getMessage(), type: 'error');
+            info('SectionItemUpload deleteUpload failed: '.$th->getMessage());
+            $this->dispatch('toast', message: 'Gagal menghapus file: '.$th->getMessage(), type: 'error');
             $this->saveStatus = null;
         }
     }
@@ -253,18 +259,20 @@ class SectionItemUpload extends Component
             ->findOrFail($this->getSectionId());
 
         $content = $section->content ?? [];
-        $items   = $content['items'] ?? [];
+        $items = $content['items'] ?? [];
 
         foreach ($items as $i => $item) {
             $id = $item['id'][0] ?? $item['id'] ?? null;
-            if ($id !== $this->itemId) continue;
+            if ($id !== $this->itemId) {
+                continue;
+            }
 
-            if (!isset($items[$i]['uploads']) || !is_array($items[$i]['uploads'])) {
+            if (! isset($items[$i]['uploads']) || ! is_array($items[$i]['uploads'])) {
                 $items[$i]['uploads'] = [];
             }
 
-            $items[$i]['uploads'][]    = $entry;
-            $items[$i]['updated_at']   = [now()->toDateTimeString()];
+            $items[$i]['uploads'][] = $entry;
+            $items[$i]['updated_at'] = [now()->toDateTimeString()];
             break;
         }
 
@@ -295,13 +303,25 @@ class SectionItemUpload extends Component
     {
         $ext = strtolower($ext);
 
-        if (str_starts_with($mime, 'image/') || in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'heic'])) return 'image';
-        if ($mime === 'application/pdf' || $ext === 'pdf') return 'pdf';
-        if (str_contains($mime, 'spreadsheet') || in_array($ext, ['xlsx', 'xls', 'csv'])) return 'spreadsheet';
-        if (str_contains($mime, 'word') || in_array($ext, ['docx', 'doc'])) return 'document';
-        if (str_starts_with($mime, 'video/') || in_array($ext, ['mp4', 'mov', 'avi', 'mkv', 'webm'])) return 'video';
-        if (str_starts_with($mime, 'audio/') || in_array($ext, ['mp3', 'wav', 'ogg'])) return 'audio';
-        
+        if (str_starts_with($mime, 'image/') || in_array($ext, ['jpg', 'jpeg', 'png', 'gif', 'svg', 'webp', 'heic'])) {
+            return 'image';
+        }
+        if ($mime === 'application/pdf' || $ext === 'pdf') {
+            return 'pdf';
+        }
+        if (str_contains($mime, 'spreadsheet') || in_array($ext, ['xlsx', 'xls', 'csv'])) {
+            return 'spreadsheet';
+        }
+        if (str_contains($mime, 'word') || in_array($ext, ['docx', 'doc'])) {
+            return 'document';
+        }
+        if (str_starts_with($mime, 'video/') || in_array($ext, ['mp4', 'mov', 'avi', 'mkv', 'webm'])) {
+            return 'video';
+        }
+        if (str_starts_with($mime, 'audio/') || in_array($ext, ['mp3', 'wav', 'ogg'])) {
+            return 'audio';
+        }
+
         return 'file';
     }
 }

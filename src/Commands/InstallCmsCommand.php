@@ -5,6 +5,7 @@ namespace Bale\Cms\Commands;
 use Illuminate\Console\Command;
 use Spatie\Permission\Models\Permission;
 use Spatie\Permission\Models\Role;
+use Spatie\Permission\PermissionRegistrar;
 
 class InstallCmsCommand extends Command
 {
@@ -89,7 +90,7 @@ class InstallCmsCommand extends Command
             $rootRole->givePermissionTo(Permission::where('name', 'like', 'bale-%')->get());
 
             // Clear cache
-            app(\Spatie\Permission\PermissionRegistrar::class)->forgetCachedPermissions();
+            app(PermissionRegistrar::class)->forgetCachedPermissions();
 
             $this->info('Bale permissions added and cache cleared for root role.');
         }

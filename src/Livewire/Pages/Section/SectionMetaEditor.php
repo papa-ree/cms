@@ -5,11 +5,12 @@ namespace Bale\Cms\Livewire\Pages\Section;
 use Bale\Cms\Models\Section;
 use Bale\Cms\Services\TenantConnectionService;
 use Bale\Core\Support\Cdn;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Livewire\Attributes\{Computed, Debounce, Layout, Locked, Title};
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\Features\SupportFileUploads\TemporaryUploadedFile;
 use Livewire\WithFileUploads;
 
 #[Layout('cms::layouts.app')]
@@ -28,14 +29,20 @@ class SectionMetaEditor extends Component
     public $usage;
 
     public $name = '';
+
     public $actived = true;
 
     // Mandatory meta attributes
     public $title = '';
+
     public $subtitle = '';
+
     public $buttons = [];
+
     public $backgroundType = 'image'; // image|slider
+
     public $backgroundImages = [];
+
     public $background_new; // Temporary upload property (array or single)
 
     // Custom fields (dynamic based on schema)
@@ -90,7 +97,7 @@ class SectionMetaEditor extends Component
 
         // Initialize missing custom fields with defaults
         foreach ($this->customFieldsConfig as $key => $config) {
-            if (!isset($this->customFields[$key])) {
+            if (! isset($this->customFields[$key])) {
                 $this->customFields[$key] = $config['default'] ?? null;
             }
         }
@@ -132,7 +139,7 @@ class SectionMetaEditor extends Component
             $this->dispatch('field-saved', field: $field, status: 'saved');
 
         } catch (\Exception $e) {
-            info('Save field failed: ' . $e->getMessage());
+            info('Save field failed: '.$e->getMessage());
             $this->dispatch('field-saved', field: $field, status: 'error');
         }
     }
@@ -165,15 +172,15 @@ class SectionMetaEditor extends Component
     private function processImageUpload($file)
     {
         try {
-            if (!$file) {
+            if (! $file) {
                 throw new \Exception('No file provided');
             }
 
             $extension = $file->getClientOriginalExtension();
-            $fileName = session('bale_active_slug') . '-' . uniqid() . '.' . $extension;
+            $fileName = session('bale_active_slug').'-'.uniqid().'.'.$extension;
 
             // Define final path in S3
-            $path = session('bale_active_slug') . '/landing-page/' . $fileName;
+            $path = session('bale_active_slug').'/landing-page/'.$fileName;
 
             $disk = app()->isProduction() ? 's3' : 'public';
 
@@ -182,7 +189,7 @@ class SectionMetaEditor extends Component
 
             $uploadedData = [
                 'path' => $path,
-                'cdn_url' => Cdn::url('landing-page/' . $fileName),
+                'cdn_url' => Cdn::url('landing-page/'.$fileName),
                 'disk' => $disk,
                 'mime' => $file->getMimeType(),
                 'size' => $file->getSize(),
@@ -199,9 +206,9 @@ class SectionMetaEditor extends Component
             return $uploadedData;
 
         } catch (\Exception $e) {
-            info('Image upload failed: ' . $e->getMessage());
+            info('Image upload failed: '.$e->getMessage());
             $this->dispatch('field-saved', field: 'background', status: 'error');
-            $this->dispatch('toast', message: 'Image upload failed: ' . $e->getMessage(), type: 'error');
+            $this->dispatch('toast', message: 'Image upload failed: '.$e->getMessage(), type: 'error');
             throw $e;
         }
     }
@@ -219,7 +226,7 @@ class SectionMetaEditor extends Component
         ];
 
         // Add custom fields if they exist
-        if (!empty($this->customFields)) {
+        if (! empty($this->customFields)) {
             $meta['custom'] = $this->customFields;
         }
 
@@ -236,13 +243,13 @@ class SectionMetaEditor extends Component
                 ->setConnection($connection)
                 ->findOrFail($this->sectionId);
 
-            $section->update(['actived' => !$this->actived]);
-            $this->actived = !$this->actived;
+            $section->update(['actived' => ! $this->actived]);
+            $this->actived = ! $this->actived;
 
             $this->dispatch('toast', message: 'Section status updated!', type: 'success');
 
         } catch (\Exception $e) {
-            info('Toggle active failed: ' . $e->getMessage());
+            info('Toggle active failed: '.$e->getMessage());
             $this->dispatch('toast', message: 'Failed to update status!', type: 'error');
         }
     }

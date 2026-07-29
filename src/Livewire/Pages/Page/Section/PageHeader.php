@@ -2,8 +2,8 @@
 
 namespace Bale\Cms\Livewire\Pages\Page\Section;
 
+use Livewire\Attributes\Layout;
 use Livewire\Component;
-use Livewire\Attributes\{Layout};
 
 #[Layout('cms::layouts.app')]
 class PageHeader extends Component

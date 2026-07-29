@@ -2,9 +2,8 @@
 
 namespace Bale\Cms\Services;
 
-use Illuminate\Support\Facades\Auth;
 use Bale\Cms\Models\BaleUser;
-use Bale\Cms\Services\TenantManager;
+use Illuminate\Support\Facades\Auth;
 
 class TenantConnectionService
 {
@@ -16,7 +15,7 @@ class TenantConnectionService
         $baleUuid = session('bale_active_uuid');
         $user = Auth::user();
 
-        if (!$baleUuid || !$user?->uuid) {
+        if (! $baleUuid || ! $user?->uuid) {
             throw new \RuntimeException('Session tenant tidak ditemukan atau user tidak valid.');
         }
 
@@ -25,7 +24,7 @@ class TenantConnectionService
             ->where('user_uuid', $user->uuid)
             ->exists();
 
-        if (!$allowed) {
+        if (! $allowed) {
             abort(403, 'Anda tidak memiliki akses ke tenant ini.');
         }
 
@@ -42,8 +41,8 @@ class TenantConnectionService
     {
         $conn = TenantManager::getActiveConnection();
 
-        if (!$conn) {
-            throw new \Exception("No active tenant connection for validation.");
+        if (! $conn) {
+            throw new \Exception('No active tenant connection for validation.');
         }
 
         return $conn;
@@ -64,7 +63,7 @@ class TenantConnectionService
             throw new \RuntimeException('No active tenant session.');
         }
 
-        $active   = TenantManager::getActiveConnection();
+        $active = TenantManager::getActiveConnection();
         $expected = TenantManager::connectionName($baleUuid);
 
         // Only re-initialize if connection is stale (i.e. new PHP process / XHR)
@@ -82,6 +81,7 @@ class TenantConnectionService
     public static function ensureAndGetConnection(): string
     {
         static::ensureActive();
+
         return static::connection();
     }
 }

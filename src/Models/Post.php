@@ -2,19 +2,22 @@
 
 namespace Bale\Cms\Models;
 
+use Bale\Cms\Traits\UsesTenantConnection;
 use Bale\Core\Support\Cdn;
+use Bale\Core\Traits\LogsActivity;
+use Bale\Seo\Traits\HasSeoMeta;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
-use Bale\Cms\Traits\UsesTenantConnection;
-use Bale\Seo\Traits\HasSeoMeta;
+use Illuminate\Support\Facades\Storage;
 
 class Post extends Model
 {
-    use UsesTenantConnection;
-    use HasUuids;
     use HasSeoMeta;
+    use HasUuids;
+    use LogsActivity;
+    use UsesTenantConnection;
 
     /**
      * Tentukan nama tabel.
@@ -38,7 +41,7 @@ class Post extends Model
     {
         static::deleting(function ($post) {
             $slug = session('bale_active_slug');
-            if (!$slug) {
+            if (! $slug) {
                 return;
             }
 
@@ -46,7 +49,7 @@ class Post extends Model
 
             // Hapus thumbnail
             if ($post->thumbnail) {
-                \Illuminate\Support\Facades\Storage::disk($disk)->delete($slug . '/thumbnails/' . $post->thumbnail);
+                Storage::disk($disk)->delete($slug.'/thumbnails/'.$post->thumbnail);
             }
 
             // Hapus image dari EditorJS content
@@ -58,7 +61,7 @@ class Post extends Model
                         if ($path) {
                             $filename = basename($path);
                             if ($filename) {
-                                \Illuminate\Support\Facades\Storage::disk($disk)->delete($slug . '/images/' . $filename);
+                                Storage::disk($disk)->delete($slug.'/images/'.$filename);
                             }
                         }
                     }
@@ -86,7 +89,7 @@ class Post extends Model
     protected function publishedAt(): Attribute
     {
         return Attribute::make(
-            get: fn(?string $value) => $value ? Carbon::parse($value)->diffForHumans() : null,
+            get: fn (?string $value) => $value ? Carbon::parse($value)->diffForHumans() : null,
         );
     }
 
@@ -98,11 +101,11 @@ class Post extends Model
     {
         return Attribute::make(
             get: function () {
-                if (!$this->thumbnail) {
+                if (! $this->thumbnail) {
                     return null;
                 }
 
-                return Cdn::url('thumbnails/' . $this->thumbnail);
+                return Cdn::url('thumbnails/'.$this->thumbnail);
             }
         );
     }

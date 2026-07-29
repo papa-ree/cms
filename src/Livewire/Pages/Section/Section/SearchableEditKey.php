@@ -5,8 +5,11 @@ namespace Bale\Cms\Livewire\Pages\Section\Section;
 use Bale\Cms\Models\Section;
 use Bale\Cms\Services\TenantConnectionService;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\Attributes\{Layout, Locked, Title};
 
 #[Layout('cms::layouts.app')]
 #[Title('Bale | Edit Section Keys')]
@@ -15,7 +18,7 @@ class SearchableEditKey extends Component
     public const SOCIAL_PLATFORMS = [
         'facebook', 'instagram', 'youtube', 'whatsapp', 'tiktok',
         'twitter', 'x', 'linkedin', 'telegram', 'pinterest',
-        'snapchat', 'threads', 'line', 'wechat'
+        'snapchat', 'threads', 'line', 'wechat',
     ];
 
     #[Locked]
@@ -28,7 +31,9 @@ class SearchableEditKey extends Component
     public $slug = '';
 
     public $availableKeys = [];
+
     public $newKey = '';
+
     public $meta = [];
 
     /** Toggle to show/hide the Upload Zone for this section */
@@ -36,6 +41,7 @@ class SearchableEditKey extends Component
 
     /** Toggle to show/hide the Social Media fields for this section */
     public bool $enableSocial = false;
+
     public array $activeSocialPlatforms = [];
 
     /** List of keys that should use EditorJS */
@@ -56,8 +62,9 @@ class SearchableEditKey extends Component
             ->whereSlug($slug)
             ->first();
 
-        if (!$section) {
+        if (! $section) {
             session()->flash('error', 'Section not found');
+
             return $this->redirectRoute('bale.cms.sections.index', navigate: true);
         }
 
@@ -95,7 +102,7 @@ class SearchableEditKey extends Component
 
     public function save($config = [])
     {
-        if (!empty($config)) {
+        if (! empty($config)) {
             $this->availableKeys = $config['keys'] ?? $this->availableKeys;
             $this->enableUpload = $config['enableUpload'] ?? $this->enableUpload;
             $this->enableSocial = $config['enableSocial'] ?? $this->enableSocial;
@@ -107,6 +114,7 @@ class SearchableEditKey extends Component
         // Validate at least one key exists
         if (count($this->availableKeys) === 0) {
             $this->dispatch('toast', message: 'Please add at least one key!', type: 'error');
+
             return;
         }
 
@@ -138,13 +146,13 @@ class SearchableEditKey extends Component
                             $newItem[$sysKey] = $item[$sysKey];
                         }
                     }
-                    if (!isset($newItem['id'])) {
-                        $newItem['id'] = [\Illuminate\Support\Str::uuid()->toString()];
+                    if (! isset($newItem['id'])) {
+                        $newItem['id'] = [Str::uuid()->toString()];
                     }
-                    if (!isset($newItem['created_at'])) {
+                    if (! isset($newItem['created_at'])) {
                         $newItem['created_at'] = [now()->toDateTimeString()];
                     }
-                    if (!isset($newItem['updated_at'])) {
+                    if (! isset($newItem['updated_at'])) {
                         $newItem['updated_at'] = [now()->toDateTimeString()];
                     }
 
@@ -159,7 +167,7 @@ class SearchableEditKey extends Component
             // Jika items kosong — tidak perlu buat dummy, meta['order'] sudah cukup untuk menyimpan key order
 
             // Save key order to meta
-            if (!isset($content['meta'])) {
+            if (! isset($content['meta'])) {
                 $content['meta'] = [];
             }
             $content['meta']['order'] = $this->availableKeys;
@@ -182,7 +190,7 @@ class SearchableEditKey extends Component
 
         } catch (\Throwable $th) {
             DB::rollBack();
-            info('Keys update failed: ' . $th->getMessage());
+            info('Keys update failed: '.$th->getMessage());
             $this->dispatch('toast', message: 'Something went wrong!', type: 'error');
         }
     }

@@ -26,15 +26,16 @@ class PublishCmsMigrationCommand extends Command
      */
     public function handle(): int
     {
-        $sourcePath = __DIR__ . '/../../database/migrations/cms';
+        $sourcePath = __DIR__.'/../../database/migrations/cms';
         $targetPath = database_path('migrations/cms');
 
-        if (!File::isDirectory($sourcePath)) {
+        if (! File::isDirectory($sourcePath)) {
             $this->error("Source directory not found: {$sourcePath}");
+
             return self::FAILURE;
         }
 
-        if (!File::isDirectory($targetPath)) {
+        if (! File::isDirectory($targetPath)) {
             File::makeDirectory($targetPath, 0755, true);
             $this->info("Created directory: {$targetPath}");
         }
@@ -44,17 +45,18 @@ class PublishCmsMigrationCommand extends Command
 
         foreach ($files as $file) {
             $filename = $file->getFilename();
-            
+
             // Only process .php.stub files
-            if (!str_ends_with($filename, '.php.stub')) {
+            if (! str_ends_with($filename, '.php.stub')) {
                 continue;
             }
 
             $targetName = str_replace('.php.stub', '.php', $filename);
-            $destination = $targetPath . DIRECTORY_SEPARATOR . $targetName;
+            $destination = $targetPath.DIRECTORY_SEPARATOR.$targetName;
 
             if (File::exists($destination)) {
                 $this->line("File already exists, skipping: <comment>{$targetName}</comment>");
+
                 continue;
             }
 
@@ -66,7 +68,7 @@ class PublishCmsMigrationCommand extends Command
         if ($count > 0) {
             $this->info("Successfully published {$count} migration(s).");
         } else {
-            $this->info("No new migrations were published.");
+            $this->info('No new migrations were published.');
         }
 
         return self::SUCCESS;

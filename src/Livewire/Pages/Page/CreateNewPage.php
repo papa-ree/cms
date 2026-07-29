@@ -2,18 +2,20 @@
 
 namespace Bale\Cms\Livewire\Pages\Page;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\Rule;
-use Livewire\Component;
-use Livewire\Attributes\{Layout, Title};
 use Bale\Cms\Models\Page;
 use Bale\Cms\Services\TenantConnectionService;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
+use Livewire\Component;
 
 #[Layout('cms::layouts.app')]
 #[Title('Bale | Create Page')]
 class CreateNewPage extends Component
 {
     public $title;
+
     public $slug;
 
     public function render()
@@ -34,7 +36,7 @@ class CreateNewPage extends Component
             'slug' => [
                 'required',
                 'string',
-                Rule::unique($connection . '.pages', 'slug'),
+                Rule::unique($connection.'.pages', 'slug'),
             ],
         ];
     }
@@ -82,7 +84,7 @@ class CreateNewPage extends Component
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
-            info('Page creation failed: ' . $th->getMessage());
+            info('Page creation failed: '.$th->getMessage());
             $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }

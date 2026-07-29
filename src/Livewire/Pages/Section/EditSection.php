@@ -2,11 +2,9 @@
 
 namespace Bale\Cms\Livewire\Pages\Section;
 
-use Bale\Cms\Models\Section;
-use Bale\Cms\Services\TenantConnectionService;
-use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\Attributes\{Layout, Locked, Title};
 
 #[Layout('cms::layouts.app')]
 #[Title('Bale | Edit Section')]
@@ -23,5 +21,4 @@ class EditSection extends Component
     {
         return view('cms::livewire.pages.section.edit-section');
     }
-
 }

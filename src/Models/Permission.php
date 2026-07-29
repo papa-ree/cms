@@ -2,11 +2,14 @@
 
 namespace Bale\Cms\Models;
 
-use Spatie\Permission\Models\Permission as SpatiePermission;
 use Bale\Cms\Services\TenantConnectionService;
+use Bale\Core\Traits\LogsActivity;
+use Spatie\Permission\Models\Permission as SpatiePermission;
 
 class Permission extends SpatiePermission
 {
+    use LogsActivity;
+
     public function __construct(array $attributes = [])
     {
         parent::__construct($attributes);

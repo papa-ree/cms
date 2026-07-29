@@ -2,14 +2,15 @@
 
 namespace Bale\Cms\Models;
 
+use Bale\Cms\Traits\UsesTenantConnection;
+use Bale\Core\Traits\LogsActivity;
+use Bale\Core\Traits\LogsRoleChanges;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Spatie\Permission\Traits\HasRoles;
-use Bale\Cms\Traits\UsesTenantConnection;
 
 class User extends Authenticatable
 {
-    use Notifiable, HasRoles, UsesTenantConnection;
+    use LogsRoleChanges, LogsActivity, Notifiable, UsesTenantConnection;
 
     protected $table = 'users';
 

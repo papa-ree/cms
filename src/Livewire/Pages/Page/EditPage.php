@@ -2,40 +2,58 @@
 
 namespace Bale\Cms\Livewire\Pages\Page;
 
-use Illuminate\Support\Facades\DB;
+use Bale\Cms\Models\Page;
+use Bale\Cms\Services\TenantConnectionService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
+use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\Attributes\{Layout, Locked, Title};
-use Bale\Cms\Models\Page;
-use Bale\Cms\Services\TenantConnectionService;
 
 #[Layout('cms::layouts.page-editor')]
-#[Title('Bale | ' . 'Edit Page')]
+#[Title('Bale | '.'Edit Page')]
 class EditPage extends Component
 {
     #[Locked]
     public $id;
+
     public $title;
+
     public $slug;
+
     public $content;
+
     public $updated_at;
+
     public $locked;
+
     public $show_setting = false;
+
     public $showSeo = false;
+
     public $saveStatus = 'editing'; // editing, saving, saved, error
 
     // SEO Properties
     public $seo_title;
+
     public $seo_description;
+
     public $seo_keywords;
+
     public $og_image;
+
     public $og_image_new;
+
     public $twitter_card = 'summary_large_image';
+
     public $no_index = false;
+
     public $no_follow = false;
+
     public $canonical_url;
+
     public $structured_data;
 
     public function mount($slug)
@@ -45,7 +63,7 @@ class EditPage extends Component
 
         $page = Page::whereSlug($slug)->first();
 
-        if (!is_null($page)) {
+        if (! is_null($page)) {
             $this->id = $page->id;
             $this->title = $page->title ?? '';
             $this->slug = $page->slug ?? '';
@@ -88,7 +106,7 @@ class EditPage extends Component
             'slug' => [
                 'required',
                 'string',
-                Rule::unique($connection . '.pages', 'slug')->ignore($this->id),
+                Rule::unique($connection.'.pages', 'slug')->ignore($this->id),
             ],
         ];
     }
@@ -117,7 +135,7 @@ class EditPage extends Component
         $this->authorize('bale-seo.update');
         $this->saveStatus = 'saving';
         if ($this->og_image) {
-            \Illuminate\Support\Facades\Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug') . '/thumbnails/' . $this->og_image);
+            Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug').'/thumbnails/'.$this->og_image);
         }
 
         TenantConnectionService::ensureActive();
@@ -151,7 +169,7 @@ class EditPage extends Component
             'no_index',
             'no_follow',
             'canonical_url',
-            'structured_data'
+            'structured_data',
         ];
 
         if (in_array($propertyName, $autoSaveFields)) {
@@ -174,13 +192,13 @@ class EditPage extends Component
 
         try {
             if ($this->og_image) {
-                Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug') . '/thumbnails/' . $this->og_image);
+                Storage::disk(app()->isProduction() ? 's3' : 'public')->delete(session('bale_active_slug').'/thumbnails/'.$this->og_image);
             }
 
             if ($this->og_image_new) {
                 $extension = $this->og_image_new->getClientOriginalExtension();
-                $filename = session('bale_active_slug') . '-seo-' . uniqid() . '.' . $extension;
-                $finalPath = session('bale_active_slug') . '/thumbnails/' . $filename;
+                $filename = session('bale_active_slug').'-seo-'.uniqid().'.'.$extension;
+                $finalPath = session('bale_active_slug').'/thumbnails/'.$filename;
 
                 Storage::disk(app()->isProduction() ? 's3' : 'public')->put($finalPath, $this->og_image_new->get());
 
@@ -200,7 +218,7 @@ class EditPage extends Component
         } catch (\Throwable $th) {
             $this->saveStatus = 'error';
             $this->dispatch('status-updated', status: 'error');
-            info('SEO Image upload failed: ' . $th->getMessage());
+            info('SEO Image upload failed: '.$th->getMessage());
         }
     }
 
@@ -223,10 +241,10 @@ class EditPage extends Component
                 $removedImages = array_diff($oldImages, $newImages);
 
                 $slug = session('bale_active_slug');
-                if ($slug && !empty($removedImages)) {
+                if ($slug && ! empty($removedImages)) {
                     $disk = Storage::disk(app()->isProduction() ? 's3' : 'public');
                     foreach ($removedImages as $filename) {
-                        $disk->delete($slug . '/images/' . $filename);
+                        $disk->delete($slug.'/images/'.$filename);
                     }
                 }
 
@@ -263,7 +281,7 @@ class EditPage extends Component
         } catch (\Throwable $th) {
             $this->saveStatus = 'error';
             $this->dispatch('status-updated', status: 'error');
-            info('Auto-save failed: ' . $th->getMessage());
+            info('Auto-save failed: '.$th->getMessage());
         }
     }
 
@@ -284,6 +302,7 @@ class EditPage extends Component
                 }
             }
         }
+
         return $images;
     }
 }

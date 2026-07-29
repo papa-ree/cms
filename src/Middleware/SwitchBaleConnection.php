@@ -2,11 +2,11 @@
 
 namespace Bale\Cms\Middleware;
 
+use Bale\Cms\Models\BaleUser;
+use Bale\Cms\Services\TenantManager;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Bale\Cms\Services\TenantManager;
-use Bale\Cms\Models\BaleUser;
 
 class SwitchBaleConnection
 {
@@ -15,12 +15,12 @@ class SwitchBaleConnection
         $baleUuid = session('bale_active_uuid');
         $user = Auth::user();
 
-        if (!$baleUuid) {
+        if (! $baleUuid) {
             // Let EnsureBaleSelected handle redirect
             return $next($request);
         }
 
-        if (!$user?->uuid) {
+        if (! $user?->uuid) {
             abort(403, 'Unauthorized.');
         }
 
@@ -29,7 +29,7 @@ class SwitchBaleConnection
             ->where('user_uuid', $user->uuid)
             ->exists();
 
-        if (!$allowed) {
+        if (! $allowed) {
             abort(403, 'You do not have access to this Bale.');
         }
 
@@ -38,7 +38,7 @@ class SwitchBaleConnection
             TenantManager::initializeFromBaleUuid($baleUuid);
         } catch (\Throwable $e) {
             // prefer 500 to surface connection problems
-            abort(500, 'Cannot connect to tenant database: ' . $e->getMessage());
+            abort(500, 'Cannot connect to tenant database: '.$e->getMessage());
         }
 
         return $next($request);

@@ -2,8 +2,8 @@
 
 namespace Bale\Cms\Livewire\Pages\Post\Section;
 
+use Livewire\Attributes\Layout;
 use Livewire\Component;
-use Livewire\Attributes\{Layout};
 
 #[Layout('cms::layouts.app')]
 class PostHeader extends Component

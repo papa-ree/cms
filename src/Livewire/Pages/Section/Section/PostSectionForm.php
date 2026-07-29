@@ -6,8 +6,9 @@ use Bale\Cms\Models\Option;
 use Bale\Cms\Models\Section;
 use Bale\Cms\Services\TenantConnectionService;
 use Illuminate\Support\Facades\DB;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Locked;
 use Livewire\Component;
-use Livewire\Attributes\{Layout, Locked};
 
 #[Layout('cms::layouts.app')]
 class PostSectionForm extends Component
@@ -71,7 +72,7 @@ class PostSectionForm extends Component
                 ->first();
 
             $section->update([
-                'content' => $this->section
+                'content' => $this->section,
             ]);
 
             DB::commit();
@@ -81,7 +82,7 @@ class PostSectionForm extends Component
         } catch (\Throwable $th) {
             DB::rollBack();
             $this->dispatch('disabling-button', params: false);
-            info('Post Section Update failed: ' . $th->getMessage());
+            info('Post Section Update failed: '.$th->getMessage());
             $this->dispatch('toast', message: 'Something Wrong!', type: 'error');
         }
     }
@@ -98,10 +99,10 @@ class PostSectionForm extends Component
 
         $content = $section->content;
 
-        $content['is_active'] = !$content['is_active'];
+        $content['is_active'] = ! $content['is_active'];
 
         $section->update([
-            'content' => $content
+            'content' => $content,
         ]);
     }
 }

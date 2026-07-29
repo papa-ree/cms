@@ -2,9 +2,9 @@
 
 namespace Bale\Cms\Livewire\Pages\Post;
 
-use Illuminate\Support\Facades\Auth;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\Title;
 use Livewire\Component;
-use Livewire\Attributes\{Layout, Title};
 
 #[Layout('cms::layouts.app')]
 #[Title('Bale | Posts')]

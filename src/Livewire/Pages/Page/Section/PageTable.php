@@ -2,23 +2,27 @@
 
 namespace Bale\Cms\Livewire\Pages\Page\Section;
 
+use Bale\Cms\Models\Page;
 use Bale\Cms\Services\TenantConnectionService;
 use Bale\Cms\Traits\HasSafeDelete;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
+use Livewire\Attributes\On;
 use Livewire\Component;
-use Livewire\Attributes\{Layout, On, Computed};
 use Livewire\WithoutUrlPagination;
 use Livewire\WithPagination;
-use Bale\Cms\Models\Page;
 
 #[Layout('cms::layouts.app')]
 class PageTable extends Component
 {
-    use WithPagination, WithoutUrlPagination, HasSafeDelete;
+    use HasSafeDelete, WithoutUrlPagination, WithPagination;
+
     protected string $modelClass = Page::class;
 
     public $query = '';
 
     public $sortField = 'created_at';
+
     public $sortDirection = 'desc';
 
     public $filterType = '';
@@ -35,9 +39,11 @@ class PageTable extends Component
 
     public function resetFilter($field)
     {
-        if ($field === 'Type')
+        if ($field === 'Type') {
             $this->reset('filterType');
+        }
     }
+
     public function resetAllFilters()
     {
         $this->reset(['filterType', 'query']);
@@ -66,9 +72,10 @@ class PageTable extends Component
     {
         TenantConnectionService::ensureActive();
         $connection = TenantConnectionService::connection();
+
         return (new Page)
             ->setConnection($connection)
-            ->where('title', 'like', '%' . $this->query . '%')
+            ->where('title', 'like', '%'.$this->query.'%')
             ->when($this->filterType, function ($query) {
                 $query->where('type', $this->filterType);
             })

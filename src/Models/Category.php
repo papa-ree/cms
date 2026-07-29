@@ -3,12 +3,13 @@
 namespace Bale\Cms\Models;
 
 use Bale\Cms\Traits\UsesTenantConnection;
+use Bale\Core\Traits\LogsActivity;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model
 {
-    use HasUuids, UsesTenantConnection;
+    use HasUuids, LogsActivity, UsesTenantConnection;
 
     protected $guarded = ['id'];
 

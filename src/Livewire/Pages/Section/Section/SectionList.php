@@ -5,14 +5,16 @@ namespace Bale\Cms\Livewire\Pages\Section\Section;
 use Bale\Cms\Models\Section;
 use Bale\Cms\Services\TenantConnectionService;
 use Bale\Cms\Traits\HasSafeDelete;
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\Layout;
 use Livewire\Component;
-use Livewire\Attributes\{Computed, Layout};
 use Livewire\WithPagination;
 
 #[Layout('cms::layouts.app')]
 class SectionList extends Component
 {
     use HasSafeDelete, WithPagination;
+
     protected string $modelClass = Section::class;
 
     public $query = '';
