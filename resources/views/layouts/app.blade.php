@@ -38,7 +38,6 @@
         <span class="sr-only">preloader</span>
     </div>
 
-    {{-- <livewire:core.shared-components.topbar /> --}}
     <livewire:cms.shared-components.cms-topbar />
     <livewire:cms.shared-components.cms-sidebar />
 

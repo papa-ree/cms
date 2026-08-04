@@ -5,6 +5,7 @@ namespace Bale\Cms\Middleware;
 use Bale\Cms\Models\BaleUser;
 use Bale\Cms\Services\TenantManager;
 use Closure;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -37,8 +38,24 @@ class SwitchBaleConnection
         try {
             TenantManager::initializeFromBaleUuid($baleUuid);
         } catch (\Throwable $e) {
-            // prefer 500 to surface connection problems
-            abort(500, 'Cannot connect to tenant database: '.$e->getMessage());
+            $errorMessage = __('Gagal menghubungkan ke database tenant: :message', ['message' => $e->getMessage()]);
+
+            // Jika decrypt error (karena perbedaan APP_KEY)
+            if ($e instanceof DecryptException || str_contains($e->getMessage(), 'MAC is invalid')) {
+                $errorMessage = __('Gagal mendekripsi kredensial database tenant (Kemungkinan APP_KEY berbeda dengan server asal). Silakan edit dan perbarui password database.');
+            }
+
+            // Hapus session bale aktif agar tidak stuck loop
+            session()->forget(['bale_active_uuid', 'bale_active_slug']);
+
+            // Redirect berdasarkan permission user
+            if ($user && $user->can('bale-list.update')) {
+                return redirect()->route('rakaca.landlord.bale-list.index')
+                    ->with('error', $errorMessage);
+            }
+
+            return redirect()->route('select-bale')
+                ->with('error', $errorMessage);
         }
 
         return $next($request);

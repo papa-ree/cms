@@ -2,50 +2,82 @@
 
 namespace Bale\Cms\Livewire\SharedComponents;
 
-use Bale\Cms\CmsServiceProvider;
 use Bale\Cms\Models\BaleList;
 use Bale\Cms\Services\TenantManager;
+use Bale\Core\Services\MenuRegistry;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Attributes\Computed;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 class CmsSidebar extends Component
 {
-    #[Layout('cms::layouts.app')]
     public function render()
     {
         return view('cms::livewire.shared-components.cms-sidebar');
     }
 
+    /**
+     * Menu statis milik CMS (posts, categories, pages, etc.).
+     * Difilter berdasarkan permission dan keberadaan tabel di tenant DB.
+     */
     #[Computed]
     public function cmsMenus(): array
     {
         $menus = [
-            ['label' => 'posts',       'url' => 'posts',       'icon' => 'file-text',    'permission' => 'bale-post.read',       'group' => 'cms', 'table' => 'posts'],
-            ['label' => 'categories',  'url' => 'categories',  'icon' => 'tag',           'permission' => 'bale-category.read',   'group' => 'cms', 'table' => 'categories'],
-            ['label' => 'pages',       'url' => 'pages',       'icon' => 'file',          'permission' => 'bale-page.read',       'group' => 'cms', 'table' => 'pages'],
-            ['label' => 'navigations', 'url' => 'navigations', 'icon' => 'navigation',    'permission' => 'bale-navigation.read', 'group' => 'cms', 'table' => 'navigations'],
-            ['label' => 'sections',    'url' => 'sections',    'icon' => 'layers',        'permission' => 'bale-section.read',    'group' => 'cms', 'table' => 'sections'],
-            ['label' => 'roles',       'url' => 'roles',       'icon' => 'shield-check',  'permission' => 'bale-role.read',       'group' => 'cms', 'table' => 'roles'],
-            ['label' => 'permissions', 'url' => 'permissions', 'icon' => 'shield',        'permission' => 'bale-role.read',       'group' => 'cms', 'table' => 'permissions'],
-            ['label' => 'users',       'url' => 'users',       'icon' => 'users',         'permission' => 'bale-user.read',       'group' => 'cms', 'table' => 'users'],
+            ['label' => 'posts',       'url' => 'posts',       'icon' => 'file-text',   'permission' => 'bale-post.read',       'table' => 'posts'],
+            ['label' => 'categories',  'url' => 'categories',  'icon' => 'tag',          'permission' => 'bale-category.read',   'table' => 'categories'],
+            ['label' => 'pages',       'url' => 'pages',       'icon' => 'file',         'permission' => 'bale-page.read',       'table' => 'pages'],
+            ['label' => 'navigations', 'url' => 'navigations', 'icon' => 'navigation',   'permission' => 'bale-navigation.read', 'table' => 'navigations'],
+            ['label' => 'sections',    'url' => 'sections',    'icon' => 'layers',       'permission' => 'bale-section.read',    'table' => 'sections'],
+            ['label' => 'roles',       'url' => 'roles',       'icon' => 'shield-check', 'permission' => 'bale-role.read',       'table' => 'roles'],
+            ['label' => 'permissions', 'url' => 'permissions', 'icon' => 'shield',       'permission' => 'bale-role.read',       'table' => 'permissions'],
+            ['label' => 'users',       'url' => 'users',       'icon' => 'users',        'permission' => 'bale-user.read',       'table' => 'users'],
         ];
 
         return $this->filterMenus($menus);
     }
 
     /**
-     * Memfilter menu berdasarkan permission dan keberadaan tabel (jika didefinisikan).
+     * Menu dari package eksternal (ikm, loker, dll.) bertipe 'tenant',
+     * dibaca dari MenuRegistry yang sudah di-populate saat boot.
+     *
+     * Item dari MenuRegistry sudah difilter permission/class oleh Registry.
+     * Di sini kita tambahkan filter 'table' (cek tenant DB) via filterMenus().
+     *
+     * Format return: flat array of items (tiap item punya key 'group' untuk grouping di view).
+     */
+    #[Computed]
+    public function packageMenus(): array
+    {
+        $groups = app(MenuRegistry::class)->getTenantGroups();
+
+        $allItems = [];
+        foreach ($groups as $group) {
+            foreach ($group['items'] ?? [] as $item) {
+                $item['group'] = $item['group'] ?? $group['key'];
+                $allItems[] = $item;
+            }
+        }
+
+        // Filter 'table' menggunakan koneksi tenant aktif
+        return $this->filterMenus($allItems);
+    }
+
+    /**
+     * Memfilter menu berdasarkan permission dan keberadaan tabel di tenant DB.
+     * Aman dipanggil bahkan jika koneksi tenant belum aktif — item dengan 'table'
+     * akan diperiksa ke koneksi aktif, atau ke default jika belum ada.
      */
     private function filterMenus(array $menus): array
     {
         $connection = TenantManager::getActiveConnection();
 
         return array_values(array_filter($menus, function ($item) use ($connection) {
-            // Cek permission
-            if (! auth()->user()->can($item['permission'])) {
-                return false;
+            // Cek permission jika didefinisikan dan tidak null
+            if (isset($item['permission']) && $item['permission'] !== null) {
+                if (! auth()->check() || ! auth()->user()->can($item['permission'])) {
+                    return false;
+                }
             }
 
             // Cek apakah tabel ada (jika didefinisikan)
@@ -63,62 +95,7 @@ class CmsSidebar extends Component
         }));
     }
 
-    #[Computed]
-    public function packageMenus(): array
-    {
-        $allMenus = [];
-        $providers = app()->getLoadedProviders();
-
-        foreach (array_keys($providers) as $provider) {
-            // Filter hanya package kita (Bale, Nawasara, Paparee)
-            if (
-                str_starts_with($provider, 'Bale\\') ||
-                str_starts_with($provider, 'Nawasara\\') ||
-                str_starts_with($provider, 'Paparee\\')
-            ) {
-                // Skip CMS provider karena menu-nya sudah di handle di cmsMenus()
-                if ($provider === CmsServiceProvider::class) {
-                    continue;
-                }
-
-                $menus = $this->getPackageMenu($provider);
-                if (! empty($menus)) {
-                    $allMenus = array_merge($allMenus, $menus);
-                }
-            }
-        }
-
-        return $allMenus;
-    }
-
     /**
-     * Mengambil menu dari direktori src package secara dinamis (dev & prod friendly)
-     */
-    private function getPackageMenu(string $serviceProviderClass): array
-    {
-        if (! class_exists($serviceProviderClass)) {
-            return [];
-        }
-
-        try {
-            $reflection = new \ReflectionClass($serviceProviderClass);
-            $menuPath = dirname($reflection->getFileName()).'/menu.php';
-
-            if (! file_exists($menuPath)) {
-                return [];
-            }
-
-            $menus = include $menuPath;
-
-            return $this->filterMenus($menus);
-        } catch (\Throwable $e) {
-            return [];
-        }
-    }
-
-    /**
-     * Tetap dipertahankan agar tidak breaking change jika ada view lain yang menggunakannya.
-     *
      * @deprecated Gunakan cmsMenus() atau packageMenus() secara langsung.
      */
     #[Computed]

@@ -5,7 +5,6 @@
                border-r border-slate-700/60">
 
         @persist('sidebar-bale-cms')
-
         {{-- ========== Tenant Info Card ========== --}}
         <div class="px-4 pt-6 pb-4">
             <div class="flex items-center gap-3 p-3 rounded-xl bg-white/5 border border-white/10">
@@ -40,11 +39,23 @@
             </div>
         </div>
 
+        {{-- ========== Bottom: Exit CMS (Moved to Top) ========== --}}
+        <div class="px-4 pb-2">
+            <a href="/cms/exit-cms" wire:navigate.hover class="group flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium
+                       text-slate-400 hover:text-rose-400 hover:bg-rose-500/10
+                       transition-all duration-150 ease-in-out border border-slate-700/30 bg-white/3">
+                <x-lucide-log-out
+                    class="w-5 h-5 shrink-0 text-slate-500 group-hover:text-rose-400 transition-colors duration-150" />
+                <span>{{ __('Exit CMS') }}</span>
+            </a>
+        </div>
+
         {{-- ========== Bale CMS Section ========== --}}
-        <div class="px-4 mb-2 mt-6">
+        <div class="px-4 mb-2 mt-4">
             <div class="flex items-center gap-2">
                 <div class="h-px flex-1 bg-slate-700/60"></div>
-                <span class="text-[10px] uppercase tracking-widest text-slate-500 font-semibold text-center">{{ __('Bale CMS') }}</span>
+                <span
+                    class="text-[10px] uppercase tracking-widest text-slate-500 font-semibold text-center">{{ __('Bale CMS') }}</span>
                 <div class="h-px flex-1 bg-slate-700/60"></div>
             </div>
         </div>
@@ -53,13 +64,13 @@
             <ul class="space-y-0.5">
                 {{-- Overview --}}
                 <li>
-                    <a href="/cms/overview" wire:navigate.hover
-                        class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                    <a href="/cms/overview" wire:navigate.hover class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
                                text-slate-400 hover:text-white hover:bg-white/8
                                transition-all duration-150 ease-in-out"
                         wire:current.exact="bg-indigo-600/25 border border-indigo-500/40 text-white shadow-xs">
 
-                        <span class="shrink-0 w-5 h-5 text-slate-500 group-hover:text-indigo-400 transition-colors duration-150">
+                        <span
+                            class="shrink-0 w-5 h-5 text-slate-500 group-hover:text-indigo-400 transition-colors duration-150">
                             <x-lucide-layout-dashboard class="w-5 h-5" />
                         </span>
 
@@ -71,14 +82,15 @@
                 @if(count($this->cmsMenus) > 0)
                     @foreach ($this->cmsMenus as $menu)
                         <li>
-                            <a href="/cms/{{ $menu['url'] }}" wire:navigate.hover
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                                       text-slate-400 hover:text-white hover:bg-white/8
-                                       transition-all duration-150 ease-in-out"
+                            <a href="/cms/{{ $menu['url'] }}" wire:navigate.hover class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                                                                       text-slate-400 hover:text-white hover:bg-white/8
+                                                                       transition-all duration-150 ease-in-out"
                                 wire:current.exact="bg-indigo-600/25 border border-indigo-500/40 text-white shadow-xs">
 
-                                <span class="shrink-0 w-5 h-5 text-slate-500 group-hover:text-indigo-400 transition-colors duration-150">
-                                    <x-dynamic-component :component="'lucide-' . ($menu['icon'] ?? 'circle')" class="w-5 h-5" />
+                                <span
+                                    class="shrink-0 w-5 h-5 text-slate-500 group-hover:text-indigo-400 transition-colors duration-150">
+                                    <x-dynamic-component :component="'lucide-' . ($menu['icon'] ?? 'circle')"
+                                        class="w-5 h-5" />
                                 </span>
 
                                 <span class="capitalize tracking-wide">{{ __($menu['label']) }}</span>
@@ -94,7 +106,8 @@
             <div class="px-4 mb-2 mt-6">
                 <div class="flex items-center gap-2">
                     <div class="h-px flex-1 bg-slate-700/60"></div>
-                    <span class="text-[10px] uppercase tracking-widest text-slate-500 font-semibold text-center">{{ __($group) }}</span>
+                    <span
+                        class="text-[10px] uppercase tracking-widest text-slate-500 font-semibold text-center">{{ __($group) }}</span>
                     <div class="h-px flex-1 bg-slate-700/60"></div>
                 </div>
             </div>
@@ -103,14 +116,15 @@
                 <ul class="space-y-0.5">
                     @foreach ($menus as $menu)
                         <li>
-                            <a href="/cms/{{ $menu['url'] }}" wire:navigate.hover
-                                class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
-                                       text-slate-400 hover:text-white hover:bg-white/8
-                                       transition-all duration-150 ease-in-out"
+                            <a href="/cms/{{ $menu['url'] }}" wire:navigate.hover class="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium
+                                                                       text-slate-400 hover:text-white hover:bg-white/8
+                                                                       transition-all duration-150 ease-in-out"
                                 wire:current.exact="bg-indigo-600/25 border border-indigo-500/40 text-white shadow-xs">
 
-                                <span class="shrink-0 w-5 h-5 text-slate-500 group-hover:text-indigo-400 transition-colors duration-150">
-                                    <x-dynamic-component :component="'lucide-' . ($menu['icon'] ?? 'circle')" class="w-5 h-5" />
+                                <span
+                                    class="shrink-0 w-5 h-5 text-slate-500 group-hover:text-indigo-400 transition-colors duration-150">
+                                    <x-dynamic-component :component="'lucide-' . ($menu['icon'] ?? 'circle')"
+                                        class="w-5 h-5" />
                                 </span>
 
                                 <span class="capitalize tracking-wide">{{ __($menu['label']) }}</span>
@@ -121,20 +135,7 @@
             </nav>
         @endforeach
 
-        <div class="pb-24"></div>
-
-        {{-- ========== Bottom: Exit CMS ========== --}}
-        <div class="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-700/60 bg-slate-900/90 backdrop-blur-sm">
-            <a href="/cms/exit-cms" wire:navigate.hover
-                class="group flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-sm font-medium
-                       text-slate-400 hover:text-rose-400 hover:bg-rose-500/10
-                       transition-all duration-150 ease-in-out">
-                <x-lucide-log-out
-                    class="w-5 h-5 shrink-0 text-slate-500 group-hover:text-rose-400 transition-colors duration-150" />
-                <span>{{ __('Exit CMS') }}</span>
-            </a>
-        </div>
-
+        <div class="pb-12"></div>
         @endpersist
     </div>
     {{-- End Sidebar --}}

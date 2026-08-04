@@ -3,6 +3,7 @@
 namespace Bale\Cms\Services;
 
 use Bale\Cms\Models\BaleUser;
+use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Facades\Auth;
 
 class TenantConnectionService
@@ -33,7 +34,14 @@ class TenantConnectionService
 
         // Jika koneksi belum aktif atau berbeda, inisialisasi ulang
         if ($active !== $expected) {
-            TenantManager::initializeFromBaleUuid($baleUuid);
+            try {
+                TenantManager::initializeFromBaleUuid($baleUuid);
+            } catch (\Throwable $e) {
+                if ($e instanceof DecryptException || str_contains($e->getMessage(), 'MAC is invalid')) {
+                    throw new \RuntimeException(__('Gagal mendekripsi kredensial database tenant (APP_KEY berbeda). Silakan perbarui password database di menu Landlord.'), 0, $e);
+                }
+                throw $e;
+            }
         }
     }
 
@@ -68,7 +76,14 @@ class TenantConnectionService
 
         // Only re-initialize if connection is stale (i.e. new PHP process / XHR)
         if ($active !== $expected) {
-            TenantManager::initializeFromBaleUuid($baleUuid);
+            try {
+                TenantManager::initializeFromBaleUuid($baleUuid);
+            } catch (\Throwable $e) {
+                if ($e instanceof DecryptException || str_contains($e->getMessage(), 'MAC is invalid')) {
+                    throw new \RuntimeException(__('Gagal mendekripsi kredensial database tenant (APP_KEY berbeda). Silakan perbarui password database di menu Landlord.'), 0, $e);
+                }
+                throw $e;
+            }
         }
 
         return TenantManager::getActiveConnection();
