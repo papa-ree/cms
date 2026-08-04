@@ -54,7 +54,7 @@ class BaleList extends Model
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->dontSubmitEmptyLogs()
+            ->dontLogEmptyChanges()
             ->logOnlyDirty()
             ->logExcept(['database_password', 'database_username']);
     }
