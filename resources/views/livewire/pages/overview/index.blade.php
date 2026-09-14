@@ -270,7 +270,7 @@
                                 </div>
                             @endif
                             <div class="min-w-0 flex-1">
-                                <a href="{{ route('bale.cms.posts.edit', $post->slug) }}"
+                                <a href="{{ route('bale.cms.posts.edit', $post->id) }}"
                                     class="block text-sm font-semibold text-gray-900 dark:text-gray-100 truncate hover:text-purple-600 dark:hover:text-purple-400 transition-colors">
                                     {{ $post->title }}
                                 </a>

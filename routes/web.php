@@ -18,6 +18,7 @@ use Bale\Cms\Livewire\Pages\Section\Section\SearchableSectionTableView;
 use Bale\Cms\Livewire\Pages\Section\SectionMetaEditor;
 use Bale\Cms\Middleware\EnsureBaleSelected;
 use Bale\Cms\Middleware\SwitchBaleConnection;
+use Bale\Core\Services\ImageService;
 use Bale\Core\Support\Cdn;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -40,12 +41,12 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
         Route::name('posts.')->middleware('permission:bale-post.read')->group(function () {
             Route::get('posts', PostIndex::class)->name('index');
             Route::get('posts.create', CreateNewPost::class)->name('create');
-            Route::get('posts.edit.{slug}', EditPost::class)->name('edit');
+            Route::get('posts.edit.{post}', EditPost::class)->name('edit');
         });
 
         Route::post('/editorjs/upload', function (Request $request) {
             $validator = Validator::make($request->all(), [
-                'image' => 'required|image|mimes:jpeg,jpg,png,gif,webp|max:512', // 512KB
+                'image' => 'required|image|mimes:jpeg,jpg,png,webp|max:2048', // 2MB
             ]);
 
             if ($validator->fails()) {
@@ -56,16 +57,22 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             }
 
             try {
-                // Upload file in images folder
-                $file = $request->file('image');
-                $filename = uniqid().'.'.$file->extension();
-                $path = session('bale_active_slug').'/images/'.$filename;
+                $path = app(ImageService::class)->toWebp(
+                    $request->file('image'),
+                    maxWidth: 1200,
+                    directory: session('bale_active_slug').'/images',
+                );
 
-                Storage::disk(app()->isProduction() ? 's3' : 'public')->put($path, $file->get());
+                if (! $path) {
+                    return response()->json([
+                        'success' => 0,
+                        'message' => 'Image conversion failed.',
+                    ], 500);
+                }
 
                 // Generate CDN URL
                 // Format: https://cdn_url/cdn_prefix/organization_slug/images/filename
-                $url = Cdn::url('images/'.$filename);
+                $url = Cdn::url('images/'.basename($path));
 
                 return response()->json([
                     'success' => 1,
@@ -109,11 +116,11 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
                 $contents = $response->body();
                 $size = strlen($contents);
 
-                // Validate image size (max 512KB)
-                if ($size > 512 * 1024) {
+                // Validate image size (max 2MB)
+                if ($size > 2048 * 1024) {
                     return response()->json([
                         'success' => 0,
-                        'message' => 'The image size may not be greater than 512 kilobytes.',
+                        'message' => 'The image size may not be greater than 2048 kilobytes.',
                     ]);
                 }
 
@@ -160,7 +167,7 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
         Route::name('pages.')->middleware('permission:bale-page.read')->group(function () {
             Route::get('pages', PageIndex::class)->name('index');
             Route::get('pages.create', CreateNewPage::class)->name('create');
-            Route::get('pages.edit.{slug}', EditPage::class)->name('edit');
+            Route::get('pages.edit.{page}', EditPage::class)->name('edit');
         });
 
         Route::name('navigations.')->middleware('permission:bale-navigation.read')->group(function () {

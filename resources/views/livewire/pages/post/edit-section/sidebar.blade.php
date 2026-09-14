@@ -127,7 +127,7 @@
                             </div>
                         @endif
 
-                        <x-core::upload-zone wire:model.live="og_image_new" accept="image/*" maxSize="1024" :label="__('Custom social image')" />
+                        <x-core::upload-zone wire:model.live="og_image_new" accept="image/jpeg,image/png,image/jpg,image/webp,.webp" maxSize="2048" :label="__('Custom social image')" :hint="__('JPG, PNG, WebP up to 2MB, auto-convert WebP 80% 1200w')" />
                         <p class="mt-1 text-[10px] text-gray-500">{{ __('Fallback to featured image if empty.') }}</p>
                         <x-core::input-error for="og_image_new" class="mt-1" />
                     </div>
@@ -272,8 +272,8 @@
 
                 {{-- Upload new thumbnail --}}
                 @if (!$thumbnail)
-                    <x-core::upload-zone wire:model.live="thumbnail_new" accept="image/png,image/jpeg,image/jpg"
-                        maxSize="512" :label="__('Drop image here or click to browse')" :hint="__('PNG, JPG, JPEG · Max 512KB')" />
+                    <x-core::upload-zone wire:model.live="thumbnail_new" accept="image/png,image/jpeg,image/jpg,image/webp,.webp"
+                        maxSize="2048" :label="__('Drop image here or click to browse')" :hint="__('JPG, PNG, WebP · Max 2MB')" />
                 @endif
 
                 <x-core::input-error for="thumbnail_new" class="mt-1" />

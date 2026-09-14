@@ -82,7 +82,7 @@ class CreateNewPost extends Component
 
             DB::commit();
 
-            $this->redirectRoute('bale.cms.posts.edit', $this->slug, navigate: false);
+            $this->redirectRoute('bale.cms.posts.edit', $post->id, navigate: false);
 
         } catch (\Throwable $th) {
             DB::rollBack();

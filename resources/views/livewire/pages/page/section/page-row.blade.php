@@ -2,7 +2,7 @@
     class="hover:bg-gray-50/80 dark:hover:bg-gray-800/50 transition-colors duration-150">
     <td class="px-6 py-4 text-sm font-medium text-gray-900 dark:text-gray-100">
         <div class="grow">
-            <a href="{{ route('bale.cms.pages.edit', $record->slug) }}"
+            <a href="{{ route('bale.cms.pages.edit', $record->id) }}"
                 class="block text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-emerald-600 dark:hover:text-emerald-400 transition-colors">
                 {{ $record->title }}
             </a>
@@ -51,7 +51,7 @@
     </td>
     <td class="px-6 py-4 whitespace-nowrap w-px">
         @canany(['bale-page.update', 'bale-page.delete'])
-            <livewire:core.shared-components.item-actions :editUrl="route('bale.cms.pages.edit', $record->slug)"
+            <livewire:core.shared-components.item-actions :editUrl="route('bale.cms.pages.edit', $record->id)"
                 :deleteId="$record->id" :navigate="false" wire:key="page-actions-{{ $record->id }}"
                 confirmMessage="{{ __('Are you sure you want to delete this page?') }}" />
         @endcanany

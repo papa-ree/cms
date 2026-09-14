@@ -397,12 +397,12 @@
                             <div x-show="data.backgroundType === 'slider' || data.backgroundImages.length === 0"
                                 class="mt-4">
                                 <x-core::upload-zone wire:model.live="background_new"
-                                    accept="image/png,image/jpg,image/jpeg" maxSize="512"
+                                    accept="image/png,image/jpg,image/jpeg" maxSize="2048"
                                     :multiple="$backgroundType === 'slider'" />
 
                                 <x-core::input-error for="background_new" />
                                 <p class="mt-2 text-xs text-gray-500 dark:text-gray-400">
-                                    {{ __('Max 512KB. Formats: PNG, JPG, JPEG') }}
+                                    {{ __('Max 2MB. Formats: PNG, JPG, JPEG') }}
                                 </p>
                             </div>
                         </div>

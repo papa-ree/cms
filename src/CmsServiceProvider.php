@@ -6,6 +6,7 @@ use Bale\Cms\Commands\GenerateBaleCommand;
 use Bale\Cms\Commands\GenerateOrganisasiCommand;
 use Bale\Cms\Commands\GenerateUserBaleCommand;
 use Bale\Cms\Commands\InstallCmsCommand;
+use Bale\Cms\Commands\ConvertImagesToWebpCommand;
 use Bale\Cms\Commands\PublishCmsMigrationCommand;
 use Bale\Cms\Commands\PublishMigrationCommand;
 use Bale\Cms\Commands\TenantMigrateCommand;
@@ -26,6 +27,7 @@ class CmsServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->singleton(\Bale\Cms\Services\CmsMenuRegistry::class);
         $this->registerCommands();
     }
 
@@ -39,6 +41,7 @@ class CmsServiceProvider extends ServiceProvider
             'command.cms:publish-migration' => PublishMigrationCommand::class,
             'command.cms:publish-cms-migration' => PublishCmsMigrationCommand::class,
             'command.cms:tenant-migrate' => TenantMigrateCommand::class,
+            'command.cms:convert-images-to-webp' => ConvertImagesToWebpCommand::class,
         ];
 
         foreach ($commands as $key => $class) {
@@ -67,6 +70,7 @@ class CmsServiceProvider extends ServiceProvider
 
         $this->app->booted(function () {
             $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
+            $this->discoverCmsMenus();
         });
 
         $this->registerViews();
@@ -74,6 +78,19 @@ class CmsServiceProvider extends ServiceProvider
         $this->offerPublishing();
         $this->registerLivewire4Namespaces();
         $this->registerLivewireComponents();
+    }
+
+    protected function discoverCmsMenus(): void
+    {
+        try {
+            $registry = $this->app->make(\Bale\Cms\Services\CmsMenuRegistry::class);
+            foreach (array_keys($this->app->getLoadedProviders()) as $provider) {
+                if (str_starts_with($provider, 'Bale\Cms\\') || str_starts_with($provider, 'Bale\\Loker\\') || str_starts_with($provider, 'Bale\\Ikm\\')) {
+                    $registry->registerFromProvider($provider);
+                }
+            }
+        } catch (\Throwable $e) {
+        }
     }
 
     /**

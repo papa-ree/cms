@@ -3,8 +3,9 @@
 namespace Bale\Cms\Livewire\SharedComponents;
 
 use Bale\Cms\Models\BaleList;
+use Bale\Cms\Services\CmsMenuRegistry;
 use Bale\Cms\Services\TenantManager;
-use Bale\Core\Services\MenuRegistry;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Schema;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
@@ -20,7 +21,7 @@ class CmsSidebar extends Component
      * Menu statis milik CMS (posts, categories, pages, etc.).
      * Difilter berdasarkan permission dan keberadaan tabel di tenant DB.
      */
-    #[Computed]
+    #[Computed(persist: true)]
     public function cmsMenus(): array
     {
         $menus = [
@@ -46,10 +47,10 @@ class CmsSidebar extends Component
      *
      * Format return: flat array of items (tiap item punya key 'group' untuk grouping di view).
      */
-    #[Computed]
+    #[Computed(persist: true)]
     public function packageMenus(): array
     {
-        $groups = app(MenuRegistry::class)->getTenantGroups();
+        $groups = app(CmsMenuRegistry::class)->getTenantGroups();
 
         $allItems = [];
         foreach ($groups as $group) {
@@ -72,10 +73,24 @@ class CmsSidebar extends Component
     {
         $connection = TenantManager::getActiveConnection();
 
-        return array_values(array_filter($menus, function ($item) use ($connection) {
+        // Eager load permissions sekali
+        static $permsCache = [];
+        $userId = \Illuminate\Support\Facades\Auth::id() ?? 'guest';
+        if (!isset($permsCache[$userId])) {
+            $user = \Illuminate\Support\Facades\Auth::user();
+            if ($user) {
+                $user->loadMissing('roles', 'permissions');
+                $permsCache[$userId] = $user->getAllPermissions()->pluck('name')->toArray();
+            } else {
+                $permsCache[$userId] = [];
+            }
+        }
+        $perms = $permsCache[$userId];
+
+        return array_values(array_filter($menus, function ($item) use ($connection, $perms) {
             // Cek permission jika didefinisikan dan tidak null
             if (isset($item['permission']) && $item['permission'] !== null) {
-                if (! auth()->check() || ! auth()->user()->can($item['permission'])) {
+                if (! in_array($item['permission'], $perms, true)) {
                     return false;
                 }
             }

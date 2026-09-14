@@ -79,7 +79,7 @@ class CreateNewPage extends Component
 
             DB::commit();
 
-            $this->redirectRoute('bale.cms.pages.edit', $this->slug, navigate: false);
+            $this->redirectRoute('bale.cms.pages.edit', $page->id, navigate: false);
 
         } catch (\Throwable $th) {
             DB::rollBack();

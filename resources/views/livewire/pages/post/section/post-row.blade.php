@@ -5,7 +5,7 @@
     <td class="px-4 py-3.5 w-full max-w-0 sm:max-w-none sm:w-auto">
         <div class="flex items-center gap-3">
             {{-- Thumbnail --}}
-            <a href="{{ route('bale.cms.posts.edit', $record->slug) }}">
+            <a href="{{ route('bale.cms.posts.edit', $record->id) }}">
                 @if($record->thumbnail)
                     <img class="size-9 rounded-lg object-cover shrink-0 ring-1 ring-gray-200 dark:ring-gray-700"
                         loading="lazy"
@@ -22,7 +22,7 @@
 
             {{-- Text --}}
             <div class="min-w-0 flex-1">
-                <a href="{{ route('bale.cms.posts.edit', $record->slug) }}"
+                <a href="{{ route('bale.cms.posts.edit', $record->id) }}"
                     class="block text-sm font-medium text-gray-900 dark:text-gray-100 hover:text-indigo-600 dark:hover:text-indigo-400 transition-colors truncate">
                     {{ Str::of($record->title)->words(6, '...') }}
                 </a>
@@ -100,7 +100,7 @@
     <td class="px-4 py-3.5 whitespace-nowrap w-px">
         @canany(['bale-post.update', 'bale-post.delete'])
             <livewire:core.shared-components.item-actions
-                :editUrl="route('bale.cms.posts.edit', $record->slug)"
+                :editUrl="route('bale.cms.posts.edit', $record->id)"
                 :deleteId="$record->id"
                 :navigate="false"
                 confirmMessage="{{ __('Yakin ingin menghapus post ini?') }}"

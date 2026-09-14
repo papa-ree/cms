@@ -4,6 +4,7 @@ namespace Bale\Cms\Livewire\Pages\Page;
 
 use Bale\Cms\Models\Page;
 use Bale\Cms\Services\TenantConnectionService;
+use Bale\Core\Services\ImageService;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
@@ -56,12 +57,13 @@ class EditPage extends Component
 
     public $structured_data;
 
-    public function mount($slug)
+    public function mount($page)
     {
         $this->authorize('bale-page.read');
         TenantConnectionService::ensureActive();
 
-        $page = Page::whereSlug($slug)->first();
+        // Identitas utama adalah UUID; slug sebagai fallback untuk URL lama
+        $page = Page::find($page) ?? Page::whereSlug($page)->first();
 
         if (! is_null($page)) {
             $this->id = $page->id;
@@ -182,12 +184,12 @@ class EditPage extends Component
         $this->authorize('bale-seo.update');
 
         $this->validate([
-            'og_image_new' => 'required|image|mimes:jpeg,jpg,png|max:1024',
+            'og_image_new' => 'required|image|mimes:jpeg,jpg,png,webp|max:2048',
         ], [
             'og_image_new.required' => 'The SEO image file is required.',
             'og_image_new.image' => 'The SEO image must be a valid image file.',
-            'og_image_new.mimes' => 'The SEO image must be a file of type: jpeg, jpg, png.',
-            'og_image_new.max' => 'The SEO image may not be greater than 1024 kilobytes.',
+            'og_image_new.mimes' => 'The SEO image must be a file of type: jpeg, jpg, png, webp.',
+            'og_image_new.max' => 'The SEO image may not be greater than 2048 kilobytes.',
         ]);
 
         try {
@@ -196,24 +198,28 @@ class EditPage extends Component
             }
 
             if ($this->og_image_new) {
-                $extension = $this->og_image_new->getClientOriginalExtension();
-                $filename = session('bale_active_slug').'-seo-'.uniqid().'.'.$extension;
-                $finalPath = session('bale_active_slug').'/thumbnails/'.$filename;
+                $path = app(ImageService::class)->toWebp(
+                    $this->og_image_new,
+                    maxWidth: 1200,
+                    directory: session('bale_active_slug').'/thumbnails',
+                );
 
-                Storage::disk(app()->isProduction() ? 's3' : 'public')->put($finalPath, $this->og_image_new->get());
+                if ($path) {
+                    $filename = basename($path);
 
-                TenantConnectionService::ensureActive();
-                $connection = TenantConnectionService::connection();
+                    TenantConnectionService::ensureActive();
+                    $connection = TenantConnectionService::connection();
 
-                $page = Page::on($connection)->find($this->id);
-                if ($page) {
-                    $page->updateSeoMeta(['og_image' => $filename]);
-                    $this->og_image = $filename;
+                    $page = Page::on($connection)->find($this->id);
+                    if ($page) {
+                        $page->updateSeoMeta(['og_image' => $filename]);
+                        $this->og_image = $filename;
+                    }
+
+                    $this->og_image_new = null;
+                    $this->saveStatus = 'saved';
+                    $this->dispatch('status-updated', status: 'saved');
                 }
-
-                $this->og_image_new = null;
-                $this->saveStatus = 'saved';
-                $this->dispatch('status-updated', status: 'saved');
             }
         } catch (\Throwable $th) {
             $this->saveStatus = 'error';
@@ -245,6 +251,19 @@ class EditPage extends Component
                     $disk = Storage::disk(app()->isProduction() ? 's3' : 'public');
                     foreach ($removedImages as $filename) {
                         $disk->delete($slug.'/images/'.$filename);
+                    }
+                }
+
+                $slugChanged = $page->slug !== $this->slug;
+                if ($slugChanged && $this->slug) {
+                    $slugTaken = Page::on($connection)
+                        ->where('slug', $this->slug)
+                        ->where('id', '!=', $this->id)
+                        ->exists();
+
+                    if ($slugTaken) {
+                        $this->slug = $page->slug;
+                        $this->dispatch('toast', message: __('Slug is already taken. Keeping the previous one.'), type: 'error');
                     }
                 }
 
