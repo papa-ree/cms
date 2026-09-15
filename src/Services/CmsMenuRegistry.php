@@ -52,12 +52,25 @@ class CmsMenuRegistry
 
     protected function resolveGroups(string $type): array
     {
+        $userId = Auth::id() ?? 'guest';
+        // v2: ikut pola core — cache BERISI seluruh array groups (bukan per-group).
+        // Kunci sebelumnya (tanpa v2) menimbulkan bug: filterItems di-cache per group
+        // sehingga hasil group pertama menimpa group berikutnya.
+        $cacheKey = "cms.menu.{$type}.{$userId}.v2";
+
+        if (Cache::has($cacheKey)) {
+            $cached = Cache::get($cacheKey);
+            if (is_array($cached)) {
+                return $cached;
+            }
+        }
+
         $result = [];
         foreach ($this->groups as $group) {
             if (($group['_type'] ?? '') !== $type) {
                 continue;
             }
-            $filteredItems = $this->filterItems($group['items'] ?? [], $type);
+            $filteredItems = $this->filterItems($group['items'] ?? []);
             if (empty($filteredItems)) {
                 continue;
             }
@@ -68,12 +81,16 @@ class CmsMenuRegistry
                 'items' => $filteredItems,
             ];
         }
+
+        Cache::put($cacheKey, $result, 300);
+
         return $result;
     }
 
-    protected function filterItems(array $items, string $type = 'tenant'): array
+    protected function filterItems(array $items): array
     {
-        // Eager + cache per user per request (isolasi cms)
+        // Eager permission sekali per request (tanpa cache store — resolveGroups
+        // yang bertanggung jawab atas cache hasil akhir seluruh groups).
         static $permsCache = [];
         $userId = Auth::id() ?? 'guest';
         if (! isset($permsCache[$userId])) {
@@ -87,16 +104,7 @@ class CmsMenuRegistry
         }
         $perms = $permsCache[$userId];
 
-        // Cache 5 menit per user per type
-        $cacheKey = "cms.menu.{$type}.{$userId}";
-        if (Cache::has($cacheKey)) {
-            $cached = Cache::get($cacheKey);
-            if (is_array($cached)) {
-                return $cached;
-            }
-        }
-
-        $filtered = array_values(array_filter($items, function (array $item) use ($perms): bool {
+        return array_values(array_filter($items, function (array $item) use ($perms): bool {
             if (isset($item['class']) && ! class_exists($item['class'])) {
                 return false;
             }
@@ -107,10 +115,6 @@ class CmsMenuRegistry
             }
             return true;
         }));
-
-        Cache::put($cacheKey, $filtered, 300);
-
-        return $filtered;
     }
 
     public function flush(): void
