@@ -286,8 +286,8 @@
                                     class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Page Title') }}
                                     *</label>
                             </div>
-                            <x-core::input wire:model.blur='title' placeholder="{{ __('Enter page title...') }}"
-                                x-model="pageTitle" />
+                            <x-core::input wire:model.live.debounce.700ms='title'
+                                placeholder="{{ __('Enter page title...') }}" x-model="pageTitle" />
                             <x-core::input-error for="title" />
                             <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">{{ __('Main title for your page') }}
                             </p>

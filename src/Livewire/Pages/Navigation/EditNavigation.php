@@ -207,6 +207,7 @@ class EditNavigation extends Component
                 ]);
             DB::commit();
 
+            $this->dispatch('disabling-button', params: false);
             $this->dispatch('toast', message: 'Data berhasil disimpan!', type: 'success');
 
         } catch (\Throwable $th) {

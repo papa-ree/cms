@@ -157,7 +157,11 @@ class EditPage extends Component
     public function updated($propertyName)
     {
         if ($propertyName === 'title') {
-            $this->slug = Str::slug($this->title);
+            $newSlug = Str::slug($this->title);
+
+            if ($newSlug !== '') {
+                $this->slug = $newSlug;
+            }
         }
 
         $autoSaveFields = [
@@ -252,6 +256,10 @@ class EditPage extends Component
                     foreach ($removedImages as $filename) {
                         $disk->delete($slug.'/images/'.$filename);
                     }
+                }
+
+                if ($this->slug === '') {
+                    $this->slug = $page->slug;
                 }
 
                 $slugChanged = $page->slug !== $this->slug;

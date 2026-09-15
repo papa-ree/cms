@@ -24,7 +24,7 @@
                         class="text-sm font-medium text-gray-700 dark:text-gray-300">{{ __('Post Title') }}
                         *</label>
                 </div>
-                <x-core::input wire:model.blur='title' placeholder="{{ __('Enter post title...') }}"
+                <x-core::input wire:model.live.debounce.700ms='title' placeholder="{{ __('Enter post title...') }}"
                     x-model="postTitle" />
                 <x-core::input-error for="title" />
                 <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">

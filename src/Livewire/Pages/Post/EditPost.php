@@ -233,7 +233,11 @@ class EditPost extends Component
     public function updated($propertyName)
     {
         if ($propertyName === 'title') {
-            $this->slug = Str::slug($this->title);
+            $newSlug = Str::slug($this->title);
+
+            if ($newSlug !== '') {
+                $this->slug = $newSlug;
+            }
         }
 
         // Fields that trigger auto-save
@@ -415,6 +419,10 @@ class EditPost extends Component
                     foreach ($removedImages as $filename) {
                         $disk->delete($slug . '/images/' . $filename);
                     }
+                }
+
+                if ($this->slug === '') {
+                    $this->slug = $post->slug;
                 }
 
                 $slugChanged = $post->slug !== $this->slug;
