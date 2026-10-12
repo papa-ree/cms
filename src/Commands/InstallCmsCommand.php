@@ -75,13 +75,28 @@ class InstallCmsCommand extends Command
             'bale-category.read',
             'bale-category.update',
             'bale-category.delete',
+            'bale-agenda.create',
+            'bale-agenda.read',
+            'bale-agenda.update',
+            'bale-agenda.delete',
         ];
 
         foreach ($permissions as $permission) {
-            Permission::updateOrCreate(['name' => $permission], ['guard_name' => 'web']);
+            $exists = Permission::where('name', $permission)
+                ->where('guard_name', 'web')
+                ->exists();
+
+            if ($exists) {
+                $this->line("Skipped (already exists): <comment>{$permission}</comment>");
+
+                continue;
+            }
+
+            Permission::create(['name' => $permission, 'guard_name' => 'web']);
+            $this->line("Created: <info>{$permission}</info>");
         }
 
-        $this->info('Permissions seeded and updated.');
+        $this->info('Permissions seeded (existing entries skipped).');
 
         // Force sync to root role if exists
         $rootRole = Role::where('name', 'root')->first();

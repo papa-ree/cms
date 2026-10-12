@@ -26,6 +26,7 @@ class CmsSidebar extends Component
     {
         $menus = [
             ['label' => 'posts',       'url' => 'posts',       'icon' => 'file-text',   'permission' => 'bale-post.read',       'table' => 'posts'],
+            ['label' => 'agendas',     'url' => 'agendas',     'icon' => 'calendar',    'permission' => 'bale-agenda.read',     'table' => 'agendas'],
             ['label' => 'categories',  'url' => 'categories',  'icon' => 'tag',          'permission' => 'bale-category.read',   'table' => 'categories'],
             ['label' => 'pages',       'url' => 'pages',       'icon' => 'file',         'permission' => 'bale-page.read',       'table' => 'pages'],
             ['label' => 'navigations', 'url' => 'navigations', 'icon' => 'navigation',   'permission' => 'bale-navigation.read', 'table' => 'navigations'],
@@ -75,9 +76,9 @@ class CmsSidebar extends Component
 
         // Eager load permissions sekali
         static $permsCache = [];
-        $userId = \Illuminate\Support\Facades\Auth::id() ?? 'guest';
-        if (!isset($permsCache[$userId])) {
-            $user = \Illuminate\Support\Facades\Auth::user();
+        $userId = Auth::id() ?? 'guest';
+        if (! isset($permsCache[$userId])) {
+            $user = Auth::user();
             if ($user) {
                 $user->loadMissing('roles', 'permissions');
                 $permsCache[$userId] = $user->getAllPermissions()->pluck('name')->toArray();

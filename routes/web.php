@@ -1,5 +1,8 @@
 <?php
 
+use Bale\Cms\Livewire\Pages\Agenda\CreateNewAgenda;
+use Bale\Cms\Livewire\Pages\Agenda\EditAgenda;
+use Bale\Cms\Livewire\Pages\Agenda\Index as AgendaIndex;
 use Bale\Cms\Livewire\Pages\Navigation\CreateNewNavigation;
 use Bale\Cms\Livewire\Pages\Navigation\EditNavigation;
 use Bale\Cms\Livewire\Pages\Navigation\Index as NavigationIndex;
@@ -42,6 +45,12 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
             Route::get('posts', PostIndex::class)->name('index');
             Route::get('posts.create', CreateNewPost::class)->name('create');
             Route::get('posts.edit.{post}', EditPost::class)->name('edit');
+        });
+
+        Route::name('agendas.')->middleware('permission:bale-agenda.read')->group(function () {
+            Route::get('agendas', AgendaIndex::class)->name('index');
+            Route::get('agendas.create', CreateNewAgenda::class)->name('create');
+            Route::get('agendas.edit.{agenda}', EditAgenda::class)->name('edit');
         });
 
         Route::post('/editorjs/upload', function (Request $request) {
