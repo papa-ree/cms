@@ -16,7 +16,7 @@ use Illuminate\Support\Str;
 use Livewire\Livewire;
 
 /**
- * TODO-A502 — Lima keputusan desain (PLAN-AGENDA §A5.2).
+ * TODO-A502 — Lima keputusan desain (`docs/cms/PLAN.md`, Bagian B §A5.2).
  *
  * Dijalankan sebagai test Feature di app suite (root tests/Pest.php
  * mengikat package Feature dir ke Tests\TestCase + RefreshDatabase).

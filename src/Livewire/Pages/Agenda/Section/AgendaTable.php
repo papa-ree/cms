@@ -18,7 +18,7 @@ class AgendaTable extends Component
     /**
      * Event hapus khusus (bukan `deleteItem`): item-actions mendispatch
      * `deleteAgenda`, sehingga listener generic `data-table` tidak ikut
-     * jalan dan penghapusan tetap tenant-aware (lihat PLAN-AGENDA §A3.1).
+     * jalan dan penghapusan tetap tenant-aware (lihat `docs/cms/PLAN.md`, Bagian B §A3.1).
      */
     #[On('deleteAgenda')]
     public function deleteAgenda($id)

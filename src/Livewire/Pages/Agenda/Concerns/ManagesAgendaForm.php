@@ -12,7 +12,7 @@ use Livewire\Attributes\Computed;
  *
  * Builder → RRULE memakai satu bentuk kanonik (`BYSETPOS` untuk "hari tertentu
  * minggu ke-n"). Preview live via `describe()`, tombol simpan diblokir saat
- * `validate()` gagal (lihat PRD-AGENDA §6.2).
+ * `validate()` gagal (lihat `docs/cms/PRD.md`, Bagian B §6.2).
  */
 trait ManagesAgendaForm
 {
