@@ -212,7 +212,7 @@ Route::middleware(['web', 'auth'])->prefix('cms')->as('bale.cms.')->group(functi
         //     Route::livewire('permissions', 'cms-pages::permission.index')->name('index');
         // });
 
-        Route::name('users.')->middleware('permission:bale-user.read')->group(function () {
+        Route::name('users.')->middleware('permission:bale-cms-user.read')->group(function () {
             Route::livewire('users', 'cms-pages::user.index')->name('index');
         });
 

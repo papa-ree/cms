@@ -33,7 +33,7 @@ class CmsSidebar extends Component
             ['label' => 'sections',    'url' => 'sections',    'icon' => 'layers',       'permission' => 'bale-section.read',    'table' => 'sections'],
             ['label' => 'roles',       'url' => 'roles',       'icon' => 'shield-check', 'permission' => 'bale-role.read',       'table' => 'roles'],
             ['label' => 'permissions', 'url' => 'permissions', 'icon' => 'shield',       'permission' => 'bale-role.read',       'table' => 'permissions'],
-            ['label' => 'users',       'url' => 'users',       'icon' => 'users',        'permission' => 'bale-user.read',       'table' => 'users'],
+            ['label' => 'users',       'url' => 'users',       'icon' => 'users',        'permission' => 'bale-cms-user.read',   'table' => 'users'],
         ];
 
         return $this->filterMenus($menus);

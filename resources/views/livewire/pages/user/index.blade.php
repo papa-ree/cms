@@ -13,7 +13,7 @@ new #[Layout('cms::layouts.app')]
     {
         TenantConnectionService::ensureActive();
         // Base permission for viewing users
-        $this->authorize('bale-user.read');
+        $this->authorize('bale-cms-user.read');
     }
 };
 ?>
