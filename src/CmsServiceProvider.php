@@ -2,14 +2,16 @@
 
 namespace Bale\Cms;
 
+use Bale\Cms\Commands\ConvertImagesToWebpCommand;
 use Bale\Cms\Commands\GenerateBaleCommand;
 use Bale\Cms\Commands\GenerateOrganisasiCommand;
 use Bale\Cms\Commands\GenerateUserBaleCommand;
 use Bale\Cms\Commands\InstallCmsCommand;
-use Bale\Cms\Commands\ConvertImagesToWebpCommand;
 use Bale\Cms\Commands\PublishCmsMigrationCommand;
 use Bale\Cms\Commands\PublishMigrationCommand;
 use Bale\Cms\Commands\TenantMigrateCommand;
+use Bale\Cms\Middleware\SwitchBaleConnection;
+use Bale\Cms\Services\CmsMenuRegistry;
 use Bale\Core\Support\Cdn;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
@@ -27,7 +29,7 @@ class CmsServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        $this->app->singleton(\Bale\Cms\Services\CmsMenuRegistry::class);
+        $this->app->singleton(CmsMenuRegistry::class);
         $this->registerCommands();
     }
 
@@ -78,14 +80,18 @@ class CmsServiceProvider extends ServiceProvider
         $this->offerPublishing();
         $this->registerLivewire4Namespaces();
         $this->registerLivewireComponents();
+
+        // Request Livewire (poll, sort, pagination, aksi) tidak melewati
+        // middleware route halaman, jadi koneksi tenant harus dipasang ulang.
+        Livewire::addPersistentMiddleware(SwitchBaleConnection::class);
     }
 
     protected function discoverCmsMenus(): void
     {
         try {
-            $registry = $this->app->make(\Bale\Cms\Services\CmsMenuRegistry::class);
+            $registry = $this->app->make(CmsMenuRegistry::class);
             foreach (array_keys($this->app->getLoadedProviders()) as $provider) {
-                if (str_starts_with($provider, 'Bale\Cms\\') || str_starts_with($provider, 'Bale\\Loker\\') || str_starts_with($provider, 'Bale\\Ikm\\')) {
+                if (str_starts_with($provider, 'Bale\Cms\\') || str_starts_with($provider, 'Bale\\Loker\\') || str_starts_with($provider, 'Bale\\Ikm\\') || str_starts_with($provider, 'Bale\\Pelatihan\\')) {
                     $registry->registerFromProvider($provider);
                 }
             }
