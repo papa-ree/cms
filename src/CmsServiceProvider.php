@@ -91,7 +91,7 @@ class CmsServiceProvider extends ServiceProvider
         try {
             $registry = $this->app->make(CmsMenuRegistry::class);
             foreach (array_keys($this->app->getLoadedProviders()) as $provider) {
-                if (str_starts_with($provider, 'Bale\Cms\\') || str_starts_with($provider, 'Bale\\Loker\\') || str_starts_with($provider, 'Bale\\Ikm\\') || str_starts_with($provider, 'Bale\\Pelatihan\\') || str_starts_with($provider, 'Bale\\Sidulur\\')) {
+                if (str_starts_with($provider, 'Bale\Cms\\') || str_starts_with($provider, 'Bale\\Loker\\') || str_starts_with($provider, 'Bale\\Ikm\\') || str_starts_with($provider, 'Bale\\Pelatihan\\') || str_starts_with($provider, 'Bale\\Sidulur\\') || str_starts_with($provider, 'Bale\\Vada\\')) {
                     $registry->registerFromProvider($provider);
                 }
             }

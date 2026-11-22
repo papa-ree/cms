@@ -22,8 +22,10 @@
 
 {{-- Layout For Livewire Admin Panel --}}
 
+{{-- --cms-topbar-h mengikuti tinggi cms-topbar (padding nav + isi + border);
+     dipakai halaman setinggi viewport seperti inbox chat. --}}
 <body
-    class="min-h-screen bg-gray-100 dark:bg-slate-900 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-300 scrollbar-thumb-rounded-full scrollbar-track-rounded-full overscroll-none">
+    class="min-h-screen bg-gray-100 dark:bg-slate-900 scrollbar-thin scrollbar-thumb-gray-700 scrollbar-track-gray-300 scrollbar-thumb-rounded-full scrollbar-track-rounded-full overscroll-none [--cms-topbar-h:4.0625rem] sm:[--cms-topbar-h:4.3125rem]">
 
     <div class="fixed inset-x-0 top-0 z-40 w-full h-full px-4 pb-10 bg-white backdrop-blur-md dark:bg-slate-900 sm:px-6 md:px-8 lg:pl-72"
         x-data="{ loader: true }" x-show="loader" x-init="setTimeout(() => loader = false, 600)"
@@ -42,9 +44,10 @@
     <livewire:cms.shared-components.cms-sidebar />
 
     <div class="w-full px-4 pt-5 pb-10 sm:px-6 md:px-8 lg:pl-72">
-        <main>
-            {{ $slot }}
-        </main>
+        {{-- Rapat ke tag: spasi baris di sini menambah satu baris teks 24px
+             yang mendorong tinggi halaman (terlihat di inbox).
+        --}}
+        <main>{{ $slot }}</main>
     </div>
     @livewireScripts
 
