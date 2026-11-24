@@ -3,7 +3,6 @@
 namespace Bale\Cms\Services;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Cache;
 
 /**
  * CmsMenuRegistry — Duplikasi terpisah untuk tenant (cms/loker/ikm)
@@ -12,12 +11,21 @@ use Illuminate\Support\Facades\Cache;
  * - Singleton terpisah dari Bale\Core\Services\MenuRegistry
  * - Hanya untuk type=tenant
  * - Tidak ada cache global dengan core — 0% risiko silang
- * - Optimasi: eager + cache per user per 5 menit (isolasi cms)
+ * - Menu dihitung tiap request (tanpa cache store) agar perubahan
+ *   role/permission langsung terlihat
  */
 class CmsMenuRegistry
 {
     /** @var array<int, array> */
     protected array $groups = [];
+
+    /**
+     * Cache permission per user untuk request ini. Bukan `static` agar
+     * tidak terbawa ke user lain pada proses panjang (Octane/queue).
+     *
+     * @var array<string, array<int, string>>
+     */
+    protected array $permsCache = [];
 
     public function registerFromProvider(string $providerClass): void
     {
@@ -52,19 +60,8 @@ class CmsMenuRegistry
 
     protected function resolveGroups(string $type): array
     {
-        $userId = Auth::id() ?? 'guest';
-        // v2: ikut pola core — cache BERISI seluruh array groups (bukan per-group).
-        // Kunci sebelumnya (tanpa v2) menimbulkan bug: filterItems di-cache per group
-        // sehingga hasil group pertama menimpa group berikutnya.
-        $cacheKey = "cms.menu.{$type}.{$userId}.v2";
-
-        if (Cache::has($cacheKey)) {
-            $cached = Cache::get($cacheKey);
-            if (is_array($cached)) {
-                return $cached;
-            }
-        }
-
+        // Tanpa cache store: menu dihitung tiap request agar perubahan
+        // role/permission langsung terlihat (tidak perlu optimize:clear).
         $result = [];
         foreach ($this->groups as $group) {
             if (($group['_type'] ?? '') !== $type) {
@@ -82,27 +79,22 @@ class CmsMenuRegistry
             ];
         }
 
-        Cache::put($cacheKey, $result, 300);
-
         return $result;
     }
 
     protected function filterItems(array $items): array
     {
-        // Eager permission sekali per request (tanpa cache store — resolveGroups
-        // yang bertanggung jawab atas cache hasil akhir seluruh groups).
-        static $permsCache = [];
         $userId = Auth::id() ?? 'guest';
-        if (! isset($permsCache[$userId])) {
+        if (! isset($this->permsCache[$userId])) {
             $user = Auth::user();
             if ($user) {
                 $user->loadMissing('roles', 'permissions');
-                $permsCache[$userId] = $user->getAllPermissions()->pluck('name')->toArray();
+                $this->permsCache[$userId] = $user->getAllPermissions()->pluck('name')->toArray();
             } else {
-                $permsCache[$userId] = [];
+                $this->permsCache[$userId] = [];
             }
         }
-        $perms = $permsCache[$userId];
+        $perms = $this->permsCache[$userId];
 
         return array_values(array_filter($items, function (array $item) use ($perms): bool {
             if (isset($item['class']) && ! class_exists($item['class'])) {
@@ -113,6 +105,7 @@ class CmsMenuRegistry
                     return false;
                 }
             }
+
             return true;
         }));
     }
@@ -120,9 +113,6 @@ class CmsMenuRegistry
     public function flush(): void
     {
         $this->groups = [];
-        try {
-            Cache::flush();
-        } catch (\Throwable $e) {
-        }
+        $this->permsCache = [];
     }
 }
