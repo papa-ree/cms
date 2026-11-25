@@ -74,26 +74,12 @@ class CmsSidebar extends Component
     {
         $connection = TenantManager::getActiveConnection();
 
-        // Eager load permissions sekali
-        static $permsCache = [];
-        $userId = Auth::id() ?? 'guest';
-        if (! isset($permsCache[$userId])) {
-            $user = Auth::user();
-            if ($user) {
-                $user->loadMissing('roles', 'permissions');
-                $permsCache[$userId] = $user->getAllPermissions()->pluck('name')->toArray();
-            } else {
-                $permsCache[$userId] = [];
-            }
-        }
-        $perms = $permsCache[$userId];
+        $user = Auth::user();
+        $user?->loadMissing('roles', 'permissions');
 
-        return array_values(array_filter($menus, function ($item) use ($connection, $perms) {
-            // Cek permission jika didefinisikan dan tidak null
-            if (isset($item['permission']) && $item['permission'] !== null) {
-                if (! in_array($item['permission'], $perms, true)) {
-                    return false;
-                }
+        return array_values(array_filter($menus, function ($item) use ($connection, $user) {
+            if (isset($item['permission']) && ! $user?->can($item['permission'])) {
+                return false;
             }
 
             // Cek apakah tabel ada (jika didefinisikan)
