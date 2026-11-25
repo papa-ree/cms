@@ -2,6 +2,7 @@
 
 namespace Bale\Cms\Traits;
 
+use Bale\Cms\Services\TenantConnectionService;
 use Bale\Cms\Services\TenantManager;
 
 trait UsesTenantConnection
@@ -14,7 +15,13 @@ trait UsesTenantConnection
     {
         $active = TenantManager::getActiveConnection();
 
-        // jika tidak ada active tenant connection, fallback ke default
-        return $active ?? config('database.default');
+        if ($active) {
+            return $active;
+        }
+
+        // Jangan pernah jatuh ke DB landlord: pulihkan tenant dari sesi.
+        return app()->runningInConsole()
+            ? config('database.default')
+            : TenantConnectionService::resolveForQuery();
     }
 }
