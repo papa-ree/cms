@@ -1,5 +1,6 @@
 <?php
 
+use Bale\Cms\Exceptions\MissingTenantSessionException;
 use Bale\Cms\Services\TenantConnectionService;
 use Bale\Cms\Services\TenantManager;
 
@@ -7,5 +8,5 @@ it('menolak query tenant tanpa sesi alih-alih membaca koneksi landlord', functio
     TenantManager::clear();
 
     expect(fn () => TenantConnectionService::resolveForQuery())
-        ->toThrow(RuntimeException::class, 'No active tenant session.');
+        ->toThrow(MissingTenantSessionException::class, 'No active tenant session.');
 });

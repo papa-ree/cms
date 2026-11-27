@@ -2,6 +2,7 @@
 
 namespace Bale\Cms\Services;
 
+use Bale\Cms\Exceptions\MissingTenantSessionException;
 use Bale\Cms\Models\BaleUser;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Facades\Auth;
@@ -17,7 +18,7 @@ class TenantConnectionService
         $user = Auth::user();
 
         if (! $baleUuid || ! $user?->uuid) {
-            throw new \RuntimeException('Session tenant tidak ditemukan atau user tidak valid.');
+            throw new MissingTenantSessionException('Session tenant tidak ditemukan atau user tidak valid.');
         }
 
         // Pastikan user punya akses ke bale
@@ -68,7 +69,7 @@ class TenantConnectionService
         $baleUuid = session('bale_active_uuid');
 
         if (! $baleUuid) {
-            throw new \RuntimeException('No active tenant session.');
+            throw new MissingTenantSessionException('No active tenant session.');
         }
 
         $active = TenantManager::getActiveConnection();

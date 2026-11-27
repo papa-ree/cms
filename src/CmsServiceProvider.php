@@ -10,9 +10,12 @@ use Bale\Cms\Commands\InstallCmsCommand;
 use Bale\Cms\Commands\PublishCmsMigrationCommand;
 use Bale\Cms\Commands\PublishMigrationCommand;
 use Bale\Cms\Commands\TenantMigrateCommand;
+use Bale\Cms\Exceptions\MissingTenantSessionException;
 use Bale\Cms\Middleware\SwitchBaleConnection;
 use Bale\Cms\Services\CmsMenuRegistry;
 use Bale\Core\Support\Cdn;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Str;
 use Livewire\Component as LivewireComponent;
@@ -84,6 +87,13 @@ class CmsServiceProvider extends ServiceProvider
         // Request Livewire (poll, sort, pagination, aksi) tidak melewati
         // middleware route halaman, jadi koneksi tenant harus dipasang ulang.
         Livewire::addPersistentMiddleware(SwitchBaleConnection::class);
+
+        Exceptions::renderable(function (MissingTenantSessionException $e, Request $request) {
+            // Jangan redirect ke halaman yang sama bila exception terjadi di /dashboard.
+            return $request->is('dashboard')
+                ? response()->noContent()
+                : redirect('/dashboard');
+        });
     }
 
     protected function discoverCmsMenus(): void
